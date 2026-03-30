@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    # localhost:5432 => 내 컴퓨터에서 도커로 연결되는 통로
+    url: jdbc:postgresql://localhost:5432/sns_db
+    username: dev_user
+    password: password123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
