@@ -1,17 +1,31 @@
+//로그인 완료 시 최종 응답
 package com.example.backend.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+public record LoginResponse(
+        String status,
+        Data data
+) {
+    public record Data(
+            Long userId,
+            String nickname,
+            String accessToken,
+            int expiresIn
+    ){}
+}
 
+/*
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginResponse {
     private String status;
     private Data data;
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Data{
         private Long userId;
         private String nickname;
@@ -19,3 +33,4 @@ public class LoginResponse {
         private int expiresIn;
     }
 }
+*/

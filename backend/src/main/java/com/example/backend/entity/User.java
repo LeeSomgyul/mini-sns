@@ -57,6 +57,7 @@ public class User {
     @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
+    //초기 객체 생성 빌더
     @Builder
     public User(String name, String nickname, String phoneNumber, String profileImageUrl){
         this.name = name;
