@@ -1,6 +1,9 @@
 //AccessToken과 RefreshToken을 모두 전달하는 DTO
 package com.example.backend.dto;
 
+import lombok.Builder;
+
+@Builder
 public record TokenResponse(
         Long userId,
         String nickname,

@@ -1,10 +1,14 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.JoinRequest;
+import com.example.backend.dto.JoinResponse;
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.dto.TokenResponse;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
+import com.example.backend.exception.DuplicateResourceException;
 import com.example.backend.repository.LocalAccountRepository;
+import com.example.backend.repository.UserRepository;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +23,12 @@ import java.time.Duration;
 public class AuthService {
 
     private final LocalAccountRepository localAccountRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
+    //로그인
     @Transactional(readOnly = true)
     public TokenResponse login(LoginRequest request){
 
@@ -53,19 +59,69 @@ public class AuthService {
         );
 
         //6.결과 반환(TokenResponse 바구니에 담에서 Controller로 전달)
-        return new TokenResponse(
-                user.getId(),
-                user.getNickname(),
-                accessToken,
-                refreshToken
-        );
-        /*
         return TokenResponse.builder()
-            .userId(user.getId())
-            .nickname(user.getNickname())
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .build();
-        */
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    //회원가입
+    @Transactional
+    public JoinResponse join(JoinRequest request){
+
+        //1.이메일 중복 검증
+        if(localAccountRepository.existsByEmail(request.email())){
+            throw new DuplicateResourceException("이미 가입된 이메일입니다.");
+        }
+
+        //2.닉네임 중복 검증
+        if(userRepository.existsByNickname(request.nickname())){
+            throw new DuplicateResourceException("이미 사용 중인 닉네임입니다.");
+        }
+
+        //3.이메일 인증번호 검증(Redis 저장)
+        String redisKey = "email:verify:code:" + request.email();//value를 찾기 쉽게 하도록 "email:verify:code:user@test.com"형식으로 key 저장
+        String savedValue = redisTemplate.opsForValue().get(redisKey);//진짜 인증번호 값
+
+        //4.인증번호가 존재하지 않거나, 저장된 값과 사용자의 값이 다른 경우
+        if(savedValue == null || !savedValue.equals(request.verificationToken())){
+            throw new IllegalArgumentException("이메일 인증을 다시 진행해주세요.");//400 에러 처리
+        }
+
+        //5.이름이 공백이라면 '익명' 처리
+        String finalName = (request.name() == null || request.name().trim().isEmpty())
+                ? "익명" : request.name().trim();
+
+        //6.사용자의 기본정보 User에 저장
+        User user = User.builder()
+                .name(finalName)
+                .nickname(request.nickname().trim())
+                .phoneNumber(request.phoneNumber())
+                .build();
+        userRepository.save(user);//DB 저장
+
+        //7.사용자의 비밀번호 정보 LocalAccount에 저장
+        LocalAccount localAccount = LocalAccount.builder()
+                .user(user)
+                .email(request.email())
+                .passwordHash(passwordEncoder.encode(request.password()))
+                .build();
+        localAccountRepository.save(localAccount);//DB 저장
+
+        //8.사용 완료한 인증번호 Redis에서 삭제
+        redisTemplate.delete(redisKey);
+
+        //9.JoinResponse 응답
+        return JoinResponse.builder()
+                .status("success")
+                .message("회원가입이 완료되었습니다.")
+                .data(JoinResponse.Data.builder()
+                        .userId(user.getId())
+                        .email(localAccount.getEmail())
+                        .nickname(user.getNickname())
+                        .build())
+                .build();
     }
 }

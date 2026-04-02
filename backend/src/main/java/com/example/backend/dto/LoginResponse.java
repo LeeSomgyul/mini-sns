@@ -1,10 +1,14 @@
-//로그인 완료 시 최종 응답
+//로그인 응답
 package com.example.backend.dto;
 
+import lombok.Builder;
+
+@Builder
 public record LoginResponse(
         String status,
         Data data
 ) {
+    @Builder
     public record Data(
             Long userId,
             String nickname,

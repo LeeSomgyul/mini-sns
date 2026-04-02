@@ -1,4 +1,4 @@
-//로그인 시 사용자가 전송하는 데이터
+//로그인 요청
 package com.example.backend.dto;
 
 import jakarta.validation.constraints.Email;
