@@ -1,12 +1,11 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.LoginRequest;
-import com.example.backend.dto.LoginResponse;
-import com.example.backend.dto.TokenResponse;
+import com.example.backend.dto.*;
 import com.example.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +20,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    //로그인 요청
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
@@ -36,33 +36,27 @@ public class AuthController {
                 .maxAge(604800)//만료 기간 7일
                 .build();
 
-
-
         //3.프론트엔드에 보낼 응답 response에 담기
-        LoginResponse responseBody = new LoginResponse(
-                "success",
-                new LoginResponse.Data(
-                        tokenResponse.userId(),
-                        tokenResponse.nickname(),
-                        tokenResponse.accessToken(),
-                        1800//accessToken은 만료 시간 30분
-                )
-        );
-        /*
         LoginResponse responseBody = LoginResponse.builder()
                 .status("success")
                 .data(LoginResponse.Data.builder()
-                        .userId(tokenResponse.getUserId())
-                        .nickname(tokenResponse.getNickname())
-                        .accessToken(tokenResponse.getAccessToken())
-                        .expiresIn(1800)
+                        .userId(tokenResponse.userId())
+                        .nickname(tokenResponse.nickname())
+                        .accessToken(tokenResponse.accessToken())
+                        .expiresIn(1800)//accessToken은 만료 시간 30분
                         .build())
                 .build();
-        */
 
         //4.응답(헤더에는 쿠키, 바디에는 JSON 전달)
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(responseBody);
+    }
+
+    //회원가입 요청
+    @PostMapping("/join")
+    public ResponseEntity<JoinResponse> join(@Valid @RequestBody JoinRequest request){
+        JoinResponse response = authService.join(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

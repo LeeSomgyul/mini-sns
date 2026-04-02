@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface LocalAccountRepository extends JpaRepository<LocalAccount, Long> {
 
-    //이메일로 사용자 찾기
-    Optional<LocalAccount> findByEmail(String email);
+    Optional<LocalAccount> findByEmail(String email);//이메일로 사용자 찾기
+    boolean existsByEmail(String email);//이메일 중복 확인
 }
