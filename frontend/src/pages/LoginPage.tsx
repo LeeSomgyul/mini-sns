@@ -18,6 +18,7 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    //로그인 핸들러
     const handleLogin: SubmitEventHandler<HTMLFormElement> = async(e) => {
         e.preventDefault();
 
@@ -26,16 +27,18 @@ const LoginPage = () => {
             return;
         }
 
-        setIsLoading(true);
+        setIsLoading(true);//모든 검사 통과했다면 로딩 시작
         setErrorMessage('');
 
         try{
-            const response = await api.post('/api/v1/auth/login', {
-                email: email,
-                password: password
-            });
+            const request = {
+                email,
+                password
+            };
 
-            if(response.data.status == 'success'){
+            const response = await api.post('/api/v1/auth/login', request);
+
+            if(response.status === 200){
                 const token = response.data.data.accessToken;
                 setAccessToken(token);
                 alert('로그인 성공! 환영합니다.');
@@ -43,8 +46,9 @@ const LoginPage = () => {
         }catch(error){
             if(error instanceof AxiosError){
                 if(error.response){
-                    const status = error.response.status;//백엔드에서 보내주는 상태코드
-                    const serverMessage = error.response.data.message;//백엔드에서 보내주는 에러 메시지
+                    const status = error.response?.status;//백엔드에서 보내주는 상태코드
+                    const serverMessage = error.response?.data?.message;//백엔드에서 보내주는 에러 메시지
+                    
                     if(status === 400 || status === 401){
                         setErrorMessage(serverMessage);
                     }else{
@@ -76,23 +80,27 @@ const LoginPage = () => {
                 <div>
                     <h2>로그인</h2>
                     <form onSubmit={handleLogin} noValidate>
+                        {/* 이메일 영역 */}
                         <input
                             type="email"
                             placeholder="이메일"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
+                        {/* 비밀번호 영역 */}
                         <input
                             type="password"
                             placeholder="비밀번호"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
+                        {/* 에러 메시지 노출 */}
                         {errorMessage && (
-                            <small>
+                            <span>
                                 {errorMessage}
-                            </small>
+                            </span>
                         )}
+                        {/* 로그인 버튼 */}
                         <button
                             type = "submit"
                             aria-busy = {isLoading}
@@ -101,15 +109,17 @@ const LoginPage = () => {
                             {isLoading ? '로그인 중...' : '로그인'}
                         </button>
                     </form>
+                    {/* 카카오 로그인 버튼 */}
                     <button className="secondary outline">
                         카카오 로그인
                     </button>
 
+                    {/* 회원가입 이동 */}
                     <div>
-                        <small>
+                        <span>
                             계정이 없으신가요?
-                            <a href="/signup">회원가입➡️ </a>
-                        </small>
+                            <a href="/join">회원가입➡️ </a>
+                        </span>
                     </div>
                 </div>
             </article>

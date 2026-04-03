@@ -86,8 +86,10 @@ public class AuthService {
         String savedValue = redisTemplate.opsForValue().get(redisKey);//진짜 인증번호 값
 
         //4.인증번호가 존재하지 않거나, 저장된 값과 사용자의 값이 다른 경우
-        if(savedValue == null || !savedValue.equals(request.verificationToken())){
-            throw new IllegalArgumentException("이메일 인증을 다시 진행해주세요.");//400 에러 처리
+        if(request.verificationToken().equals("my-secret-token-1234")){
+            //테스트용이라서 임의 통과. 🚨🚨이메일 인증 만든 다음 else if 코드만 if문으로 남기기🚨🚨
+        }else if(savedValue == null || !savedValue.equals(request.verificationToken())){
+            throw new IllegalArgumentException("이메일 인증을 다시 진행해주세요.");
         }
 
         //5.이름이 공백이라면 '익명' 처리

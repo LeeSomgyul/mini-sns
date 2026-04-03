@@ -15,15 +15,15 @@ public record JoinRequest (
         String password,
 
         @NotBlank(message = "닉네임을 입력해 주세요.")
-        @Size(min = 2, max = 10, message = "닉네임은 2~10자여야 합니다.")
-        @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임에 공백이나 특수문자는 사용할 수 없습니다.")
+        @Size(min = 2, max = 10, message = "닉네임은 2~10자의 한글, 영문, 숫자만 가능합니다.")
+        @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임은 2~10자의 한글, 영문, 숫자만 가능합니다.")
         String nickname,
 
-        @Size(max = 10, message = "이름은 10자 이내로 입력해 주세요. ")
-        @Pattern(regexp = "^[가-힣a-zA-Z]*$", message = "이름은 한글 또는 영문만 가능합니다.")
+        @Size(max = 10, message = "이름은 한글과 영문 1~10자 이내로 입력 가능합니다. ")
+        @Pattern(regexp = "^$|^[가-힣a-zA-Z]{1,10}$", message = "이름은 한글과 영문 1~10자 이내로 입력 가능합니다.")
         String name,
 
-        @Pattern(regexp = "^[0-9]{11}$", message = "전화번호는 11자리 숫자만 가능합니다.")
+        @Pattern(regexp = "^$|[0-9]{11}", message = "전화번호는 111자리 숫자만 가능합니다.")
         String phoneNumber,
 
         @NotBlank(message = "이메일 인증을 다시 진행해주세요.")
