@@ -37,7 +37,11 @@ public class SecurityConfig {
                 )
                 //3.로그인과 회원가입은 누구나 들어올 수 있음
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/join").permitAll()
+                        .requestMatchers(
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/join",
+                                "/api/v1/users/nickname/exists"
+                            ).permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
