@@ -7,6 +7,7 @@ import com.example.backend.exception.EmailSendFailureException;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.repository.LocalAccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,6 +18,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -61,6 +63,8 @@ public class EmailService {
         try{
             sendMail(email, verificationCode);
         }catch(Exception e){
+            e.printStackTrace();
+            log.error("메일 발송 실패 원인: ", e);
             throw new EmailSendFailureException("메일 발송에 실패했습니다. 관리자에게 문의하세요.");
         }
 
@@ -88,6 +92,7 @@ public class EmailService {
         //SimpleMailMessage: 간단한 텍스트 전용 메일보내기에 사용
         SimpleMailMessage message = new SimpleMailMessage();
 
+        message.setFrom("rmawl8600@naver.com");
         message.setTo(email);//받는사람 메일(어디로 보내나?)
         message.setSubject("[🔐테스트] 회원가입 인증번호입니다.");//메일 제목
         message.setText("인증번호: " + verificationCode + "\n3분 이내에 입력해주세요.");//메일 내용
