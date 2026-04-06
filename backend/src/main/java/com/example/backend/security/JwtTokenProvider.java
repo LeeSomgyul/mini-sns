@@ -1,13 +1,18 @@
 package com.example.backend.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -49,5 +54,32 @@ public class JwtTokenProvider {
                 .expiration(validity)
                 .signWith(key)
                 .compact();
+    }
+
+    //3. 사용자가 가져온 JWT토큰에서 -> userId 꺼낸 뒤 -> 우리 시스템의 신분증(Authentication)으로 재발급
+    public Authentication getAuthentication(String token){
+        Claims claims = Jwts.parser()//JWT를 여는 도구
+                .verifyWith(key)//key로 잠금 해제
+                .build()
+                .parseSignedClaims(token)//전달받은 토큰이 진짜인지 확인
+                .getPayload();//맞다면 안에 내용물 꺼내기
+
+        String userId = claims.getSubject();//토큰에 저장했었던 userId 추출
+
+        //스프링 시큐리티 전용 신분증 양식에 userId와 유저의 권한을 담아서 전송
+        return new UsernamePasswordAuthenticationToken(userId, "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+    }
+
+    //4. 토큰이 가짜인지, 만료되었는지 검증
+    public boolean validateToken(String token){
+        try{
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);//토큰 해석(parse)하여 진짜인지 여부 판단
+            return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 }
