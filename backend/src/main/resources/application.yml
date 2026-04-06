@@ -6,7 +6,7 @@ spring:
     password: password123
     driver-class-name: org.postgresql.Driver
   mail:
-    host: smtp.gmail.com
+    host: smtp.naver.com
     port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}

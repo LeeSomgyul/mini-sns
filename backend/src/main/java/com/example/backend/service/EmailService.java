@@ -37,9 +37,9 @@ public class EmailService {
         String savedCode = stringRedisTemplate.opsForValue().get(REDIS_CODE + email);
 
         //400 Bad Request: 인증번호 시간 만료로 Redis에 키가 없는 경우
-        if(savedCode == null){
-            throw new InvalidRequestException("인증번호가 만료되었습니다. 재전송 해주세요.");
-        }
+//        if(savedCode == null){
+//            throw new InvalidRequestException("인증번호가 만료되었습니다. 재전송 해주세요.");
+//        }
 
         //409 Conflict: 이미 가입된 이메일인 경우
         if(localAccountRepository.existsByEmail(email)){
