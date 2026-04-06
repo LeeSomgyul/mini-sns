@@ -1,6 +1,6 @@
 import { useState, type SubmitEventHandler, type ChangeEventHandler, type FocusEventHandler } from "react";
 import api from "../api/axios";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 const JoinPage = () => {
 
@@ -87,7 +87,7 @@ const JoinPage = () => {
     };
 
     //에러메시지 핸들러
-    const handleBlur: FocusEventHandler<HTMLInputElement> = (e) => {
+    const handleBlur: FocusEventHandler<HTMLInputElement> = async(e) => {
         const { name, value } = e.target;
 
         //해당 input창을 건드렸다고 표시
@@ -102,6 +102,7 @@ const JoinPage = () => {
         //상황별 에러메시지 저장
         let errorMessage = '';
 
+        //---1단계: 프론트엔드 유효성 검사---
         if(value.trim() === ''){
             //입력창 클릭만 하고 입력하지 않고 떠나면 
             if(requiredFields.includes(name)){
@@ -122,6 +123,33 @@ const JoinPage = () => {
             ...prev,
             [name]: errorMessage
         }));
+
+        //---2단계: 백엔드 API 닉네임 중복 검증---
+        if(name === 'nickname' && errorMessage === ''){
+
+            setIsLoading(true);
+
+            try{
+                const response = await api.get(`/api/v1/users/nickname/exists?nickname=${value}`);
+                const result = response.data;
+
+                //이미 존재하는 닉네임이라면
+                if(result.data.exists){
+                    setInputErrors(prev => ({...prev, nickname: "이미 사용 중인 닉네임입니다."}));
+                    setIsNicknameChecked(false);
+                }else{
+                    //중복되지 않는 닉네임이라면
+                    setInputErrors(prev => ({...prev, nickname: '사용 가능한 닉네임입니다.'}));
+                    setIsNicknameChecked(true);
+                }
+
+            }catch(error){
+                setInputErrors(prev => ({...prev, nickname: '서버와 통신 중 오류가 발생했습니다.'}));
+                setIsNicknameChecked(false);
+            }finally{
+                setIsLoading(false);
+            }
+        }
     };
 
     //회원가입 핸들러 
@@ -278,14 +306,6 @@ const JoinPage = () => {
                                     {inputErrors.nickname}
                                 </span>
                             )}
-                            {/* 임시 테스트용 닉네임 중복확인 버튼 */}
-                            <button
-                                type="button"
-                                className={isNicknameChecked ? "secondary" : "outline"}
-                                onClick={() => setIsNicknameChecked(true)}//🚨🚨클릭 시 임시로 true로 변환🚨🚨 
-                            >
-                                {isNicknameChecked ? "확인완료(사용가능)" : "중복확인"}
-                            </button>
                         </div>
 
                         {/* 이름 영역 */}
