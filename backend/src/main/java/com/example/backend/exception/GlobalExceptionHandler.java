@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     //400 Bad Request 에러 처리
+    //컨트롤러 도착하자마자 터진 에러
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex){
         //여러 메시지 중 첫 번째 에러 메시지만 가져오기
@@ -20,7 +21,20 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status("error")
-                .message(errorMessage)
+                .message(errorMessage)//@Valid, @NotBlank의 에러메시지 출력
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    //400 Bad Request 에러 처리
+    //Service 로직 중에 발생된 에러 (if문 등으로 개발자가 작정)
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())//Service에서 보낸 에러메시지 출력
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -51,5 +65,29 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    //429 Too Many Requests 에러 처리 (잦은 요청)
+    @ExceptionHandler(CooldownException.class)
+    public ResponseEntity<ErrorResponse> handleCooldownException(CooldownException e){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
+    }
+
+    //500 Server Error 에러 처리 (메일 발송 실패)
+    @ExceptionHandler(EmailSendFailureException.class)
+    public ResponseEntity<ErrorResponse> handleEmailSendFailureException(EmailSendFailureException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
