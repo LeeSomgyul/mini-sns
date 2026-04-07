@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/join",
                                 "/api/v1/users/nickname/exists",
-                                "/api/v1/auth/email/send"
+                                "/api/v1/auth/email/send",
+                                "/api/v1/auth/email/verify"
                             ).permitAll()
                         .anyRequest().authenticated()
                 )
