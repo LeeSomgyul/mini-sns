@@ -5,6 +5,20 @@ spring:
     username: dev_user
     password: password123
     driver-class-name: org.postgresql.Driver
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: smtp.naver.com
+          starttls:
+            enable: true
 
   jpa:
     hibernate:
@@ -15,4 +29,4 @@ spring:
         format_sql: true
 
 jwt:
-  secret: "${JWT_SECRET:WiyrcgkoVVsvAEpmnrcN17A8EA8E7XBTrcFHToalpg7q0fdXn4wxMneWDx86}"
+  secret: ${JWT_SECRET}
