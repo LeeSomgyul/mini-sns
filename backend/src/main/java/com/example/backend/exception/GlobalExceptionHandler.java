@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    //429 Too Many Requests 에러 처리 (잦은 요청)
+    //429 Too Many Requests 에러 처리 (발송: 잦은 요청)
     @ExceptionHandler(CooldownException.class)
     public ResponseEntity<ErrorResponse> handleCooldownException(CooldownException e){
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -78,6 +78,19 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
+
+    //429 Too Many Requests 에러 처리 (검증: 인증번호 확인 5회 초과)
+    @ExceptionHandler(MaxAttemptExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxAttemptExceededException(MaxAttemptExceededException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
+    }
+
 
     //500 Server Error 에러 처리 (메일 발송 실패)
     @ExceptionHandler(EmailSendFailureException.class)
