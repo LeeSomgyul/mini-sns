@@ -7,3 +7,28 @@
 body {
   font-family: sans-serif;
 }
+
+/*======================================================*/
+/*임시 CSS: 네비게이션*/
+
+.layout-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.layout-nav {
+  width: 250px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 20px;
+  border-right: 1px solid #e0e0e0;
+}
+
+.layout-main {
+  flex: 1; 
+  width: 100%;
+}

@@ -1,12 +1,13 @@
 import { useContext, useState, type SubmitEventHandler } from "react"
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"
 import api from "../api/axios";
 import { AxiosError } from "axios";
 
 const LoginPage = () => {
 
-    //AccessToken 사용을 위한 전역 상태(AuthProvider)와 연결
-    const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
+    const authContext = useContext(AuthContext); //인증 상태 확인(로그인 유무)
     if(!authContext){
         throw new Error("AuthProvider 안에서 사용해주세요.");
     }
@@ -42,6 +43,8 @@ const LoginPage = () => {
                 const token = response.data.data.accessToken;
                 setAccessToken(token);
                 alert('로그인 성공! 환영합니다.');
+
+                navigate("/", {replace: true});
             }
         }catch(error){
             if(error instanceof AxiosError){
