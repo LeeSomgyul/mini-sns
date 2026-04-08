@@ -7,7 +7,6 @@ import com.example.backend.dto.EmailVerifyResponse;
 import com.example.backend.exception.*;
 import com.example.backend.repository.LocalAccountRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,6 +17,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class EmailService {
     private static final String REDIS_CODE = "email:verify:code:";//발송된 인증코드
     private static final String REDIS_COOLDOWN = "email:verify:cooldown:";//재전송 제한 시간
     private static final String REDIS_ATTEMPT = "email:verify:attempt:";//같은 인증코드로 몇번 틀렸는지
-    private static final String REDIS_VERIFIED = "email:verify:verified:";//인증 완료 상태 저장
+    private static final String REDIS_TOKEN = "email:verify:token:";//인증 완료 토큰 저장
 
     //이메일 인증번호 발송
     @Transactional(readOnly = true)
@@ -43,8 +43,9 @@ public class EmailService {
         }
 
         //429 Too Many Requests: 30초 내 인증번호 전송 버튼 또 클릭
-        if(Boolean.TRUE.equals(stringRedisTemplate.hasKey(REDIS_COOLDOWN + request.email()))){
-            throw new CooldownException("잠시 후 다시 시도해 주세요.");
+        Long expireTime = stringRedisTemplate.getExpire(REDIS_COOLDOWN + request.email(), TimeUnit.SECONDS);
+        if(expireTime != null && expireTime > 0){
+            throw new CooldownException(expireTime + "초 후에 다시 시도해 주세요.");
         }
 
         //인증번호 재전송 요청했을 때 기존 데이터 삭제
@@ -98,23 +99,29 @@ public class EmailService {
         String attemptStr = stringRedisTemplate.opsForValue().get(REDIS_ATTEMPT + request.email());
         int currentAttempt = attemptStr != null ? Integer.parseInt(attemptStr) : 0;
 
-        //400 Bad Request: 인증번호 시간 만료(3분)로 Redis에 키가 없는 경우
-        String savedCode = stringRedisTemplate.opsForValue().get(REDIS_CODE + request.email());//정답 인증번호
-        if(savedCode == null){
-            throw new InvalidRequestException("인증번호가 만료되었습니다. 재전송 해주세요.");
-        }
-
         //429 Too Many Requests: 인증 시도 횟수를 5회 초과 시
         if(currentAttempt >= 5){
             stringRedisTemplate.delete(List.of(REDIS_CODE + request.email(), REDIS_ATTEMPT + request.email()));
             throw new MaxAttemptExceededException("인증번호 확인 횟수(5회)를 초과했습니다. 재전송 해주세요.");
         }
 
+        //400 Bad Request: 인증번호 시간 만료(3분)로 Redis에 키가 없는 경우
+        String savedCode = stringRedisTemplate.opsForValue().get(REDIS_CODE + request.email());//정답 인증번호
+        if(savedCode == null){
+            throw new InvalidRequestException("인증번호가 만료되었습니다. 재전송 해주세요.");
+        }
+
         //인증번호 불일치 시 REDIS_ATTEMPT의 value +1
         if(!savedCode.equals(request.code())){
-            stringRedisTemplate.opsForValue().increment(REDIS_ATTEMPT + request.email());
+            Long afterAttemp = stringRedisTemplate.opsForValue().increment(REDIS_ATTEMPT + request.email());
 
-            //제한 횟수 카운트
+            //마지막 1회 남았는데 또 시도하면
+            if(afterAttemp != null && afterAttemp >= 5){
+                stringRedisTemplate.delete(List.of(REDIS_CODE + request.email(), REDIS_ATTEMPT + request.email()));
+                throw new MaxAttemptExceededException("인증번호 확인 횟수(5회)를 초과했습니다. 재전송 해주세요.");
+            }
+
+            //1~4회 틀렸을 경우
             int remainCount = 5 - (currentAttempt + 1);
             throw new InvalidRequestException("인증번호가 틀렸습니다. (남은 횟수: " + remainCount + "회)");
         }
@@ -123,7 +130,7 @@ public class EmailService {
         String verifyToken = "v_" + UUID.randomUUID().toString().replace("-", "");
 
         //토큰 저장
-        stringRedisTemplate.opsForValue().set(REDIS_VERIFIED + request.email(), verifyToken, Duration.ofMinutes(30));
+        stringRedisTemplate.opsForValue().set(REDIS_TOKEN + request.email(), verifyToken, Duration.ofMinutes(30));
 
         //인증 성공 후 기존 데이터 삭제(틀린 횟수, 인증 코드)
         stringRedisTemplate.delete(List.of(REDIS_ATTEMPT + request.email(), REDIS_CODE + request.email()));

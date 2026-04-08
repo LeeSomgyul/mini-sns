@@ -24,8 +24,8 @@ const JoinPage = () => {
         phoneNumber: false
     });
 
-    //입력창 에러 상태 관리
-    const [inputErrors, setInputErrors] = useState({
+    const [serverErrors, setServerErrors] = useState('');//서버 에러 상태 관리
+    const [inputErrors, setInputErrors] = useState({//입력창 에러 상태 관리
         email: '',
         password: '',
         passwordConfirm: '',
@@ -34,13 +34,13 @@ const JoinPage = () => {
         phoneNumber: ''
     });
 
-    const [serverErrors, setServerErrors] = useState('');//서버 에러 상태 관리
-    const [isLoading, setIsLoading] = useState(false);//기본 에러 관리(UI, 유효성검사 등)
+  
+    const [isLoading, setIsLoading] = useState(false);//기본 로딩 관리(백엔드 통신중 여부)
+    const [isEmailLoading, setIsEmailLoading] = useState(false);//이메일 인증 관련 로딩 관리(백엔드 통신 여부)
     
     const [emailVerifiedCode, setEmailVerifiedCode] = useState('');//사용자가 입력한 이메일 인증 코드
     const [isEmailSent, setIsEmailSent] = useState(false);//이메일 발송 여부
     const [isEmailVerified, setIsEmailVerified] = useState(false);//이메일 최종 인증 상태 관리
-    const [emailErrors, setEmailErrors] = useState('');//이메일 인증 에러 메시지
     const [emailVerifyToken, setEmailVerifyToken] = useState('');//이메일 인증 성공 시 백엔드에서 전송하는 토큰 
 
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);//닉네임 중복 상태 관리
@@ -91,8 +91,6 @@ const JoinPage = () => {
         //handleInputChange함수 먼저 실행
         handleInputChange(e);
 
-        setEmailErrors('');
-
         //이메일 글자 바뀌었는데 기존에 인증 발송/완료 상태라면? -> 다 초기화
         if(isEmailSent || isEmailVerified){
             setEmailVerifiedCode('');
@@ -109,10 +107,6 @@ const JoinPage = () => {
         const numberOnlyCode = value.replace(/[^0-9]/g, ''); //숫자만 입력되도록 정규식 처리
 
         setEmailVerifiedCode(numberOnlyCode);//인증코드 저장
-
-        if(emailErrors){
-            setEmailErrors('');//이메일 오류메시지 공백으로 초기화
-        }
     };
 
     //에러메시지 핸들러
@@ -181,12 +175,23 @@ const JoinPage = () => {
         }
     };
 
+    //모든 이메일 관련 상태 초기화 메서드 
+    const resetEmailState = () => {
+        setIsEmailVerified(false);
+        setIsEmailSent(true);
+        setEmailVerifiedCode('');
+        setEmailVerifyToken('');
+        setInputErrors(prev => ({
+            ...prev,
+            email: ''
+        }));
+    };
+
     //이메일 인증번호 발송 버튼 (이메일 발송)
     const handleSendEmailCode: MouseEventHandler<HTMLButtonElement> = async(e) => {
         e.preventDefault();
 
-        setEmailErrors('');
-        setIsLoading(true);
+        setIsEmailLoading(true);
 
         try{
             const request = {
@@ -197,6 +202,7 @@ const JoinPage = () => {
 
             if(response.status === 200){
                 alert('인증번호가 발송되었습니다.');
+                resetEmailState();
                 setIsEmailSent(true);
             }
         }catch(error){
@@ -206,29 +212,26 @@ const JoinPage = () => {
                     const serverMessage = error.response?.data?.message;
 
                     if(status >= 400 && status <500){
-                        setEmailErrors(serverMessage || '인증번호를 다시 발송해주세요.');
+                        setInputErrors(prev => ({
+                            ...prev,
+                            email: serverMessage || '이메일 발송에 실패했습니다.'
+                        }));
                     }else{
                         setServerErrors('현재 서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
                     }
                 }
             }
         }finally{
-            setIsLoading(false);
+            setIsEmailLoading(false);
         }
     };
 
-    //모든 이메일 관련 상태 초기화 메서드 
-    const resetEmailState = () => {
-        setIsEmailVerified(false);
-        setIsEmailSent(false);
-        setEmailVerifiedCode('');
-        setEmailErrors('');
-        setEmailVerifyToken('');
-    };
+    
 
     //이메일 재전송 버튼
     const handleResetEmail: MouseEventHandler<HTMLButtonElement> = (e) => {
         e.preventDefault();
+        setIsEmailSent(true);
         resetEmailState();
     };
 
@@ -238,11 +241,14 @@ const JoinPage = () => {
 
         //인증번호 6자리 입력 확인
         if(emailVerifiedCode.length < 6 || emailVerifiedCode.length > 6){
-            setEmailErrors('인증번호는 6자리를 입력해주세요.');
+            setInputErrors(prev => ({
+                ...prev,
+                email: '인증번호는 6자리를 입력해주세요.'
+            }));
             return;
         }
 
-        setIsLoading(true);
+        setIsEmailLoading(true);
 
         try{
             const request = {
@@ -256,7 +262,11 @@ const JoinPage = () => {
                 alert('인증에 성공하였습니다.');
 
                 setIsEmailVerified(true);
-                setEmailErrors('');
+                setInputErrors(prev => ({
+                    ...prev,
+                    email: ''
+                }));
+                setIsEmailSent(false);
 
                 const verifyToken = response.data?.data?.verifyToken;
                 if(verifyToken){
@@ -269,16 +279,16 @@ const JoinPage = () => {
                 const status = error.response?.status;
                 const serverMessage = error.response?.data?.message;
 
-                if(status === 400){
-                    setEmailErrors(serverErrors);
-                }else if(status === 429){
-                    setEmailErrors(serverErrors);
-                    reset
+                if(status === 400 || status === 429){
+                    setInputErrors(prev => ({
+                        ...prev,
+                        email: serverMessage
+                    }));
                 }
             }
 
         }finally{
-            setIsLoading(false);
+            setIsEmailLoading(false);
         }
 
     };
@@ -325,6 +335,7 @@ const JoinPage = () => {
                 deviceToken: ""
             };
 
+            console.log("보내는 데이터: ", request);
             const response = await api.post('/api/v1/auth/join', request);
 
             if(response.status === 201){
@@ -393,8 +404,12 @@ const JoinPage = () => {
                                     type="button"
                                     className=""
                                     onClick={handleSendEmailCode} 
+                                    disabled={isEmailLoading}
                                 >
-                                    {isEmailSent ? "재전송" : "인증번호 전송"}
+                                    {isEmailLoading ? "전송 중"
+                                        : (isEmailSent ? "재전송" : "인증번호 전송")
+                                    }
+                                    
                                 </button>
                                 )} 
 
@@ -409,12 +424,6 @@ const JoinPage = () => {
                                 </button>
                                 )}
                             </div>
-
-                            {touched.email && inputErrors.email && (
-                                    <span>
-                                        {inputErrors.email}
-                                    </span>
-                                )}
                         </div>
 
                         {/* 이메일 인증 */}
@@ -435,13 +444,16 @@ const JoinPage = () => {
                                         type="button"
                                         onClick={handleVerifyToken}
                                     >
-                                        인증하기
+                                        {isEmailLoading ? "로딩중" : "인증하기"}
                                     </button>
                                 </div>
-                                {emailErrors && (
-                                    <span>{emailErrors}</span>
-                                )}
                             </div>
+                        )}
+
+                        {touched.email && inputErrors.email && (
+                            <span>
+                                {inputErrors.email}
+                            </span>
                         )}
                         
 
