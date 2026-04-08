@@ -28,6 +28,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
+    private static final String REDIS_TOKEN = "email:verify:token:";//인증 완료 토큰 저장
+
     //로그인
     @Transactional(readOnly = true)
     public TokenResponse login(LoginRequest request){
@@ -82,13 +84,11 @@ public class AuthService {
         }
 
         //3.이메일 인증번호 검증(Redis 저장)
-        String redisKey = "email:verify:code:" + request.email();//value를 찾기 쉽게 하도록 "email:verify:code:user@test.com"형식으로 key 저장
-        String savedValue = redisTemplate.opsForValue().get(redisKey);//진짜 인증번호 값
+        String redisKey = REDIS_TOKEN + request.email();
+        String savedValue = redisTemplate.opsForValue().get(redisKey);//인증 뒤 받은 토큰
 
         //4.인증번호가 존재하지 않거나, 저장된 값과 사용자의 값이 다른 경우
-        if(request.verificationToken().equals("my-secret-token-1234")){
-            //테스트용이라서 임의 통과. 🚨🚨이메일 인증 만든 다음 else if 코드만 if문으로 남기기🚨🚨
-        }else if(savedValue == null || !savedValue.equals(request.verificationToken())){
+        if(savedValue == null || !savedValue.equals(request.verificationToken())){
             throw new IllegalArgumentException("이메일 인증을 다시 진행해주세요.");
         }
 

@@ -1,10 +1,10 @@
-import { useState, type SubmitEventHandler, type ChangeEventHandler, type FocusEventHandler } from "react";
+import { useState, type SubmitEventHandler, type ChangeEventHandler, type FocusEventHandler, type MouseEventHandler } from "react";
 import api from "../api/axios";
 import axios, { AxiosError } from "axios";
 
 const JoinPage = () => {
 
-    //사용자 입력값 상태 관리
+    //사용자 입력값 상태 관리 (최종 DB에 저장될 회원가입용 데이터)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -24,8 +24,8 @@ const JoinPage = () => {
         phoneNumber: false
     });
 
-    //입력창 에러 상태 관리
-    const [inputErrors, setInputErrors] = useState({
+    const [serverErrors, setServerErrors] = useState('');//서버 에러 상태 관리
+    const [inputErrors, setInputErrors] = useState({//입력창 에러 상태 관리
         email: '',
         password: '',
         passwordConfirm: '',
@@ -34,18 +34,17 @@ const JoinPage = () => {
         phoneNumber: ''
     });
 
-    //서버 에러 상태 관리
-    const [serverErrors, setServerErrors] = useState('');
-
-    //이메일 인증, 닉네임 중복확인 상태 관리
-    const [isEmailVerified, setIsEmailVerified] = useState(false);
-    const [isNicknameChecked, setIsNicknameChecked] = useState(false);
-
-    //UI 검증 및 에러 관리
-    const [isLoading, setIsLoading] = useState(false);
+  
+    const [isLoading, setIsLoading] = useState(false);//기본 로딩 관리(백엔드 통신중 여부)
+    const [isEmailLoading, setIsEmailLoading] = useState(false);//이메일 인증 관련 로딩 관리(백엔드 통신 여부)
     
+    const [emailVerifiedCode, setEmailVerifiedCode] = useState('');//사용자가 입력한 이메일 인증 코드
+    const [isEmailSent, setIsEmailSent] = useState(false);//이메일 발송 여부
+    const [isEmailVerified, setIsEmailVerified] = useState(false);//이메일 최종 인증 상태 관리
+    const [emailVerifyToken, setEmailVerifyToken] = useState('');//이메일 인증 성공 시 백엔드에서 전송하는 토큰 
 
-
+    const [isNicknameChecked, setIsNicknameChecked] = useState(false);//닉네임 중복 상태 관리
+    
     //유효성 검사 (통과하면 true 저장)
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     const passwordValid = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,20}$/.test(formData.password);
@@ -84,6 +83,30 @@ const JoinPage = () => {
         if(name == 'nickname'){
             setIsNicknameChecked(false);
         }
+    };
+
+    //이메일 전용 입력 핸들러
+    const handleEmailInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        
+        //handleInputChange함수 먼저 실행
+        handleInputChange(e);
+
+        //이메일 글자 바뀌었는데 기존에 인증 발송/완료 상태라면? -> 다 초기화
+        if(isEmailSent || isEmailVerified){
+            setEmailVerifiedCode('');
+            setIsEmailSent(false);
+            setIsEmailVerified(false);
+            setEmailVerifyToken('');
+        }
+    };
+
+    //이메일 인증코드 전용 입력 핸들러
+    const handleEmailCodeInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        
+        const {value} = e.target;//사용자가 입력한 인증코드
+        const numberOnlyCode = value.replace(/[^0-9]/g, ''); //숫자만 입력되도록 정규식 처리
+
+        setEmailVerifiedCode(numberOnlyCode);//인증코드 저장
     };
 
     //에러메시지 핸들러
@@ -152,7 +175,125 @@ const JoinPage = () => {
         }
     };
 
-    //회원가입 핸들러 
+    //모든 이메일 관련 상태 초기화 메서드 
+    const resetEmailState = () => {
+        setIsEmailVerified(false);
+        setIsEmailSent(true);
+        setEmailVerifiedCode('');
+        setEmailVerifyToken('');
+        setInputErrors(prev => ({
+            ...prev,
+            email: ''
+        }));
+    };
+
+    //이메일 인증번호 발송 버튼 (이메일 발송)
+    const handleSendEmailCode: MouseEventHandler<HTMLButtonElement> = async(e) => {
+        e.preventDefault();
+
+        setIsEmailLoading(true);
+
+        try{
+            const request = {
+                email: formData.email
+            };
+
+            const response = await api.post('/api/v1/auth/email/send', request);
+
+            if(response.status === 200){
+                alert('인증번호가 발송되었습니다.');
+                resetEmailState();
+                setIsEmailSent(true);
+            }
+        }catch(error){
+            if(error instanceof AxiosError){
+                if(error.response){
+                    const status = error.response?.status;
+                    const serverMessage = error.response?.data?.message;
+
+                    if(status >= 400 && status <500){
+                        setInputErrors(prev => ({
+                            ...prev,
+                            email: serverMessage || '이메일 발송에 실패했습니다.'
+                        }));
+                    }else{
+                        setServerErrors('현재 서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                    }
+                }
+            }
+        }finally{
+            setIsEmailLoading(false);
+        }
+    };
+
+    
+
+    //이메일 재전송 버튼
+    const handleResetEmail: MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.preventDefault();
+        setIsEmailSent(true);
+        resetEmailState();
+    };
+
+    //이메일 인증하기 버튼 (이메일 검증)
+    const handleVerifyToken: MouseEventHandler<HTMLButtonElement> = async(e) => {
+        e.preventDefault();
+
+        //인증번호 6자리 입력 확인
+        if(emailVerifiedCode.length < 6 || emailVerifiedCode.length > 6){
+            setInputErrors(prev => ({
+                ...prev,
+                email: '인증번호는 6자리를 입력해주세요.'
+            }));
+            return;
+        }
+
+        setIsEmailLoading(true);
+
+        try{
+            const request = {
+                email: formData.email,
+                code: emailVerifiedCode
+            };
+
+            const response = await api.post('/api/v1/auth/email/verify', request);
+
+            if(response.status === 200){
+                alert('인증에 성공하였습니다.');
+
+                setIsEmailVerified(true);
+                setInputErrors(prev => ({
+                    ...prev,
+                    email: ''
+                }));
+                setIsEmailSent(false);
+
+                const verifyToken = response.data?.data?.verifyToken;
+                if(verifyToken){
+                    setEmailVerifyToken(verifyToken);
+                }
+                
+            }
+        }catch(error){
+            if(error instanceof AxiosError){
+                const status = error.response?.status;
+                const serverMessage = error.response?.data?.message;
+
+                if(status === 400 || status === 429){
+                    setInputErrors(prev => ({
+                        ...prev,
+                        email: serverMessage
+                    }));
+                }
+            }
+
+        }finally{
+            setIsEmailLoading(false);
+        }
+
+    };
+
+    //회원가입 버튼
     const handleJoin: SubmitEventHandler<HTMLFormElement> = async(e) => {
         e.preventDefault();
 
@@ -168,8 +309,15 @@ const JoinPage = () => {
             phoneNumber: true
         });
 
-        //모든 검사 통과하면 넘어가기
+        //모든 유효성 검사 통과 안하면 멈춤
         if(!isFormValid){
+            setServerErrors('입력하신 정보를 다시 확인해주세요.');
+            return;
+        }
+
+        //모든 검사 통과 안하면 멈춤 
+        if(!emailVerifyToken){
+            setServerErrors('이메일 인증을 완료해주세요.');
             return;
         }
 
@@ -183,10 +331,11 @@ const JoinPage = () => {
                 nickname: formData.nickname,
                 name: formData.name,
                 phoneNumber: formData.phoneNumber,
-                verificationToken: "my-secret-token-1234",
+                verificationToken: emailVerifyToken,
                 deviceToken: ""
             };
 
+            console.log("보내는 데이터: ", request);
             const response = await api.post('/api/v1/auth/join', request);
 
             if(response.status === 201){
@@ -235,30 +384,79 @@ const JoinPage = () => {
                 <div>
                     <h2>회원가입</h2>
                     <form onSubmit={handleJoin} noValidate>
-                        {/* 이메일 입력란 */}
-                        <div className="grid">
-                            <input
-                            name="email"
-                            type="email"
-                            placeholder="이메일"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            onBlur={handleBlur}
-                            />
-                            {touched.email && inputErrors.email && (
-                                <span>
-                                    {inputErrors.email}
-                                </span>
-                            )}
-                            {/* 임시 테스트용 이메일 인증 버튼 */}
-                            <button
-                                type="button"
-                                className=""
-                                onClick={() => setIsEmailVerified(true)}//🚨🚨클릭 시 임시로 true로 변환🚨🚨 
-                            >
-                                {isEmailVerified ? "인증완료" : "인증하기"}
-                            </button>
+                        {/* 이메일 */}
+                        <div>
+                            <div className="grid">
+                                {/* 이메일 입력란 */}
+                                <input
+                                name="email"
+                                type="email"
+                                placeholder="이메일"
+                                value={formData.email}
+                                onChange={handleEmailInputChange}
+                                onBlur={handleBlur}
+                                disabled={isEmailVerified}
+                                />
+                                
+                                {/* 이메일 인증 버튼 */}
+                                {!isEmailVerified && (
+                                    <button
+                                    type="button"
+                                    className=""
+                                    onClick={handleSendEmailCode} 
+                                    disabled={isEmailLoading}
+                                >
+                                    {isEmailLoading ? "전송 중"
+                                        : (isEmailSent ? "재전송" : "인증번호 전송")
+                                    }
+                                    
+                                </button>
+                                )} 
+
+                                {/* 이메일 변경 버튼 (이메일 인증 완료 시) */}
+                                {isEmailVerified && (
+                                    <button
+                                    type="button"
+                                    className=""
+                                    onClick={handleResetEmail} 
+                                >
+                                    이메일 변경
+                                </button>
+                                )}
+                            </div>
                         </div>
+
+                        {/* 이메일 인증 */}
+                        {isEmailSent && !isEmailVerified && (
+                            <div>
+                                <div className="grid">
+                                    {/* 이메일 인증번호 입력란 */}
+                                    <input
+                                        name="emailCode"
+                                        type="text"
+                                        placeholder="인증번호 6자리"
+                                        value = {emailVerifiedCode}
+                                        maxLength={6}
+                                        onChange={handleEmailCodeInputChange}
+                                    />
+                                    {/* 이메일 인증확인 버튼*/}
+                                    <button
+                                        type="button"
+                                        onClick={handleVerifyToken}
+                                    >
+                                        {isEmailLoading ? "로딩중" : "인증하기"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {touched.email && inputErrors.email && (
+                            <span>
+                                {inputErrors.email}
+                            </span>
+                        )}
+                        
+
                         {/* 비밀번호 입력란 */}
                         <input
                             name="password"
