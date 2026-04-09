@@ -28,10 +28,10 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     //Redis 데이터 형식
-    private static final String REDIS_CODE = "email:verify:code:";//발송된 인증코드
-    private static final String REDIS_COOLDOWN = "email:verify:cooldown:";//재전송 제한 시간
-    private static final String REDIS_ATTEMPT = "email:verify:attempt:";//같은 인증코드로 몇번 틀렸는지
-    private static final String REDIS_TOKEN = "email:verify:token:";//인증 완료 토큰 저장
+    private static final String REDIS_CODE_PREFIX = "email:verify:code:";//발송된 인증코드
+    private static final String REDIS_COOLDOWN_PREFIX = "email:verify:cooldown:";//재전송 제한 시간
+    private static final String REDIS_ATTEMPT_PREFIX = "email:verify:attempt:";//같은 인증코드로 몇번 틀렸는지
+    private static final String REDIS_TOKEN_PREFIX = "email:verify:token:";//인증 완료 토큰 저장
 
     //이메일 인증번호 발송
     @Transactional(readOnly = true)
@@ -43,13 +43,13 @@ public class EmailService {
         }
 
         //429 Too Many Requests: 30초 내 인증번호 전송 버튼 또 클릭
-        Long expireTime = stringRedisTemplate.getExpire(REDIS_COOLDOWN + request.email(), TimeUnit.SECONDS);
+        Long expireTime = stringRedisTemplate.getExpire(REDIS_COOLDOWN_PREFIX + request.email(), TimeUnit.SECONDS);
         if(expireTime != null && expireTime > 0){
             throw new CooldownException(expireTime + "초 후에 다시 시도해 주세요.");
         }
 
         //인증번호 재전송 요청했을 때 기존 데이터 삭제
-        stringRedisTemplate.delete(List.of(REDIS_CODE + request.email(), REDIS_ATTEMPT + request.email()));
+        stringRedisTemplate.delete(List.of(REDIS_CODE_PREFIX + request.email(), REDIS_ATTEMPT_PREFIX + request.email()));
 
         //인증번호 6자리 난수 생성
         String verificationCode = String.format("%06d", new Random().nextInt(1000000));
@@ -63,11 +63,11 @@ public class EmailService {
 
         //Redis에 상태들 저장 => .set(키, 값, 타임아웃)
         //인증코드(키, 인증코드, 3분)
-        stringRedisTemplate.opsForValue().set(REDIS_CODE + request.email(), verificationCode, Duration.ofMinutes(3));
+        stringRedisTemplate.opsForValue().set(REDIS_CODE_PREFIX + request.email(), verificationCode, Duration.ofMinutes(3));
         //재전송 제한(키, 30초 안에 입력했는지 여부(값은 의미없음), 30초)
-        stringRedisTemplate.opsForValue().set(REDIS_COOLDOWN + request.email(), "1", Duration.ofSeconds(30));
+        stringRedisTemplate.opsForValue().set(REDIS_COOLDOWN_PREFIX + request.email(), "1", Duration.ofSeconds(30));
         //인증번호 몇번 틀렸는지(키, 몇 번 입력했는지, 3분(인증코드와 동일)) -> 이메일 발송 Service에서 틀릴때마다 값 +1
-        stringRedisTemplate.opsForValue().set(REDIS_ATTEMPT + request.email(), "0", Duration.ofMinutes(3));
+        stringRedisTemplate.opsForValue().set(REDIS_ATTEMPT_PREFIX + request.email(), "0", Duration.ofMinutes(3));
 
         return EmailSendResponse.builder()
                 .status("success")
@@ -96,28 +96,28 @@ public class EmailService {
     public EmailVerifyResponse verificationCode(EmailVerifyRequest request){
 
         //인증 시도 횟수를 Redis에서 가져오기
-        String attemptStr = stringRedisTemplate.opsForValue().get(REDIS_ATTEMPT + request.email());
+        String attemptStr = stringRedisTemplate.opsForValue().get(REDIS_ATTEMPT_PREFIX + request.email());
         int currentAttempt = attemptStr != null ? Integer.parseInt(attemptStr) : 0;
 
         //429 Too Many Requests: 인증 시도 횟수를 5회 초과 시
         if(currentAttempt >= 5){
-            stringRedisTemplate.delete(List.of(REDIS_CODE + request.email(), REDIS_ATTEMPT + request.email()));
+            stringRedisTemplate.delete(List.of(REDIS_CODE_PREFIX + request.email(), REDIS_ATTEMPT_PREFIX + request.email()));
             throw new MaxAttemptExceededException("인증번호 확인 횟수(5회)를 초과했습니다. 재전송 해주세요.");
         }
 
         //400 Bad Request: 인증번호 시간 만료(3분)로 Redis에 키가 없는 경우
-        String savedCode = stringRedisTemplate.opsForValue().get(REDIS_CODE + request.email());//정답 인증번호
+        String savedCode = stringRedisTemplate.opsForValue().get(REDIS_CODE_PREFIX + request.email());//정답 인증번호
         if(savedCode == null){
             throw new InvalidRequestException("인증번호가 만료되었습니다. 재전송 해주세요.");
         }
 
         //인증번호 불일치 시 REDIS_ATTEMPT의 value +1
         if(!savedCode.equals(request.code())){
-            Long afterAttemp = stringRedisTemplate.opsForValue().increment(REDIS_ATTEMPT + request.email());
+            Long afterAttemp = stringRedisTemplate.opsForValue().increment(REDIS_ATTEMPT_PREFIX + request.email());
 
             //마지막 1회 남았는데 또 시도하면
             if(afterAttemp != null && afterAttemp >= 5){
-                stringRedisTemplate.delete(List.of(REDIS_CODE + request.email(), REDIS_ATTEMPT + request.email()));
+                stringRedisTemplate.delete(List.of(REDIS_CODE_PREFIX + request.email(), REDIS_ATTEMPT_PREFIX + request.email()));
                 throw new MaxAttemptExceededException("인증번호 확인 횟수(5회)를 초과했습니다. 재전송 해주세요.");
             }
 
@@ -130,10 +130,10 @@ public class EmailService {
         String verifyToken = "v_" + UUID.randomUUID().toString().replace("-", "");
 
         //토큰 저장
-        stringRedisTemplate.opsForValue().set(REDIS_TOKEN + request.email(), verifyToken, Duration.ofMinutes(30));
+        stringRedisTemplate.opsForValue().set(REDIS_TOKEN_PREFIX + request.email(), verifyToken, Duration.ofMinutes(30));
 
         //인증 성공 후 기존 데이터 삭제(틀린 횟수, 인증 코드)
-        stringRedisTemplate.delete(List.of(REDIS_ATTEMPT + request.email(), REDIS_CODE + request.email()));
+        stringRedisTemplate.delete(List.of(REDIS_ATTEMPT_PREFIX + request.email(), REDIS_CODE_PREFIX + request.email()));
 
         return EmailVerifyResponse.builder()
                 .status("success")

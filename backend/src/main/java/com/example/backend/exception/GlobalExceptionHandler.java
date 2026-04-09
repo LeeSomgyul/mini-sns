@@ -44,10 +44,21 @@ public class GlobalExceptionHandler {
     //401 Unauthorized 에러 처리
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleLoginError(IllegalArgumentException e){
-
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status("error")
                 .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    //401 Unauthorized 에러 처리 (토큰 값 유효하지 않음)
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
