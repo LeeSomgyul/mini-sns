@@ -11,24 +11,64 @@ body {
 /*======================================================*/
 /*임시 CSS: 네비게이션*/
 
+/* 전체 레이아웃 */
 .layout-container {
   display: flex;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  justify-content: flex-start; /* 중앙 정렬 대신 왼쪽부터 쌓기 */
+  max-width: 1600px;           /* 전체 앱 너비 제한 */
+  margin: 0 auto;              /* ⭐️ 화면 중앙에 배치 */
   min-height: 100vh;
+  width: 100%;
 }
 
+/* 1. 왼쪽 네비게이션 영역 고정 */
 .layout-nav {
-  width: 250px;
-  position: sticky;
+  width: 180px;                /* 250에서 조금 더 줄여서 슬림하게 */
+  flex-shrink: 0;              /* 너비 고정 */
+  position: sticky;     
+  justify-content: center;  
   top: 0;
   height: 100vh;
-  padding: 20px;
-  border-right: 1px solid #e0e0e0;
+  padding: 40px 10px;          /* 좌우 패딩을 줄여서 텍스트가 꽉 차게 */
+  border-right: 1px solid #dbdbdb; 
+  box-sizing: border-box;
 }
 
 .layout-main {
-  flex: 1; 
-  width: 100%;
+  flex: 1;                     /* 남는 공간 다 차지 */
+  min-width: 0;                /* 유연한 너비 조절을 위한 안전장치 */
+  padding: 20px 40px;          /* 본문 양옆 여백 */
+}
+
+/* 3. 네비게이션 메뉴 리스트 */
+.nav-wrapper, .nav-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 텍스트 왼쪽 정렬 (이미지에서 중앙정렬된 것처럼 보인다면 추가) */
+.nav-menu li {
+  text-align: left;            /* 텍스트를 왼쪽으로 붙임 */
+  padding: 12px 20px;
+}
+
+/* 메뉴 아이템 공통 스타일 */
+.nav-menu li {
+  padding: 15px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.nav-menu li:hover {
+  background-color: #f2f2f2;
+}
+
+.nav-menu li.active {
+  font-weight: 700;
 }
