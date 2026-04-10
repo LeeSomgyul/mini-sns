@@ -28,7 +28,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    //1. AccessToken 생성
+    //AccessToken 생성
     public String createAccessToken(Long userId, String nickname){
         Date now = new Date();//토큰 생성 시간
         Date validity = new Date(now.getTime() + accessTokenValidity);//토큰 만료 시간
@@ -43,7 +43,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    //2. RefreshToken 생성
+    //RefreshToken 생성
     public String createRefreshToken(Long userId){
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshTokenValidity);
@@ -56,7 +56,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    //3. 사용자가 가져온 JWT토큰에서 -> userId 꺼낸 뒤 -> 우리 시스템의 신분증(Authentication)으로 재발급
+    //사용자가 가져온 JWT토큰에서 -> userId 꺼낸 뒤 -> 우리 시스템의 신분증(Authentication)으로 재발급
     public Authentication getAuthentication(String token){
         Claims claims = Jwts.parser()//JWT를 여는 도구
                 .verifyWith(key)//key로 잠금 해제
@@ -70,7 +70,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(userId, "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
-    //4. 토큰이 가짜인지, 만료되었는지 검증
+    //토큰이 가짜인지, 만료되었는지 검증
     public boolean validateToken(String token){
         try{
             Jwts.parser()
@@ -81,5 +81,16 @@ public class JwtTokenProvider {
         }catch(Exception e){
             return false;
         }
+    }
+
+    //토근에서 userId 가져오기
+    public Long getUserIdFromToken(String token){
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return Long.valueOf(claims.getSubject());
     }
 }
