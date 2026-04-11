@@ -1,8 +1,8 @@
-//로그인 응답
 package com.example.backend.dto;
 
 import lombok.Builder;
 
+//로그인(일반, 카카오) 시 최종 결과를 프론트로 전달하는 응답
 @Builder
 public record LoginResponse(
         String status,
