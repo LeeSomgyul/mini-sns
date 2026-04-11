@@ -115,6 +115,8 @@ public class KakaoAuthService {
 
             return response.accessToken();
         }catch(Exception e){
+            System.out.println("🚨 카카오 통신 에러: " + e.getMessage());
+            e.printStackTrace();
             throw new InvalidTokenException("카카오 로그인 토큰 발급에 실패했습니다.");
         }
     }
