@@ -10,7 +10,9 @@ public record LoginRequest(
         String email,
 
         @NotBlank(message = "비밀번호를 입력해 주세요.")
-        String password
+        String password,
+
+        String deviceToken
 ){}
 
 /*

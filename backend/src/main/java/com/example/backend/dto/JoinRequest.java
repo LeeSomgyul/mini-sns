@@ -27,7 +27,5 @@ public record JoinRequest (
         String phoneNumber,
 
         @NotBlank(message = "이메일 인증을 다시 진행해주세요.")
-        String verificationToken,
-
-        String deviceToken
+        String verificationToken
 ){}

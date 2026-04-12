@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.dto.*;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.service.AuthService;
+import com.example.backend.service.KakaoAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final KakaoAuthService kakaoAuthService;
 
     //로그인 요청
     @PostMapping("/login")
@@ -35,6 +37,14 @@ public class AuthController {
         JoinResponse response = authService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    //카카오 로그인 요청
+    @PostMapping("/kakao")
+    public ResponseEntity<LoginResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request){
+        TokenResponse tokenResponse = kakaoAuthService.kakaoLogin(request);
+        return createTokenResponse(tokenResponse);
+    }
+
 
     //토큰 재발급
     @PostMapping("/reissue")

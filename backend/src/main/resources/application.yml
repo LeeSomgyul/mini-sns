@@ -19,7 +19,6 @@ spring:
             trust: smtp.naver.com
           starttls:
             enable: true
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -27,6 +26,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
 jwt:
   secret: ${JWT_SECRET}
+kakao:
+  client-id: ${KAKAO_RESTAPI_KEY}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
