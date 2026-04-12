@@ -1,4 +1,4 @@
-import { useContext, useState, type SubmitEventHandler } from "react"
+import { useContext, useState, type MouseEventHandler, type SubmitEventHandler } from "react"
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
@@ -21,7 +21,7 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    //로그인 핸들러
+    //일반 로그인 핸들러
     const handleLogin: SubmitEventHandler<HTMLFormElement> = async(e) => {
         e.preventDefault();
 
@@ -73,6 +73,19 @@ const LoginPage = () => {
         }
     };
 
+    //카카오 로그인 핸들러
+    const handleKakaoLogin: MouseEventHandler<HTMLButtonElement> = () => {
+
+        const KAKAO_RESTAPI_KEY = import.meta.env.VITE_KAKAO_RESTAPI_KEY;
+        const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+
+        //사용자가 카카오 로그인 시 이동되는 페이지
+        const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_RESTAPI_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+
+        //사용자를 로그인 페이지로 이동시킴 
+        window.location.href = kakaoAuthUrl;
+    };
+
     return(
         <main className="container">
             <article className="grid">
@@ -118,7 +131,11 @@ const LoginPage = () => {
                         </button>
                     </form>
                     {/* 카카오 로그인 버튼 */}
-                    <button className="secondary outline">
+                    <button 
+                        className="secondary outline"
+                        type="button"
+                        onClick={handleKakaoLogin}
+                    >
                         카카오 로그인
                     </button>
 

@@ -8,7 +8,7 @@ const PublicRoute = () => {
 
     //인증 정보 없는 사용자 이동
     if(!auth){
-        <Outlet/>
+        return <Outlet/>;
     }
 
     if(auth?.isLoading){
