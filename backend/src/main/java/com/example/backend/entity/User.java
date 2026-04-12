@@ -59,12 +59,18 @@ public class User {
 
     //초기 객체 생성 빌더
     @Builder
-    public User(String name, String nickname, String phoneNumber, String profileImageUrl){
+    public User(String name, String nickname, String phoneNumber, String profileImageUrl, String deviceToken){
         this.name = name;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         this.profileImageUrl = profileImageUrl;
         this.status = "ACTIVE";
+        this.deviceToken = deviceToken;
+    }
+
+    //deviceToken 갱신을 위한 메서드(기기마다 token이 다르니까)
+    public void updateDeviceToken(String deviceToken){
+        this.deviceToken = deviceToken;
     }
 
     //lastLoginAt(마지막 로그인 시간)를 업데이트하는 메서드

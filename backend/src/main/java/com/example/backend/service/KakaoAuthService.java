@@ -55,15 +55,14 @@ public class KakaoAuthService {
         User user;
 
         if(socialAccount != null){
-            //기존 사용자라면 정보 가져오기
-            user = socialAccount.getUser();
+            user = socialAccount.getUser();//기존 사용자라면 정보 가져오기
+            user.updateDeviceToken(request.deviceToken());//로그인 할때마다 해당 기기 정보 가져오기
         }else{
             //신규 사용자 처리
-            //랜덤 닉네임 생성
-            String randomNickname = "신규" + UUID.randomUUID().toString().substring(0,6).toUpperCase();
-
+            String randomNickname = "신규" + UUID.randomUUID().toString().substring(0,6).toUpperCase();//랜덤 닉네임 생성
             user = User.builder()
                     .nickname(randomNickname)
+                    .deviceToken(request.deviceToken())
                     .build();
             userRepository.save(user);
 
@@ -115,8 +114,6 @@ public class KakaoAuthService {
 
             return response.accessToken();
         }catch(Exception e){
-            System.out.println("🚨 카카오 통신 에러: " + e.getMessage());
-            e.printStackTrace();
             throw new InvalidTokenException("카카오 로그인 토큰 발급에 실패했습니다.");
         }
     }

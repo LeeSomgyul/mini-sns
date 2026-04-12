@@ -1,8 +1,10 @@
 import { useContext, useState, type SubmitEventHandler } from "react"
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"
-import api from "../api/axios";
 import { AxiosError } from "axios";
+
+import api from "../api/axios";
+import { AuthContext } from "../context/AuthContext"
+import { getDeviceToken } from "../firebase";
 
 const LoginPage = () => {
 
@@ -32,9 +34,12 @@ const LoginPage = () => {
         setErrorMessage('');
 
         try{
+            const deviceToken = await getDeviceToken();
+
             const request = {
                 email,
-                password
+                password,
+                deviceToken
             };
 
             const response = await api.post('/api/v1/auth/login', request);

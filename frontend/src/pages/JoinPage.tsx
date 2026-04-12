@@ -1,6 +1,7 @@
 import { useState, type SubmitEventHandler, type ChangeEventHandler, type FocusEventHandler, type MouseEventHandler } from "react";
+import { AxiosError } from "axios";
+
 import api from "../api/axios";
-import axios, { AxiosError } from "axios";
 
 const JoinPage = () => {
 
@@ -166,7 +167,7 @@ const JoinPage = () => {
                     setIsNicknameChecked(true);
                 }
 
-            }catch(error){
+            }catch{
                 setInputErrors(prev => ({...prev, nickname: '서버와 통신 중 오류가 발생했습니다.'}));
                 setIsNicknameChecked(false);
             }finally{

@@ -33,7 +33,7 @@ public class AuthService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
 
     //로그인
-    @Transactional(readOnly = true)
+    @Transactional
     public TokenResponse login(LoginRequest request){
 
         //1.입력 이메일로 local_accounts 테이블에서 계정 찾기
@@ -50,6 +50,8 @@ public class AuthService {
         if(!"ACTIVE".equals(user.getStatus())){
             throw new IllegalStateException("탈퇴한 사용자입니다.");
         }
+        
+        user.updateDeviceToken(request.deviceToken());//기기 토큰 업데이트
 
         //4.토큰 발급
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getNickname());
