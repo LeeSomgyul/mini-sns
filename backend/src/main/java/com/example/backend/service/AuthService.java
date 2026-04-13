@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class AuthService {
 
     private static final String REDIS_TOKEN_PREFIX = "email:verify:token:";//인증 완료 토큰 저장 헤더
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
+    private static final String REFRESH_BLACKLIST_PREFIX = "blacklist:";
 
     //로그인
     @Transactional
@@ -129,6 +131,31 @@ public class AuthService {
                         .nickname(user.getNickname())
                         .build())
                 .build();
+    }
+
+    //로그아웃
+    @Transactional
+    public void logout(String accessToken, Long userId){
+        //이미 로그아웃 되어있는 사용자 처리
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            return;
+        }
+
+        //Redis에서 refreshToken 삭제
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + userId;
+        if(redisTemplate.opsForValue().get(refreshTokenKey) != null){
+            redisTemplate.delete(refreshTokenKey);
+        }
+
+        //accessToken의 남은 시간 계산 후 블랙리스트에 추가(블랙리스트에서 남은 시간 만료되면 알아서 제거됨)
+        Long expiration = jwtTokenProvider.getExpiratiom(accessToken);
+        String blacklistKey = REFRESH_BLACKLIST_PREFIX + accessToken;
+        redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        //DB에서 deviceToken 삭제
+        userRepository.findById(userId).ifPresent(user -> {
+            user.updateDeviceToken(null);
+        });
     }
 
     //페이지 이동 or 새로고침 시 AccessToken, RefreshToken 재발급
