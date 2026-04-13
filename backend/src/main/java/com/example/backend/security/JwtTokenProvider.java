@@ -64,10 +64,21 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)//전달받은 토큰이 진짜인지 확인
                 .getPayload();//맞다면 안에 내용물 꺼내기
 
-        String userId = claims.getSubject();//토큰에 저장했었던 userId 추출
+        String userIdStr = claims.getSubject();//토큰에 저장했었던 userId 추출
+        Long userId = Long.parseLong(userIdStr);
+
+        //@AuthenticationPrincipal 를 사용하는 곳에 사용자의 정보 넣기(신분증)
+        //로그아웃 할 때 실행 (공백 데이터인 이유는, 이미 로그인할 때 CustomerUserDetailsService.java에서 검증함)
+        CustomUserDetails userDetails = CustomUserDetails.builder()
+                .userId(userId)
+                .email("")
+                .password("")
+                .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))
+                .build();
+
 
         //스프링 시큐리티 전용 신분증 양식에 userId와 유저의 권한을 담아서 전송
-        return new UsernamePasswordAuthenticationToken(userId, "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     //토큰이 가짜인지, 만료되었는지 검증
@@ -92,5 +103,29 @@ public class JwtTokenProvider {
                 .getPayload();
 
         return Long.valueOf(claims.getSubject());
+    }
+
+    //accessToken 남은 시간 계산 (로그아웃에서 사용)
+    public Long getExpiratiom(String accessToken) {
+        try{
+            //토큰에서 만료일 추출
+            Date expiration = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(accessToken)
+                    .getPayload()
+                    .getExpiration();
+
+            //현재 시간 가져오기
+            long nowTime = System.currentTimeMillis();
+
+            //남은 시간 계산
+            long remainingTime = expiration.getTime() - nowTime;
+
+            //음수 방지 처리
+            return Math.max(remainingTime, 0);
+        }catch(Exception e){
+            return 0L;
+        }
     }
 }

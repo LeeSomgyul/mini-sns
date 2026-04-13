@@ -2,14 +2,18 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.*;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.KakaoAuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,7 +49,6 @@ public class AuthController {
         return createTokenResponse(tokenResponse);
     }
 
-
     //토큰 재발급
     @PostMapping("/reissue")
     public ResponseEntity<LoginResponse> tokenReissue(
@@ -60,6 +63,42 @@ public class AuthController {
         TokenResponse tokenResponse = authService.tokenReissue(refreshToken);
 
         return createTokenResponse(tokenResponse);
+    }
+
+    //로그아웃 요청
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutResponse> logout(
+            HttpServletRequest request,//헤더 데이터 가져오기(토큰, 쿠키정보 등)
+            HttpServletResponse response,//결론을 헤더로 보내기
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        //헤더에서 accessToken 추출
+        String bearerToken = request.getHeader("Authorization");
+        String accessToken = "";
+        if(bearerToken != null && bearerToken.startsWith("Bearer ")){
+            accessToken = bearerToken.substring(7);
+        }
+
+        //로그아웃 실행
+        authService.logout(accessToken, userDetails.userId());
+
+        //쿠키에서 refreshToken 제거
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .maxAge(0)//쿠키 만료시간을 0으로 만들어서 제거
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        LogoutResponse result = LogoutResponse.builder()
+                .status("success")
+                .message("로그아웃되었습니다.")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     //[공동 로직]: login과 tokenReissue 모두 사용
