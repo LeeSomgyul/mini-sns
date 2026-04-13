@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Layout from "./Layout";
 import { ROUTES } from "./constants/routes";
+import KakaoCallback from "./pages/KakaoCallback";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route element={<PublicRoute/>}>
             <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
             <Route path={ROUTES.JOIN} element={<JoinPage/>}/>
+            <Route path={ROUTES.KAKAOLOGIN} element={<KakaoCallback/>}/>
           </Route>
           
           {/* 프라이빗 라우터: 로그인 해야 들어갈 수 있는 라우터 */}
