@@ -1,6 +1,6 @@
 //AccessToken을 페이지 전역에서 사용할 수 있도록 설정 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { AuthContextType } from '../types/auth';
+import type { AuthContextType } from '../types/authType';
 import api from "../api/axios";
 
 //AccessToken을 페이지 전역에 사용
@@ -28,8 +28,12 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
         pageRefresh();
     }, []);
 
+    const logout = () => {
+        setAccessToken(null);
+    };
+
     return(
-        <AuthContext.Provider value={{accessToken, setAccessToken, isLoading}}>
+        <AuthContext.Provider value={{accessToken, setAccessToken, isLoading, logout}}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom"; 
 import { useState } from "react";
 
-import type { NavItemType, ModalType } from "../types/navItem";
+import type { NavItemType, ModalType } from "../types/navItemType";
 import { ROUTES } from "../constants/routes";
+import SettingsModal from "./SettingsModal";
 
 
 const Navigation = () => {
@@ -83,19 +84,7 @@ const Navigation = () => {
             )} 
 
             {activeModal === 'settings' && (
-                <dialog open>
-                    <article>
-                        <header>
-                            {/* 우측 상단 삭제 버튼 */}
-                            <button aria-label="Close" className="close" onClick={closeModal}></button>
-                            <h2>설정</h2>
-                        </header>
-                        <p>로그아웃, 회원탈퇴가 들어갈 예정</p>
-                        <footer>
-                            <button onClick={closeModal}>확인</button>
-                        </footer>
-                    </article>
-                </dialog>
+                <SettingsModal closeModal={closeModal}/>
             )} 
         </div>
     );
