@@ -1,8 +1,7 @@
 //AccessToken을 페이지 전역에서 사용할 수 있도록 설정 
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { AuthContextType } from '../types/auth';
 import api from "../api/axios";
-import { AxiosError } from "axios";
 
 //AccessToken을 페이지 전역에 사용
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -20,17 +19,7 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
                 const response = await api.post('/api/v1/auth/reissue');
                 setAccessToken(response.data.data.accessToken);
             }catch(error){
-                if(error instanceof AxiosError){
-                    if(error.response){
-                        const status = error.response?.status;
-
-                        if(status === 401){
-                            window.alert("로그인 시간이 만료되었어요. 소중한 정보 보호를 위해 다시 한번 로그인해 주세요.");
-                        }
-                    }
-
                     setAccessToken(null);//토큰 없으면(만료되면) 로그인으로 이동
-                }
             }finally{
                 setIsLoading(false);
             }
@@ -45,3 +34,12 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
         </AuthContext.Provider>
     );
 };
+
+//null타입 검증
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if(!context){
+        throw new Error("userAuth는 반드시 AuthProvider 안에서 사용해야합니다.");
+    }
+    return context;//null이 아닌 안전한 객체만 반환
+}

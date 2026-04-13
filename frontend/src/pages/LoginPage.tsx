@@ -47,7 +47,6 @@ const LoginPage = () => {
             if(response.status === 200){
                 const token = response.data.data.accessToken;
                 setAccessToken(token);
-                alert('로그인 성공! 환영합니다.');
 
                 navigate("/", {replace: true});
             }
@@ -80,7 +79,7 @@ const LoginPage = () => {
         const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
 
         //사용자가 카카오 로그인 시 이동되는 페이지
-        const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_RESTAPI_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+        const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_RESTAPI_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code&prompt=login`;
 
         //사용자를 로그인 페이지로 이동시킴 
         window.location.href = kakaoAuthUrl;
