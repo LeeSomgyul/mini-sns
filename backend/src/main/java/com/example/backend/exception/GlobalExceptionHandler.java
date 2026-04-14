@@ -65,7 +65,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
-
     //409 Conflict 에러 처리 (중복 처리)
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException e){
@@ -78,6 +77,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    //413 Payload Too Large 파일 종류 상관없이 크기 제한 (application.yml에서 120MB 설정)
+    @ExceptionHandler(PayloadTooLargeException.class)
+    public ResponseEntity<ErrorResponse> handlePayloadTooLargeException(PayloadTooLargeException e){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(errorResponse);
+    }
+
+    //413 Payload Too Large 위를 통과한 뒤 이미지 따로 크기 제한
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(errorResponse);
+    }
+
     //429 Too Many Requests 에러 처리 (발송: 잦은 요청)
     @ExceptionHandler(CooldownException.class)
     public ResponseEntity<ErrorResponse> handleCooldownException(CooldownException e){
@@ -86,7 +107,6 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
 
@@ -101,7 +121,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
-
 
     //500 Server Error 에러 처리 (메일 발송 실패)
     @ExceptionHandler(EmailSendFailureException.class)
