@@ -36,3 +36,5 @@ jwt:
 kakao:
   client-id: ${KAKAO_RESTAPI_KEY}
   redirect-uri: ${KAKAO_REDIRECT_URI}
+file:
+  upload-dir: C:/mini-sns-uploads/

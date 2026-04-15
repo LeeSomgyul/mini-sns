@@ -36,7 +36,7 @@ public class PostMedia {
     private String thumbnailUrl;
 
     @Column(name = "sort_order", nullable = false)
-    private int startOrder;
+    private int sortOrder;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -49,11 +49,11 @@ public class PostMedia {
 
     //---빌더---
     @Builder
-    public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, int startOrder){
+    public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, int sortOrder){
         this.post = post;
         this.mediaType = mediaType;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
-        this.startOrder = startOrder;
+        this.sortOrder = sortOrder;
     }
 }

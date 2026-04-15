@@ -3,10 +3,12 @@ package com.example.backend.service;
 import com.example.backend.dto.PostRequest;
 import com.example.backend.dto.PostResponse;
 import com.example.backend.entity.Post;
+import com.example.backend.entity.PostMedia;
 import com.example.backend.entity.PostTag;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.exception.PayloadTooLargeException;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final MediaUploadService mediaUploadService;
+    private final MediaAsyncService mediaAsyncService;
 
 
     //게시물 등록
@@ -80,13 +84,90 @@ public class PostService {
         //미디어 파일 검증 및 업로드
         for(int i=0; i<files.size(); i++){
             MultipartFile file = files.get(i);//각 파일 가져오기
-            validatedFile(file);//파일 용량 및 확장자 체크
+            validateFile(file);//파일 용량 및 확장자 체크
+
+            //각 미디어 파일을 하나씩 돌면서 이미지 or 영상으로 분별
+            PostMedia.MediaType mediaType = determineMediaType(file);
+
+            //원본 파일을 저장하고 -> 해당 파일을 url로 받아오기
+            // 🚨🚨나중에 실제 서버 저장공간으로 바꾸기(S3 등)🚨🚨
+            String uploadedUrl = mediaUploadService.uploadOriginalFile(file);
+
+            //미디어 타입이 이미지 or 영상인 경우의 썸네일 저장
+            String currentThumbnailUrl;
+            if(mediaType == PostMedia.MediaType.VIDEO){
+                //영상 썸네일은 비동기처리 끝나기 전까지 로딩중 이미지 보여주기
+                currentThumbnailUrl = "/images/default_loading_image.png";
+            }else{
+                //이미지 썸네일은 실제 url
+                currentThumbnailUrl = uploadedUrl;
+            }
+
+            //첫번째 썸네일을 POST 엔티티에 저장 -> 메인 피드용
+            if(i == 0){
+                post.updateThumbnailUrl(currentThumbnailUrl);
+            }
+
+            //PostMedia 엔티티 빌드 -> 개별 상세 화면용
+            PostMedia postMedia = PostMedia.builder()
+                    .post(post)
+                    .mediaType(mediaType)
+                    .url(uploadedUrl)
+                    .thumbnailUrl(currentThumbnailUrl)
+                    .sortOrder(i)
+                    .build();
+
+            //[비동기 호출] 미디어가 영상인 경우에만 FFmpeg 추출 작업 시작
+            if(mediaType == PostMedia.MediaType.VIDEO){
+                mediaAsyncService.videoThumbnailAsync(
+                        uploadedUrl,//뭘 추출하는가? -> 영상파일
+                        postMedia.getId(),//추출 후 어디에 저장? -> postMedia
+                        post.getId(),//추출된 영상 썸네일은 Post에도 바꿔야함
+                        (i==0)//0번째 미디어라는 의미(썸네일은 업로드한 파일 중 0번째의 썸네일로 지정)
+                );
+
+            }
+
+            //최종 응답 반환
         }
 
     }
 
     //[메서드] 파일 용량 및 확장자 체크
-    private void validatedFile(MultipartFile file){
+    private void validateFile(MultipartFile file){
+        //각 파일의 확장자 체크
+        String contentType = file.getContentType();
 
+        //각 파일의 용량 체크
+        long contentSize = file.getSize();
+
+        //타입 null 체크
+        if(contentType == null){
+            throw new InvalidRequestException("JPG, PNG, MP4 만 선택 가능합니다.");
+        }
+
+        //타입이 만약 image라면(10MB 초과 안됨)
+        if(contentType.startsWith("image/")){
+            if(contentSize > 10 * 1024 * 1024) {
+                throw new PayloadTooLargeException("이미지는 10MB까지 업로드 가능합니다.");
+            }
+        } else if (contentType.startsWith("video/")) {
+            //타입이 만약 vedio라면(100MB 초과 안됨)
+            if(contentSize > 100 * 1024 * 1024){
+                throw new PayloadTooLargeException("영상은 100MB까지 업로드 가능합니다.");
+            }
+        }else{
+            throw new InvalidRequestException("JPG, PNG, MP4 만 선택 가능합니다.");
+        }
+    }
+
+    //[메서드] mediaType 판별
+    private PostMedia.MediaType determineMediaType(MultipartFile file){
+        //각 파일의 타입이 null이 아니거나, 시작을 IMAGE면 이미지, 그 외는 VIDEO
+        if(file.getContentType() != null && file.getContentType().startsWith("image/")){
+            return PostMedia.MediaType.IMAGE;
+        }else{
+            return PostMedia.MediaType.VIDEO;
+        }
     }
 }

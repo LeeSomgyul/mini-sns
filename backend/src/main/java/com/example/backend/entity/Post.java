@@ -82,4 +82,8 @@ public class Post {
     public void addTag(PostTag tag){
         this.tags.add(tag);
     }
+
+    public void updateThumbnailUrl(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
 }
