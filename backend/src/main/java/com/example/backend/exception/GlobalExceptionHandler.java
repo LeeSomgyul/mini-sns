@@ -65,6 +65,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    //404 Not Found 에러 처리 (데이터, 엔티티 등 요소를 찾을 수 없을때)
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
     //409 Conflict 에러 처리 (중복 처리)
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException e){
@@ -135,8 +146,8 @@ public class GlobalExceptionHandler {
     }
 
     //500 미디어 파일 DB 저장시 실패
-    @ExceptionHandler(FileStorageException.class)
-    public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex){
+    @ExceptionHandler(FileProcessException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorageException(FileProcessException ex){
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status("error")
                 .message(ex.getMessage())

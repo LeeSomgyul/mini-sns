@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.PostRequest;
 import com.example.backend.dto.PostResponse;
 import com.example.backend.entity.Post;
@@ -32,11 +33,10 @@ public class PostService {
 
 
     //게시물 등록
-    public PostResponse createPost(
+    public ApiResponse<PostResponse> createPost(
             Long authorId,
             PostRequest request,
-            List<MultipartFile> files,
-            List<MultipartFile> thumbnails
+            List<MultipartFile> files
     ) {
         //400 에러: 업로드하는 파일 개수 검증
         if(files == null || files.isEmpty() || files.size() > 5){
@@ -89,9 +89,9 @@ public class PostService {
             //각 미디어 파일을 하나씩 돌면서 이미지 or 영상으로 분별
             PostMedia.MediaType mediaType = determineMediaType(file);
 
-            //원본 파일을 저장하고 -> 해당 파일을 url로 받아오기
+            //원본 파일을 로컬에 저장하고 -> 해당 파일을 프론트에서 접근할 수 있는 url로 변환하여 받아오기
             // 🚨🚨나중에 실제 서버 저장공간으로 바꾸기(S3 등)🚨🚨
-            String uploadedUrl = mediaUploadService.uploadOriginalFile(file);
+            String mediaUrl = mediaUploadService.uploadOriginalFile(file);
 
             //미디어 타입이 이미지 or 영상인 경우의 썸네일 저장
             String currentThumbnailUrl;
@@ -100,7 +100,7 @@ public class PostService {
                 currentThumbnailUrl = "/images/default_loading_image.png";
             }else{
                 //이미지 썸네일은 실제 url
-                currentThumbnailUrl = uploadedUrl;
+                currentThumbnailUrl = mediaUrl;
             }
 
             //첫번째 썸네일을 POST 엔티티에 저장 -> 메인 피드용
@@ -112,7 +112,7 @@ public class PostService {
             PostMedia postMedia = PostMedia.builder()
                     .post(post)
                     .mediaType(mediaType)
-                    .url(uploadedUrl)
+                    .url(mediaUrl)
                     .thumbnailUrl(currentThumbnailUrl)
                     .sortOrder(i)
                     .build();
@@ -120,17 +120,40 @@ public class PostService {
             //[비동기 호출] 미디어가 영상인 경우에만 FFmpeg 추출 작업 시작
             if(mediaType == PostMedia.MediaType.VIDEO){
                 mediaAsyncService.videoThumbnailAsync(
-                        uploadedUrl,//뭘 추출하는가? -> 영상파일
+                        mediaUrl,//뭘 추출하는가? -> 영상파일 (위 if문 조건으로 인해 영상 url만 전송됨. 즉, vidioUrl)
                         postMedia.getId(),//추출 후 어디에 저장? -> postMedia
                         post.getId(),//추출된 영상 썸네일은 Post에도 바꿔야함
-                        (i==0)//0번째 미디어라는 의미(썸네일은 업로드한 파일 중 0번째의 썸네일로 지정)
+                        (i==0)//0번째 미디어면 -> true 저장(썸네일은 0번째 게시물)
                 );
-
             }
-
-            //최종 응답 반환
         }
 
+        //응답 담기
+        PostResponse postData = PostResponse.builder()
+                .postId(post.getId())
+                .authorId(authorId)
+                .thumbnailUrl(post.getThumbnailUrl())
+                .content(post.getContent())
+                .mediaList(post.getMediaList().stream()
+                        .map(media -> PostResponse.MediaResponse.builder()
+                                .mediaId(media.getId())
+                                .type(media.getMediaType().name())
+                                .url(media.getUrl())
+                                .thumbnailUrl(media.getThumbnailUrl())
+                                .sortOrder(media.getSortOrder())
+                                .build())
+                        .toList())
+                .tagUsers(post.getTags().stream()
+                        .map(tag -> PostResponse.TagUserResponse.builder()
+                                .userId(tag.getUser().getId())
+                                .nickname(tag.getUser().getNickname())
+                                .build())
+                        .toList()
+                )
+                .build();
+
+        //응답
+        return ApiResponse.success("게시글이 등록되었습니다.", postData);
     }
 
     //[메서드] 파일 용량 및 확장자 체크

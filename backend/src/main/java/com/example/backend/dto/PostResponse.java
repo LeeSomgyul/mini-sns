@@ -12,8 +12,7 @@ public record PostResponse (
         String thumbnailUrl,
         List<MediaResponse> mediaList,
         String content,
-        List<TagUserResponse> tagUsers,
-        LocalDateTime createdAt
+        List<TagUserResponse> tagUsers
 ){
     @Builder
     public record MediaResponse(

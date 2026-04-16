@@ -56,4 +56,9 @@ public class PostMedia {
         this.thumbnailUrl = thumbnailUrl;
         this.sortOrder = sortOrder;
     }
+
+    //---저장 메서드---
+    public void updateThumbnailUrl(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
 }
