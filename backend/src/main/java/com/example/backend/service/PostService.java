@@ -10,9 +10,11 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.exception.PayloadTooLargeException;
+import com.example.backend.repository.PostMediaReposity;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,6 +33,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MediaUploadService mediaUploadService;
     private final MediaAsyncService mediaAsyncService;
+    private final PostMediaReposity postMediaReposity;
 
 
     //게시물 등록
@@ -38,6 +42,12 @@ public class PostService {
             PostRequest request,
             List<MultipartFile> files
     ) {
+        log.info("PostService로 들어온 files: ", files != null ? files.size() : "파일이 비어있습니다.");
+        for(MultipartFile file:files){
+            log.info("파일 처리 중: 이름 ={}, 타입={}, 크기={}",
+                    file.getOriginalFilename(), file.getContentType(), file.getSize());
+        }
+
         //400 에러: 업로드하는 파일 개수 검증
         if(files == null || files.isEmpty() || files.size() > 5){
             throw new InvalidRequestException("사진이나 영상을 최소 1개 이상 등록해 주세요.");
@@ -93,6 +103,8 @@ public class PostService {
             // 🚨🚨나중에 실제 서버 저장공간으로 바꾸기(S3 등)🚨🚨
             String mediaUrl = mediaUploadService.uploadOriginalFile(file);
 
+            log.info("{}번 파일 url 변환 완료: url = {}", i+1, mediaUrl);
+
             //미디어 타입이 이미지 or 영상인 경우의 썸네일 저장
             String currentThumbnailUrl;
             if(mediaType == PostMedia.MediaType.VIDEO){
@@ -116,6 +128,10 @@ public class PostService {
                     .thumbnailUrl(currentThumbnailUrl)
                     .sortOrder(i)
                     .build();
+
+            postMediaReposity.save(postMedia);
+
+            log.info("PostMedia를 DB에 저장!: {}", mediaUrl);
 
             //[비동기 호출] 미디어가 영상인 경우에만 FFmpeg 추출 작업 시작
             if(mediaType == PostMedia.MediaType.VIDEO){

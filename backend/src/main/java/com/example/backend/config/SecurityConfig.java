@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/email/verify",
                                 "/api/v1/auth/reissue",
                                 "/api/v1/auth/kakao",
-                                "/api/v1/users/nickname/exists"
+                                "/api/v1/users/nickname/exists",
+                                "/image/**"
                             ).permitAll()
                         .anyRequest().authenticated()
                 )

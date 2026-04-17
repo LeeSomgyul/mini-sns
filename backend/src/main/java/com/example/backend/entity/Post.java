@@ -36,7 +36,7 @@ public class Post {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "thumbnail_url", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
     @Column(name = "comment_count", nullable = false)
