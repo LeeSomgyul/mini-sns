@@ -1,9 +1,6 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.EmailSendRequest;
-import com.example.backend.dto.EmailSendResponse;
-import com.example.backend.dto.EmailVerifyRequest;
-import com.example.backend.dto.EmailVerifyResponse;
+import com.example.backend.dto.*;
 import com.example.backend.service.EmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +19,13 @@ public class EmailController {
 
     //이메일 인증 (발송)
     @PostMapping("/send")
-    public ResponseEntity<EmailSendResponse> sendEmail(@Valid @RequestBody EmailSendRequest request){
+    public ResponseEntity<ApiResponse<EmailSendResponse>> sendEmail(@Valid @RequestBody EmailSendRequest request){
         return ResponseEntity.ok(emailService.sendVerificationCode(request));
     }
 
     //이메일 인증 (검증)
     @PostMapping("/verify")
-    public ResponseEntity<EmailVerifyResponse> verifyEmail(@Valid @RequestBody EmailVerifyRequest request){
+    public ResponseEntity<ApiResponse<EmailVerifyResponse>> verifyEmail(@Valid @RequestBody EmailVerifyRequest request){
         return ResponseEntity.ok(emailService.verificationCode(request));
     }
 

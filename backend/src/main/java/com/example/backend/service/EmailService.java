@@ -1,9 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.EmailSendRequest;
-import com.example.backend.dto.EmailSendResponse;
-import com.example.backend.dto.EmailVerifyRequest;
-import com.example.backend.dto.EmailVerifyResponse;
+import com.example.backend.dto.*;
 import com.example.backend.exception.*;
 import com.example.backend.repository.LocalAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +32,7 @@ public class EmailService {
 
     //이메일 인증번호 발송
     @Transactional(readOnly = true)
-    public EmailSendResponse sendVerificationCode(EmailSendRequest request){
+    public ApiResponse<EmailSendResponse> sendVerificationCode(EmailSendRequest request){
 
         //409 Conflict: 이미 가입된 이메일인 경우
         if(localAccountRepository.existsByEmail(request.email())){
@@ -69,14 +66,11 @@ public class EmailService {
         //인증번호 몇번 틀렸는지(키, 몇 번 입력했는지, 3분(인증코드와 동일)) -> 이메일 발송 Service에서 틀릴때마다 값 +1
         stringRedisTemplate.opsForValue().set(REDIS_ATTEMPT_PREFIX + request.email(), "0", Duration.ofMinutes(3));
 
-        return EmailSendResponse.builder()
-                .status("success")
-                .message("인증번호가 발송되었습니다.")
-                .data(EmailSendResponse.Data.builder()
-                        .expiresIn(180)//3분
-                        .build())
+        EmailSendResponse emailSendData = EmailSendResponse.builder()
+                .expiresIn(180)
                 .build();
 
+        return ApiResponse.success("인증 이메일이 성공적으로 발송되었습니다.", emailSendData);
     }
 
 
@@ -93,7 +87,7 @@ public class EmailService {
     }
 
     //이메일 인증번호 검증
-    public EmailVerifyResponse verificationCode(EmailVerifyRequest request){
+    public ApiResponse<EmailVerifyResponse> verificationCode(EmailVerifyRequest request){
 
         //인증 시도 횟수를 Redis에서 가져오기
         String attemptStr = stringRedisTemplate.opsForValue().get(REDIS_ATTEMPT_PREFIX + request.email());
@@ -135,13 +129,11 @@ public class EmailService {
         //인증 성공 후 기존 데이터 삭제(틀린 횟수, 인증 코드)
         stringRedisTemplate.delete(List.of(REDIS_ATTEMPT_PREFIX + request.email(), REDIS_CODE_PREFIX + request.email()));
 
-        return EmailVerifyResponse.builder()
-                .status("success")
-                .message("인증에 성공하였습니다.")
-                .data(EmailVerifyResponse.Data.builder()
-                        .verifyToken(verifyToken)
-                        .build())
+        EmailVerifyResponse emailVerifyData = EmailVerifyResponse.builder()
+                .verifyToken(verifyToken)
                 .build();
+
+        return ApiResponse.success("인증에 성공하였습니다.", emailVerifyData);
     }
 
 }

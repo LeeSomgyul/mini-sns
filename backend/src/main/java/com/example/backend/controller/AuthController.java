@@ -6,7 +6,6 @@ import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.KakaoAuthService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +25,7 @@ public class AuthController {
 
     //로그인 요청
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
 
         //Service에서 토큰 결과 받아오기
         TokenResponse tokenResponse = authService.login(request);
@@ -37,21 +36,21 @@ public class AuthController {
 
     //회원가입 요청
     @PostMapping("/join")
-    public ResponseEntity<JoinResponse> join(@Valid @RequestBody JoinRequest request){
-        JoinResponse response = authService.join(request);
+    public ResponseEntity<ApiResponse<JoinResponse>> join(@Valid @RequestBody JoinRequest request){
+        ApiResponse<JoinResponse> response = authService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     //카카오 로그인 요청
     @PostMapping("/kakao")
-    public ResponseEntity<LoginResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request){
+    public ResponseEntity<ApiResponse<LoginResponse>> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request){
         TokenResponse tokenResponse = kakaoAuthService.kakaoLogin(request);
         return createTokenResponse(tokenResponse);
     }
 
     //토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<LoginResponse> tokenReissue(
+    public ResponseEntity<ApiResponse<LoginResponse>> tokenReissue(
             @CookieValue(value = "refreshToken", required = false)
             String refreshToken
     ){
@@ -67,9 +66,8 @@ public class AuthController {
 
     //로그아웃 요청
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponse> logout(
+    public ResponseEntity<ApiResponse<Void>> logout(
             HttpServletRequest request,//헤더 데이터 가져오기(토큰, 쿠키정보 등)
-            HttpServletResponse response,//결론을 헤더로 보내기
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         //헤더에서 accessToken 추출
@@ -80,7 +78,7 @@ public class AuthController {
         }
 
         //로그아웃 실행
-        authService.logout(accessToken, userDetails.userId());
+        ApiResponse<Void> logoutResponse = authService.logout(accessToken, userDetails.userId());
 
         //쿠키에서 refreshToken 제거
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
@@ -91,18 +89,13 @@ public class AuthController {
                 .maxAge(0)//쿠키 만료시간을 0으로 만들어서 제거
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
-
-        LogoutResponse result = LogoutResponse.builder()
-                .status("success")
-                .message("로그아웃되었습니다.")
-                .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+                .body(logoutResponse);
     }
 
     //[공동 로직]: login과 tokenReissue 모두 사용
-    private ResponseEntity<LoginResponse> createTokenResponse(TokenResponse response){
+    private ResponseEntity<ApiResponse<LoginResponse>> createTokenResponse(TokenResponse response){
 
         //RefreshToken을 HttpOnly 쿠키로 굽기
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", response.refreshToken())
@@ -114,19 +107,16 @@ public class AuthController {
                 .build();
 
         //프론트엔드에 보낼 응답 response에 담기
-        LoginResponse responseBody = LoginResponse.builder()
-                .status("success")
-                .data(LoginResponse.Data.builder()
-                        .userId(response.userId())
-                        .nickname(response.nickname())
-                        .accessToken(response.accessToken())
-                        .expiresIn(1800)//accessToken은 만료 시간 30분
-                        .build())
+        LoginResponse loginData = LoginResponse.builder()
+                .userId(response.userId())
+                .nickname(response.nickname())
+                .accessToken(response.accessToken())
+                .expiresIn(1800)//accessToken은 만료 시간 30분
                 .build();
 
         //합쳐서 모두 반환
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(responseBody);
+                .body(ApiResponse.success("토큰 발급 완료", loginData));
     }
 }

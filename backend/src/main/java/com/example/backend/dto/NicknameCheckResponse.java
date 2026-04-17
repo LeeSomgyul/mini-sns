@@ -4,6 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record NicknameCheckResponse(
+        boolean exists
+){}
+
+/*
+@Builder
+public record NicknameCheckResponse(
         String status,
         String message,
         Data data
@@ -13,3 +19,4 @@ public record NicknameCheckResponse(
         boolean exists
     ){}
 }
+ */

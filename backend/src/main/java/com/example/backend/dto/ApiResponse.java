@@ -2,7 +2,7 @@ package com.example.backend.dto;
 
 import lombok.Builder;
 
-//Response 공통 틀
+//Response 공통 틀 (우리 백엔드 -> 우리 프론트로 넘겨줄때의 성공 응답 약속)
 //T: 어떤 타입의 응답이 들어올지 모른다는 뜻(PostResponse, JoinResponse... 등)
 @Builder
 public record ApiResponse<T> (

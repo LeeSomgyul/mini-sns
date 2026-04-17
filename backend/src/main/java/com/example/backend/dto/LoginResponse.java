@@ -5,6 +5,15 @@ import lombok.Builder;
 //로그인(일반, 카카오) 시 최종 결과를 프론트로 전달하는 응답
 @Builder
 public record LoginResponse(
+        Long userId,
+        String nickname,
+        String accessToken,
+        int expiresIn
+) {}
+
+/*
+@Builder
+public record LoginResponse(
         String status,
         Data data
 ) {
@@ -16,6 +25,7 @@ public record LoginResponse(
             int expiresIn
     ){}
 }
+*/
 
 /*
 @Getter
