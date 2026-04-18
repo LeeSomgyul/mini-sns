@@ -9,7 +9,7 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
-import com.example.backend.exception.PayloadTooLargeException;
+import com.example.backend.exception.MaxUploadSizeExceededException;
 import com.example.backend.repository.PostMediaReposity;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -31,9 +31,10 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostMediaReposity postMediaReposity;
     private final MediaUploadService mediaUploadService;
     private final MediaAsyncService mediaAsyncService;
-    private final PostMediaReposity postMediaReposity;
+
 
 
     //게시물 등록
@@ -42,18 +43,17 @@ public class PostService {
             PostRequest request,
             List<MultipartFile> files
     ) {
-        log.info("PostService로 들어온 files: ", files != null ? files.size() : "파일이 비어있습니다.");
-        for(MultipartFile file:files){
-            log.info("파일 처리 중: 이름 ={}, 타입={}, 크기={}",
-                    file.getOriginalFilename(), file.getContentType(), file.getSize());
-        }
+        //비어있지 않은 진짜 파일들만 List로 저장
+        List<MultipartFile> fileList = files.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .toList();
 
         //400 에러: 업로드하는 파일 개수 검증
-        if(files == null || files.isEmpty() || files.size() > 5){
+        if(fileList.isEmpty()){
             throw new InvalidRequestException("사진이나 영상을 최소 1개 이상 등록해 주세요.");
         }
 
-        if(files.size() > 5){
+        if(fileList.size() > 5){
             throw new InvalidRequestException("사진과 영상은 최대 5개까지만 올릴 수 있습니다.");
         }
 
@@ -168,6 +168,7 @@ public class PostService {
                 )
                 .build();
 
+
         //응답
         return ApiResponse.success("게시글이 등록되었습니다.", postData);
     }
@@ -188,12 +189,12 @@ public class PostService {
         //타입이 만약 image라면(10MB 초과 안됨)
         if(contentType.startsWith("image/")){
             if(contentSize > 10 * 1024 * 1024) {
-                throw new PayloadTooLargeException("이미지는 10MB까지 업로드 가능합니다.");
+                throw new MaxUploadSizeExceededException("이미지는 10MB까지 업로드 가능합니다.");
             }
         } else if (contentType.startsWith("video/")) {
             //타입이 만약 vedio라면(100MB 초과 안됨)
             if(contentSize > 100 * 1024 * 1024){
-                throw new PayloadTooLargeException("영상은 100MB까지 업로드 가능합니다.");
+                throw new MaxUploadSizeExceededException("영상은 100MB까지 업로드 가능합니다.");
             }
         }else{
             throw new InvalidRequestException("JPG, PNG, MP4 만 선택 가능합니다.");

@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.exception.FileProcessException;
 import com.example.backend.exception.InvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +53,8 @@ public class LocalMediaUploadService implements MediaUploadService{
         //동영상 파일이 실제 저장되어있는 경로
         Path videoFilePath = this.rootPath.resolve(videoFileName);
 
+        log.info("비디오 기존 위치: {}", videoFilePath);
+
         //추출 완성한 썸네일 이미지 및 저장할 경로
         String fullVideoName = videoFileName.substring(videoFileName.lastIndexOf("/")+1);//완성 이름(아직 확정자 변경 전. ex)video.mp4)
         int dotIndex = fullVideoName.lastIndexOf(".");//.위치
@@ -60,6 +63,8 @@ public class LocalMediaUploadService implements MediaUploadService{
 
         //영상 썸네일 이미지가 저장될 경로
         Path thumbnailFilePath = this.rootPath.resolve(thumbnailFileName);
+
+        log.info("비디오 썸네일이 저장될 위치: {}", thumbnailFilePath);
 
         //FFmpeg로 영상 썸네일 추출 시작
         try{
@@ -74,11 +79,16 @@ public class LocalMediaUploadService implements MediaUploadService{
                     "-y"//같은 이름 있으면 덮어쓰기
             );
 
+            //FFmpeg 진행 상황 출력
+            pb.inheritIO();
+
             //프로세스 실행
             Process process = pb.start();
 
             //에러코드 저장 (성공이면 0, 실패면 다른 숫자)
             int resultCode = process.waitFor();
+
+            log.info("ffmpeg 코드(성공:0/실패:다른숫자): {}", resultCode);
 
             if(resultCode != 0){
                 log.error("[FFmpeg] 썸네일 추출 실패 코드: ", resultCode);

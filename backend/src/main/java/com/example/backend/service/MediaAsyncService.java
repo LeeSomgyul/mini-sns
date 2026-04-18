@@ -26,9 +26,13 @@ public class MediaAsyncService {
     @Transactional
     public void videoThumbnailAsync(String videoUrl, Long postMediaId, Long postId, boolean isThumbnail){
 
+        log.info("비동기 작업 시작: 현재 스레드={}, 작업중인 영상 id = {}", Thread.currentThread().getName(), videoUrl);
+
         try{
             //FFmpeg로 영상 썸네일 추출해오기 (예:"/image/video.jpg")
             String videoThumbnailUrl = mediaUploadService.generateThumbnail(videoUrl);
+
+            log.info("영상 썸네일 추출 완료: {}", videoThumbnailUrl);
 
             //PostMedia 테이블의 임시 기본 썸네일을 실제 영상 썸네일로 교체하여 저장
             PostMedia postMedia = postMediaReposity.findById(postMediaId)
