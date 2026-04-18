@@ -44,6 +44,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'io.minio:minio:9.0.0'
 }
 
 tasks.named('test') {

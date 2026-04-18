@@ -9,6 +9,7 @@ import com.example.backend.repository.PostMediaReposity;
 import com.example.backend.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +23,12 @@ public class MediaAsyncService {
     private final PostMediaReposity postMediaReposity;
     private final PostRepository postRepository;
 
+    @Value("${minio.default-image}")
+    private final String defaultImageUrl;
+
     @Async("ffmpegTaskExecutor")
     @Transactional
     public void videoThumbnailAsync(String videoUrl, Long postMediaId, Long postId, boolean isThumbnail){
-
-        log.info("비동기 작업 시작: 현재 스레드={}, 작업중인 영상 id = {}", Thread.currentThread().getName(), videoUrl);
 
         try{
             //FFmpeg로 영상 썸네일 추출해오기 (예:"/image/video.jpg")
@@ -51,13 +53,13 @@ public class MediaAsyncService {
             //썸네일 추출 실패 시, 기본 이미지로 처리
             PostMedia postMedia = postMediaReposity.findById(postMediaId)
                     .orElseThrow(() -> new NotFoundException("해당 미디어를 찾을 수 없습니다."));
-            postMedia.updateThumbnailUrl("/images/default_loading_image.png");
+            postMedia.updateThumbnailUrl(defaultImageUrl);
 
             //만약 Post의 메인 썸네일인 경우에도, 기본 이미지로 처리
             if (isThumbnail) {
                 Post post = postRepository.findById(postId)
                         .orElseThrow(() -> new NotFoundException("해당 피드를 찾을 수 없습니다."));
-                post.updateThumbnailUrl("/images/default_loading_image.png");
+                post.updateThumbnailUrl(defaultImageUrl);
             }
         }
     }

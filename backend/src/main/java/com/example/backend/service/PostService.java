@@ -15,6 +15,7 @@ import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,8 @@ public class PostService {
     private final MediaUploadService mediaUploadService;
     private final MediaAsyncService mediaAsyncService;
 
+    @Value("${minio.default-image}")
+    private final String defaultImageUrl;
 
 
     //게시물 등록
@@ -109,7 +112,7 @@ public class PostService {
             String currentThumbnailUrl;
             if(mediaType == PostMedia.MediaType.VIDEO){
                 //영상 썸네일은 비동기처리 끝나기 전까지 로딩중 이미지 보여주기
-                currentThumbnailUrl = "/images/default_loading_image.png";
+                currentThumbnailUrl = defaultImageUrl;
             }else{
                 //이미지 썸네일은 실제 url
                 currentThumbnailUrl = mediaUrl;
