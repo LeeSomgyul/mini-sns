@@ -29,8 +29,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 120MB  #파일 한 개당 최대 크기
-      max-request-size: 150MB #한번 요청할때 총 파일의 크기
+      max-file-size: 500MB  #파일 한 개당 최대 크기
+      max-request-size: 500MB #한번 요청할때 총 파일의 크기
 jwt:
   secret: ${JWT_SECRET}
 kakao:

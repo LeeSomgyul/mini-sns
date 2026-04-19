@@ -24,7 +24,7 @@ public class MediaAsyncService {
     private final PostRepository postRepository;
 
     @Value("${minio.default-image}")
-    private final String defaultImageUrl;
+    private String defaultImageUrl;
 
     @Async("ffmpegTaskExecutor")
     @Transactional

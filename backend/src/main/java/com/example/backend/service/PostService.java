@@ -37,7 +37,7 @@ public class PostService {
     private final MediaAsyncService mediaAsyncService;
 
     @Value("${minio.default-image}")
-    private final String defaultImageUrl;
+    private String defaultImageUrl;
 
 
     //게시물 등록
