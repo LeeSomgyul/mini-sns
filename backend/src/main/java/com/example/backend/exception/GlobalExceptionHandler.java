@@ -65,6 +65,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    //404 Not Found 에러 처리 (데이터, 엔티티 등 요소를 찾을 수 없을때)
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 
     //409 Conflict 에러 처리 (중복 처리)
     @ExceptionHandler(DuplicateResourceException.class)
@@ -78,6 +88,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+
+    //413 파일 업로드 지정 크기 초과 시
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(errorResponse);
+    }
+
     //429 Too Many Requests 에러 처리 (발송: 잦은 요청)
     @ExceptionHandler(CooldownException.class)
     public ResponseEntity<ErrorResponse> handleCooldownException(CooldownException e){
@@ -86,7 +108,6 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
 
@@ -102,10 +123,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
 
-
     //500 Server Error 에러 처리 (메일 발송 실패)
     @ExceptionHandler(EmailSendFailureException.class)
     public ResponseEntity<ErrorResponse> handleEmailSendFailureException(EmailSendFailureException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    //500 미디어 파일 DB 저장시 실패
+    @ExceptionHandler(FileProcessException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorageException(FileProcessException ex){
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status("error")
                 .message(ex.getMessage())

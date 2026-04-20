@@ -1,11 +1,10 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.NicknameCheckResponse;
 import com.example.backend.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/nickname/exists")
-    public ResponseEntity<NicknameCheckResponse> checkNickName (
+    public ResponseEntity<ApiResponse<NicknameCheckResponse>> checkNickName (
             @RequestParam
             //1.유효성 검사
             @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "닉네임은 2~10자의 한글, 영문, 숫자만 가능합니다.")
@@ -51,7 +50,7 @@ public class UserController {
             }
         }
 
-        NicknameCheckResponse response = userService.checkNicknameDuplicate(nickname, currentUserId);
+        ApiResponse<NicknameCheckResponse> response = userService.checkNicknameDuplicate(nickname, currentUserId);
 
         return ResponseEntity.ok(response);
     }

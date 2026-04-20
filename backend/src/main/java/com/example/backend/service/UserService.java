@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.NicknameCheckResponse;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
@@ -17,7 +18,7 @@ public class UserService {
 
     //닉네임 중복 확인
     @Transactional(readOnly = true)
-    public NicknameCheckResponse checkNicknameDuplicate(String nickname, Long currentUserId){
+    public ApiResponse<NicknameCheckResponse> checkNicknameDuplicate(String nickname, Long currentUserId){
 
         //1.닉네임으로 유저 객체 조회
         Optional<User> existingUser = userRepository.findByNickname(nickname);
@@ -37,13 +38,11 @@ public class UserService {
 
         String message = exists ? "이미 사용 중인 닉네임입니다." : "사용 가능한 닉네임입니다.";
 
-        //3.결과 반환
-        return NicknameCheckResponse.builder()
-                .status("success")
-                .message(message)
-                .data(NicknameCheckResponse.Data.builder()
-                        .exists(exists)
-                        .build())
+        NicknameCheckResponse nicknameCheckData = NicknameCheckResponse.builder()
+                .exists(exists)
                 .build();
+
+        //3.결과 반환
+        return ApiResponse.success(message, nicknameCheckData);
     }
 }

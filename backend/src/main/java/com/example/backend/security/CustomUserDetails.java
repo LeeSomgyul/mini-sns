@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+//헤더로 사용자의 정보를 보내줌 (사용자가 어떤 작업을 시도할 때마다 실존하는 사용자가 맞는지 확인)
 @Builder
 public record CustomUserDetails (
         Long userId,

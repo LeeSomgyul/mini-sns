@@ -26,8 +26,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB  #파일 한 개당 최대 크기
+      max-request-size: 500MB #한번 요청할때 총 파일의 크기
 jwt:
   secret: ${JWT_SECRET}
 kakao:
   client-id: ${KAKAO_RESTAPI_KEY}
   redirect-uri: ${KAKAO_REDIRECT_URI}
+file:
+  upload-dir: C:/mini-sns-uploads/
+fmpg:
+  path: C:/ffmpeg/bin/ffmpeg.exe
+minio:
+  endpoint: http://localhost:9000
+  accessKey: ${MINIO_ACCESS_KEY}
+  secretKey: ${MINIO_SECRET_KEY}
+  bucket: mini-sns
+  default-image: /minio/mini-sns-default/default_loading_image.png

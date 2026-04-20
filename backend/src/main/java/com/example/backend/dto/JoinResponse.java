@@ -4,6 +4,14 @@ package com.example.backend.dto;
 import lombok.Builder;
 
 @Builder
+public record JoinResponse(
+        Long userId,
+        String email,
+        String nickname
+){}
+
+/*
+@Builder
 public record JoinResponse (
     String status,
     String message,
@@ -16,3 +24,4 @@ public record JoinResponse (
             String nickname
     ){}
 }
+*/

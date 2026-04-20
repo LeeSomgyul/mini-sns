@@ -1,9 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.JoinRequest;
-import com.example.backend.dto.JoinResponse;
-import com.example.backend.dto.LoginRequest;
-import com.example.backend.dto.TokenResponse;
+import com.example.backend.dto.*;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.DuplicateResourceException;
@@ -77,7 +74,7 @@ public class AuthService {
 
     //회원가입
     @Transactional
-    public JoinResponse join(JoinRequest request){
+    public ApiResponse<JoinResponse> join(JoinRequest request){
 
         //1.이메일 중복 검증
         if(localAccountRepository.existsByEmail(request.email())){
@@ -121,24 +118,22 @@ public class AuthService {
         //8.사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);
 
-        //9.JoinResponse 응답
-        return JoinResponse.builder()
-                .status("success")
-                .message("회원가입이 완료되었습니다.")
-                .data(JoinResponse.Data.builder()
-                        .userId(user.getId())
-                        .email(localAccount.getEmail())
-                        .nickname(user.getNickname())
-                        .build())
+        JoinResponse joinData = JoinResponse.builder()
+                .userId(user.getId())
+                .email(localAccount.getEmail())
+                .nickname(user.getNickname())
                 .build();
+
+        //9.JoinResponse 응답
+        return ApiResponse.success("회원가입이 완료되었습니다.", joinData);
     }
 
     //로그아웃
     @Transactional
-    public void logout(String accessToken, Long userId){
+    public ApiResponse<Void> logout(String accessToken, Long userId){
         //이미 로그아웃 되어있는 사용자 처리
         if(!jwtTokenProvider.validateToken(accessToken)){
-            return;
+            return ApiResponse.success("이미 로그아웃된 상태입니다.", null);
         }
 
         //Redis에서 refreshToken 삭제
@@ -156,6 +151,8 @@ public class AuthService {
         userRepository.findById(userId).ifPresent(user -> {
             user.updateDeviceToken(null);
         });
+
+        return ApiResponse.success("로그아웃되었습니다", null);
     }
 
     //페이지 이동 or 새로고침 시 AccessToken, RefreshToken 재발급
