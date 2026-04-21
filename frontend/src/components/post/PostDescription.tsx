@@ -14,7 +14,6 @@ const PostDescription = ({content, setContent}: PostDescriptionProps) => {
                 <h4 style={{ margin: 0 }}>글 작성</h4>
                 <small>({content.length} / 500)</small>
             </div>
-            {/* Pico CSS 텍스트 박스 */}
             <textarea 
                 placeholder="어떤 일이 있었나요?" 
                 rows={6}

@@ -1,18 +1,24 @@
 //Post (게시물작성, 우측 하단): 태그 추가 및 태그 리스트
 import type { Dispatch, SetStateAction } from 'react';
-import type{ TagUser } from '../../types/post/TagUser';
+import type{ TagUserType } from '../../types/post/TagUserType';
 
 
 interface PostTagProps {
-    tagUsers: TagUser[];
-    setTagUsers: Dispatch<SetStateAction<TagUser[]>>;
+    tagUsers: TagUserType[];
+    setTagUsers: Dispatch<SetStateAction<TagUserType[]>>;
 };
 
 const PostTag = ({tagUsers, setTagUsers}: PostTagProps) => {
 
-    //[태그 추가]
+    //[태그 추가] 🚨🚨임시 작성🚨🚨
     const handleAddTag = () => {
+        const newUser: TagUserType = {
+            userId: Math.floor(Math.random() * 1000),
+            nickname: `유저${tagUsers.length + 1}`,
+            name: `이름${tagUsers.length + 1}`
+        };
 
+        setTagUsers(prev => [...prev, newUser]);//새로운 유저 업데이트
     };
 
     //[태그된 유저 삭제]
