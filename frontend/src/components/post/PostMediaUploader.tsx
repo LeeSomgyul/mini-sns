@@ -1,5 +1,7 @@
 import { useRef, type Dispatch, type SetStateAction } from 'react';
+import toast from 'react-hot-toast';
 import type { SelectedMediaType } from '../../types/post/SelectedMediaType';
+import { getVideoValidation } from '../../utils/videoValidation';
 
 interface PostMediaUploaderProps {
     mediaList: SelectedMediaType[];
@@ -12,25 +14,79 @@ interface PostMediaUploaderProps {
 const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMediaNum}: PostMediaUploaderProps) => {
     
     const fileInputRef = useRef<HTMLInputElement>(null);//미디어 추가 버튼에서 숨겨진 file input 조종
-
+    const isMaxReached = mediaList.length >= 5;
 
     //[추가 버튼] 클릭 시 파일 추가 input 실행
     const handleAddMedia = () => {
         if(mediaList.length>=5){
-            return alert('최대 5개까지만 업로드 가능합니다.');
+            toast.error('이미지 및 파일은 최대 5개까지만 업로드 가능합니다.');
+            return;
         }
         fileInputRef.current?.click();
     };
 
     //[파일 추가] 사용자가 파일을 선택했을 때 실행됨
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if(!files || files.length === 0) return;
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newFiles = Array.from(e.target.files || []);
+        if(!newFiles || newFiles.length === 0) return;
 
-        const newFile = files[0];//🚨🚨일단 1개씩 추가한다고 가정, 여러개 동시 추가 가능으로 바꾸기🚨🚨
-        const thumbnailUrl = URL.createObjectURL(newFile);
+        const rejectedFiles: string[] = [];//추가 실패한 파일들 보관함
+        const validFiles: SelectedMediaType[] = [];//통과한 파일들 보관함
 
-        setMediaList(prev => [...prev, {file: newFile, thumbnailUrl: thumbnailUrl}]);
+        //5개 초과 확인
+        const currentMediaCount = mediaList.length;//기존 미디어 개수
+        const LIMIT = 5;
+        const isOverLimit = currentMediaCount + newFiles.length > LIMIT;
+
+        if(isOverLimit){
+            toast.error(`최대 ${LIMIT}개까지만 등록 가능합니다.`);
+        }
+
+        //초과분은 자르고 미디어 리스트에 저장
+        const availableFiles = newFiles.slice(0, LIMIT-currentMediaCount);
+
+        for(const file of availableFiles){
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+
+            //이미지 용량 체크(이미지 10MB)
+            if(isImage && file.size > 10 * 1024 * 1024){
+                rejectedFiles.push(file.name);
+                continue;
+            }
+
+            //영상 용량 및 길이 체크(100MB, 60초)
+            if(isVideo){
+                if(file.size > 100 * 1024 * 1024){
+                    rejectedFiles.push(file.name);
+                    continue;
+                }
+
+                try{
+                    const videoDuration = await getVideoValidation(file);
+                    if(videoDuration > 60){
+                        rejectedFiles.push(file.name);
+                    }
+                }catch(error){
+                    rejectedFiles.push(file.name);
+                    continue;
+                }
+            }
+
+            validFiles.push({
+                file: file,
+                thumbnailUrl: URL.createObjectURL(file)
+            });
+        }
+
+        //추가 실패한 파일에 대한 종합 알림
+        if(rejectedFiles.length > 0){
+            toast.error(`${rejectedFiles.length}개 제외: 사진 10MB / 영상 100MB·60초 제한`,{
+                duration: 5000
+            })
+        }
+
+        setMediaList(prev => [...prev, validFiles]);
 
         if(fileInputRef.current) fileInputRef.current.value = '';//동일한 파일 선택할 수 있도록 input 초기화
     };
@@ -57,21 +113,23 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div>
                     <h4 style={{ margin: 0 }}>이미지 및 영상 등록</h4>
-                    <small style={{ fontSize: '1rem' }}>(0/5)</small>
+                    <small style={{ fontSize: '1rem' }}>({mediaList.length}/5)</small>
                 </div>
-                <div>
+                <div style={{display: 'flex'}}>
                     {/* 미디어 추가 버튼 */}
                     <div>
                         <input
                             type="file"
-                            accept="image/*, video/*"
+                            accept="image/*,video/mp4,video/quicktime"
                             ref={fileInputRef}
                             style={{ display: 'none' }}
                             onChange={handleFileChange}
                         />
                         <button 
+                            type="button"
                             className="secondary outline"
                             style={{ marginRight: '8px', padding: '0.5rem' }}
+                            disabled={isMaxReached}
                             onClick={handleAddMedia}
                         >
                             추가
@@ -81,6 +139,7 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                     <button 
                         className="secondary outline"
                         style={{ padding: '0.5rem' }}
+                        disabled={isMaxReached}
                         onClick={handleStartWebcam}
                     >
                         카메라

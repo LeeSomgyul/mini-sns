@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from "./context/AuthContext";
-
 import { LoginPage, JoinPage, FeedPage, ProfilePage } from "./pages/index";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -11,6 +11,13 @@ import KakaoCallback from "./pages/KakaoCallback";
 function App() {
   return (
     <AuthProvider>
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        toastOptions={{
+          style: {fontSize: '15px', color: "black", maxWidth: 'none', whiteSpace: 'nowrap'}
+        }}
+      />
       <BrowserRouter>
         <Routes>
           {/* 퍼블릭 라우터: 로그인 안해도 들어갈 수 있는 라우터 */}
