@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import type { SelectedMediaType } from '../../types/post/SelectedMediaType';
 import { getVideoValidation } from '../../utils/videoValidation';
 import PostWebcamModal from '../post/PostWebcamModal';
+import PostImageCropModal from '../post/PostImageCropModal';
 
 interface PostMediaUploaderProps {
     mediaList: SelectedMediaType[];
@@ -17,6 +18,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
     const fileInputRef = useRef<HTMLInputElement>(null);//미디어 추가 버튼에서 숨겨진 file input 조종
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);//미리보기 화면 영상 재생 상태
     const [isWebcamOpen, setIsWebcamOpen] = useState(false);//웹캠 모달 오픈 여부
+    const [isCropModalOpen ,setIsCropModalOpen] = useState(false);//이미지 편집 모달 오픈 여부
     
     const isMaxReached = mediaList.length >= 5;
     const LIMIT = 5;
@@ -82,7 +84,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
 
             validFiles.push({
                 file: file,
-                thumbnailUrl: URL.createObjectURL(file)
+                previewUrl: URL.createObjectURL(file)
             });
         }
 
@@ -132,7 +134,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
 
         const newMedia: SelectedMediaType = {
             file: file,
-            thumbnailUrl: URL.createObjectURL(file)
+            previewUrl: URL.createObjectURL(file)
         }
 
         setMediaList(prev => [...prev, newMedia]);
@@ -143,7 +145,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
     const handleRemoveMedia = (indexToRemove: number) => {
         setMediaList(prev => {
             const newList = prev.filter((_,index) => index !== indexToRemove);
-            URL.revokeObjectURL(prev[indexToRemove].thumbnailUrl);//임시 url 폐기(메모리 누수 방지)
+            URL.revokeObjectURL(prev[indexToRemove].previewUrl);//임시 url 폐기(메모리 누수 방지)
             return newList
         });
 
@@ -155,11 +157,38 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
         } 
     };
 
+    //[미리보기 이미지 수정]
+    const handleCropComplete = (croppedFile: File, newCropState: any) => {
+        setMediaList((prev) => {
+            const newList = [...prev];
+            const deleteMedia = newList[choiceMediaNum];
+
+            //기존 이미지 메모리에서 제거
+            if(deleteMedia.croppedPreviewUrl){
+                URL.revokeObjectURL(deleteMedia.previewUrl);
+            }
+
+            newList[choiceMediaNum] = {
+                ...deleteMedia,//원본 정보 유지(file, previewUrl)
+                croppedFile: croppedFile,
+                croppedPreviewUrl: URL.createObjectURL(croppedFile),
+                cropState: newCropState
+            };
+
+            //mediaList를 새로운걸로 업데이트
+            return newList;
+        });
+
+        setIsCropModalOpen(false);
+    };
+
     //[하단 썸네일 클릭] 클릭 시 메인뷰 변경
     const handleThumbnailClick = (index: number) => {    
         setIsVideoPlaying(true);
         setChoiceMediaNum(index);
-    }
+    };
+
+    
     
     return (
         <div>
@@ -170,6 +199,18 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                     captureResult={handleWebcamCapture}
                 />
             )}
+
+            {/* 이미지 편집 모달 */}
+            {isCropModalOpen && !mediaList[choiceMediaNum].file.type.startsWith('video/') && (
+                <PostImageCropModal
+                    imageUrl={mediaList[choiceMediaNum].previewUrl}
+                    originalFileName={mediaList[choiceMediaNum].file.name}
+                    initialCropState={mediaList[choiceMediaNum].cropState}
+                    closeModal={() => setIsCropModalOpen(false)}
+                    cropResult={handleCropComplete}
+                />
+            )}
+
             {/* 상단 제목 및 버튼 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div>
@@ -215,7 +256,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                     mediaList[choiceMediaNum].file.type.startsWith('video/') ? (
                         isVideoPlaying ? (
                             <video 
-                                src={mediaList[choiceMediaNum].thumbnailUrl}
+                                src={mediaList[choiceMediaNum].previewUrl}
                                 controls
                                 autoPlay
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -223,7 +264,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                         ) : (
                             <div onClick={() => setIsVideoPlaying(true)} style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
                                 <video 
-                                    src={mediaList[choiceMediaNum].thumbnailUrl}
+                                    src={mediaList[choiceMediaNum].previewUrl}
                                     controls={false}
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
@@ -233,11 +274,21 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                             </div>
                         )
                     ) : (
-                        <img
-                            src={mediaList[choiceMediaNum].thumbnailUrl}
-                            alt="미리보기"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
+                        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                            <img
+                                src={mediaList[choiceMediaNum].croppedPreviewUrl || mediaList[choiceMediaNum].previewUrl}
+                                alt="미리보기"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                            <button
+                                type="button"
+                                className="secondary"
+                                style={{ position: 'absolute', top: '10px', right: '10px', padding: '0.2rem 0.5rem', fontSize: '0.8rem', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '4px' }}
+                                onClick={() => setIsCropModalOpen(true)}
+                            >
+                                편집
+                            </button>
+                        </div>
                     )
                 ) : (
                     <span style={{ color: '#9ca3af' }}>이미지 및 영상을 추가해주세요.</span>
@@ -268,12 +319,12 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                                 <>
                                     {mediaList[index].file.type.startsWith('video/') ? (
                                         <video
-                                            src={mediaList[index].thumbnailUrl}
+                                            src={mediaList[index].previewUrl}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />
                                     ) : (
                                         <img
-                                            src={mediaList[index].thumbnailUrl}
+                                            src={mediaList[index].croppedPreviewUrl || mediaList[index].previewUrl}
                                             alt=""
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />

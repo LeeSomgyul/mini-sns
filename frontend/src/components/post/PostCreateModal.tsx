@@ -36,8 +36,8 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
     useEffect(() => {
         return()=>{
             mediaRef.current.forEach(media => {
-                if(media.thumbnailUrl){
-                    URL.revokeObjectURL(media.thumbnailUrl);
+                if(media.previewUrl){
+                    URL.revokeObjectURL(media.previewUrl);
                 }
             });
         };
