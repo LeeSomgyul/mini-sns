@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { NavItemType, ModalType } from "../types/navItemType";
 import { ROUTES } from "../constants/routes";
 import SettingsModal from "./SettingsModal";
+import PostCreateModal from "./post/PostCreateModal";
 
 
 const Navigation = () => {
@@ -64,25 +65,12 @@ const Navigation = () => {
                     );
                 })}
             </ul>
-            {/* 네비게이션의 모달(피드 작성, 설정) 
-                🚨🚨프로필, 설정 개발 시 실제 모달로 수정(임의로 pico 사용)🚨🚨*/}
+            {/* 네비게이션의 모달(피드 작성) */}
             {activeModal === 'write' && (
-                <dialog open>
-                    <article>
-                        <header>
-                            {/* 우측 상단 삭제 버튼 */}
-                            <button aria-label="Close" className="close" onClick={closeModal}></button>
-                            <h2>피드 작성</h2>
-                        </header>
-                        <p>여기에 피드 작성 폼이 들어갈 예정</p>
-                        <footer>
-                            <button className="secondary" onClick={closeModal}>취소</button>
-                            <button onClick={closeModal}>작성하기</button>
-                        </footer>
-                    </article>
-                </dialog>
+                <PostCreateModal closeModal={closeModal}/>
             )} 
 
+            {/* 네비게이션의 모달(설정) */}
             {activeModal === 'settings' && (
                 <SettingsModal closeModal={closeModal}/>
             )} 
