@@ -1,7 +1,8 @@
-import { useRef, type Dispatch, type SetStateAction } from 'react';
+import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import toast from 'react-hot-toast';
 import type { SelectedMediaType } from '../../types/post/SelectedMediaType';
 import { getVideoValidation } from '../../utils/videoValidation';
+import PostWebcamModal from '../post/PostWebcamModal';
 
 interface PostMediaUploaderProps {
     mediaList: SelectedMediaType[];
@@ -11,14 +12,20 @@ interface PostMediaUploaderProps {
 }
 
 //Post (게시물작성, 좌측): 미디어 추가, 미리보기, 썸네일 5칸
-const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMediaNum}: PostMediaUploaderProps) => {
+export default function PostMediaUploader({mediaList, setMediaList, choiceMediaNum, setChoiceMediaNum}: PostMediaUploaderProps){
     
     const fileInputRef = useRef<HTMLInputElement>(null);//미디어 추가 버튼에서 숨겨진 file input 조종
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);//미리보기 화면 영상 재생 상태
+    const [isWebcamOpen, setIsWebcamOpen] = useState(false);//웹캠 모달 오픈 여부
+    
     const isMaxReached = mediaList.length >= 5;
+    const LIMIT = 5;
 
     //[추가 버튼] 클릭 시 파일 추가 input 실행
     const handleAddMedia = () => {
-        if(mediaList.length>=5){
+        console.log("함수 호출됨!");
+        console.log("현재 리스트 개수:", mediaList.length);
+        if(isMaxReached){
             toast.error('이미지 및 파일은 최대 5개까지만 업로드 가능합니다.');
             return;
         }
@@ -35,7 +42,6 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
 
         //5개 초과 확인
         const currentMediaCount = mediaList.length;//기존 미디어 개수
-        const LIMIT = 5;
         const isOverLimit = currentMediaCount + newFiles.length > LIMIT;
 
         if(isOverLimit){
@@ -66,6 +72,7 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                     const videoDuration = await getVideoValidation(file);
                     if(videoDuration > 60){
                         rejectedFiles.push(file.name);
+                        continue;
                     }
                 }catch(error){
                     rejectedFiles.push(file.name);
@@ -86,14 +93,50 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
             })
         }
 
-        setMediaList(prev => [...prev, validFiles]);
-
+        setMediaList(prev => [...prev, ...validFiles]);
         if(fileInputRef.current) fileInputRef.current.value = '';//동일한 파일 선택할 수 있도록 input 초기화
     };
 
-    //[웹캠 버튼] 클릭 시 웹캠 실행
-    const handleStartWebcam = () => {
+    //[웹캠 버튼]
+    const handleOpenWebcam = async() => {
+        //브라우저가 카메라 api를 지원하지 않는 환경인지 체크
+        if(!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices){
+            toast.error('이 브라우저 환경에서는 카메라를 지원하지 않습니다.');
+            return;
+        }
 
+        try{
+            //연결된 장치 목록 가져오기
+            const devices = await navigator.mediaDevices.enumerateDevices();
+
+            //비디오 입력 장치가 있는지 확인
+            const hasCamera = devices.some(device => device.kind === 'videoinput');
+
+            if(!hasCamera){
+                toast.error('카메라 장치를 찾을 수 없습니다.');
+                return;
+            }
+
+            setIsWebcamOpen(true);
+        }catch(error){
+            toast.error("카메라 상태를 확인할 수 없습니다.");
+        }
+    }
+
+    //[웹캠 실행] 
+    const handleWebcamCapture = (file: File) => {
+        if(mediaList.length >= 5){
+            toast.error(`최대 ${LIMIT}개까지만 등록 가능합니다.`);
+            return;
+        }
+
+        const newMedia: SelectedMediaType = {
+            file: file,
+            thumbnailUrl: URL.createObjectURL(file)
+        }
+
+        setMediaList(prev => [...prev, newMedia]);
+        setChoiceMediaNum(mediaList.length);
     };
 
     //[미리보기 제거] 클릭 시 선택했던 미디어 제거
@@ -104,16 +147,34 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
             return newList
         });
 
-        if(choiceMediaNum == indexToRemove) setChoiceMediaNum(0); //삭제한 이미지가 현재 보고있는 이미지라면 0번으로 초기화
+        if(choiceMediaNum == indexToRemove) {
+            setChoiceMediaNum(0);//삭제한 이미지가 현재 보고있는 이미지라면 0번으로 초기화
+            setIsVideoPlaying(false);//비디오 플레이 멈춤
+        }else if(choiceMediaNum > indexToRemove){
+            setChoiceMediaNum(choiceMediaNum-1);//내 앞에 인덱스 미디어가 제거되면 인덱스 한칸씩 앞으로 이동
+        } 
     };
+
+    //[하단 썸네일 클릭] 클릭 시 메인뷰 변경
+    const handleThumbnailClick = (index: number) => {    
+        setIsVideoPlaying(true);
+        setChoiceMediaNum(index);
+    }
     
     return (
         <div>
+            {/* 웹캠 모달 */}
+            {isWebcamOpen && (
+                <PostWebcamModal
+                    closeModal={() => setIsWebcamOpen(false)}
+                    captureResult={handleWebcamCapture}
+                />
+            )}
             {/* 상단 제목 및 버튼 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div>
-                    <h4 style={{ margin: 0 }}>이미지 및 영상 등록</h4>
-                    <small style={{ fontSize: '1rem' }}>({mediaList.length}/5)</small>
+                    <div style={{ margin: 0 ,fontSize: '1rem' }}>이미지 및 영상 등록</div>
+                    <div style={{ fontSize: '0.7rem' }}>({mediaList.length}/5)</div>
                 </div>
                 <div style={{display: 'flex'}}>
                     {/* 미디어 추가 버튼 */}
@@ -137,10 +198,11 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                     </div>
                     {/* 웹캠 실행 버튼 */}
                     <button 
+                        type="button"
                         className="secondary outline"
                         style={{ padding: '0.5rem' }}
                         disabled={isMaxReached}
-                        onClick={handleStartWebcam}
+                        onClick={handleOpenWebcam}
                     >
                         카메라
                     </button>
@@ -148,23 +210,37 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
             </div>
 
             {/* 메인 미리보기 화면 */}
-            <div style={{ height: '380px', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', borderRadius: '8px' }}>
+            <div style={{ aspectRatio: '1/1', height: '100%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
                 {mediaList.length > 0 ? (
                     mediaList[choiceMediaNum].file.type.startsWith('video/') ? (
-                        <video 
-                            src={mediaList[choiceMediaNum].thumbnailUrl}
-                            controls
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                        />
+                        isVideoPlaying ? (
+                            <video 
+                                src={mediaList[choiceMediaNum].thumbnailUrl}
+                                controls
+                                autoPlay
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div onClick={() => setIsVideoPlaying(true)} style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
+                                <video 
+                                    src={mediaList[choiceMediaNum].thumbnailUrl}
+                                    controls={false}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: '24px' }}>
+                                    ▶
+                                </div>
+                            </div>
+                        )
                     ) : (
                         <img
                             src={mediaList[choiceMediaNum].thumbnailUrl}
                             alt="미리보기"
-                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                     )
                 ) : (
-                    <span>이미지 및 영상을 추가해주세요.</span>
+                    <span style={{ color: '#9ca3af' }}>이미지 및 영상을 추가해주세요.</span>
                 )}
             </div>
 
@@ -177,9 +253,10 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                     return (
                         <div 
                             key={index}
-                            onClick={() => hasMedia && setChoiceMediaNum(index)}
+                            onClick={() => hasMedia && handleThumbnailClick(index)}
                             style={{ 
                                 height: '80px', 
+                                aspectRatio: '1/1',
                                 backgroundColor: hasMedia ? '#fff' : '#e5e7eb', 
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                 position: 'relative', borderRadius: '4px', cursor: hasMedia ? 'pointer' : 'default',
@@ -188,7 +265,7 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                             }}
                         >
                             {hasMedia ? (
-                                <div>
+                                <>
                                     {mediaList[index].file.type.startsWith('video/') ? (
                                         <video
                                             src={mediaList[index].thumbnailUrl}
@@ -211,7 +288,7 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
                                         style={{ position: 'absolute', top: '5px', right: '5px' }}
                                     >
                                     </button>                                
-                                </div>
+                                </>
                             ) : (
                                 <span>+</span>
                             )}
@@ -222,5 +299,3 @@ const PostMediaUploader = ({mediaList, setMediaList, choiceMediaNum, setChoiceMe
         </div>
     );
 };
-
-export default PostMediaUploader;

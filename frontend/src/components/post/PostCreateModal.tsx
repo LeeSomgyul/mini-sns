@@ -16,7 +16,7 @@ interface PostCreateModalProps{
 }
 
 //Post (게시물 작성) 모달 전체 상태 관리 및 API 전송
-const PostCreateModal = ({closeModal}: PostCreateModalProps) => {
+export default function PostCreateModal({closeModal}: PostCreateModalProps) {
 
     const [mediaList, setMediaList] = useState<SelectedMediaType[]>([]);//미디어 미리보기
     const [choiceMediaNum, setChoiceMediaNum] = useState<number>(0);//현재 미리보기로 보고있는 미디어 번호
@@ -131,7 +131,7 @@ const PostCreateModal = ({closeModal}: PostCreateModalProps) => {
                     <header>
                         {/* 우측 상단 삭제 버튼 */}
                         <button aria-label="Close" className="close" onClick={closeModal}></button>
-                        <h2>피드 작성</h2>
+                        <span>피드 작성</span>
                     </header>
 
                     {/* 좌우 분할 그리드 */}
@@ -159,5 +159,3 @@ const PostCreateModal = ({closeModal}: PostCreateModalProps) => {
         </div>
     );
 };
-
-export default PostCreateModal;
