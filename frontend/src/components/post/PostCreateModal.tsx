@@ -27,29 +27,29 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
 
     const mediaRef = useRef(mediaList);//최신 미디어 리스트
 
-    //미디어 리스트 바뀔때마다 최신 리스트로 업데이트
+    //[업데이트] 미디어 리스트 바뀔때마다 최신 리스트로 업데이트
     useEffect(() => {
         mediaRef.current = mediaList;
     }, [mediaList]);
 
-    //x창 누를때 미디어 미리보기 메모리 청소
+    //[업데이트] x창 누를때 미디어 미리보기 메모리 청소
     useEffect(() => {
         return()=>{
             mediaRef.current.forEach(media => {
-                if(media.thumbnailUrl){
-                    URL.revokeObjectURL(media.thumbnailUrl);
+                if(media.previewUrl){
+                    URL.revokeObjectURL(media.previewUrl);
                 }
             });
         };
     }, []);
 
-    //[메서드] 원본 파일 타입 소문자 -> 대문자 변환
+    //[미디어 등록] 원본 파일 타입 소문자 -> 대문자 변환
     const getFileTypeEnum = (mediaType: string) => {
         if(mediaType.startsWith('video/'))return 'VIDEO';
         return 'IMAGE';
     };
 
-    //[메서드] 백엔드(PresignedUrlRequest)로 파일과 타입을 주면 -> presignedUrl, objectKey 응답
+    //[미디어] 백엔드(PresignedUrlRequest)로 파일과 타입을 주면 -> presignedUrl, objectKey 응답
     const presignedUrlRequest = async(file: File, type: 'IMAGE' | 'VIDEO' | 'THUMBNAIL') => {
         const {presignedUrl, objectKey} = await postApi.getPresignedUrl({
             filename: file.name,
@@ -69,11 +69,12 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
             return;
         }
 
-        if(!content.trim()) {
+        //공백, 엔터 유효성 검사 (엔터 압축)
+        const optimizedContext = content.trim().replace(/\n{3,}/g, '\n\n');
+        if(!optimizedContext) {
             toast.error('내용을 입력해주세요.');
             return;
         }
-
 
         try{
             setIsUploading(true);
@@ -134,7 +135,7 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
                         <span>피드 작성</span>
                     </header>
 
-                    {/* 좌우 분할 그리드 */}
+                    {/* 3단 그리드 */}
                     <div className="grid">
                         {/* 왼쪽: 미디어 */}
                         <div>
@@ -145,9 +146,12 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
                                 setChoiceMediaNum={setChoiceMediaNum}
                             />
                         </div>
-                        {/* 오른쪽: 글 작성 + 태그 */}
+                        {/* 가운데: 글 작성*/}
                         <div>
                             <PostDescription content={content} setContent={setContent}/>
+                        </div>
+                        {/* 오른쪽: 태그*/}
+                        <div>
                             <PostTag tagUsers={tagUsers} setTagUsers={setTagUsers}/>
                         </div>
                     </div>
