@@ -23,15 +23,21 @@ export default function PostImageCropModal({
 }: PostImageCropModalProps){
     const [crop, setCrop] = useState(initialCropState?.crop || {x:0, y:0});//위치 상태(0,0 에서 시작)
     const [zoom, setZoom] = useState(initialCropState?.zoom || 1);//확대 상태(1배에서 시작)
+    
     const [rotation, setRotation] = useState(initialCropState?.rotation || 0);//회전 상태(0도에서 시작)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);//수정 후 위치,회전,좌표 결과 저장
 
     const [isProcessing, setIsProcessing] = useState(false);//수정 처리중 여부
 
-    //[메서드] 자르기 영역 바뀔 때마다 좌표 저장
+    //[이미지 수정] 자르기 영역 바뀔 때마다 좌표 저장
     const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
         setCroppedAreaPixels(croppedAreaPixels);
     },[]);
+
+    //[이미지 수정] 90도씩 회전
+    const handleRotate90 = () => {
+        setRotation((prev: number) => (prev + 90) %360);
+    };
 
     //[초기화 버튼]
     const handleReset = () => {
@@ -73,7 +79,6 @@ export default function PostImageCropModal({
                         aspect={1/1}
                         onCropChange={setCrop}
                         onZoomChange={setZoom}
-                        onRotationChange={setRotation}
                         onCropComplete={onCropComplete}
                         restrictPosition={true}
                         showGrid={true}
@@ -93,12 +98,13 @@ export default function PostImageCropModal({
                     </div>
                     {/* rotation (회전) 조절 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <span style={{ whiteSpace: 'nowrap' }}>회전</span>
-                        <input 
-                            type="range" value={rotation} min={0} max={360} step={1}
-                            onChange={(e) => setRotation(Number(e.target.value))}
-                            style={{ width: '100%' }}
-                        />
+                        <button
+                            type="button"
+                            className="secondary outline"
+                            onClick={handleRotate90}
+                        >
+                            회전
+                        </button>
                     </div>
 
                     {/* 완료 & 초기화 버튼 */}

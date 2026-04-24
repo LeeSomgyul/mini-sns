@@ -214,7 +214,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
             {/* 상단 제목 및 버튼 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div>
-                    <div style={{ margin: 0 ,fontSize: '1rem' }}>이미지 및 영상 등록</div>
+                    <div style={{ margin: 0 ,fontSize: '0.7rem' }}>이미지 및 영상 등록</div>
                     <div style={{ fontSize: '0.7rem' }}>({mediaList.length}/5)</div>
                 </div>
                 <div style={{display: 'flex'}}>
@@ -230,7 +230,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                         <button 
                             type="button"
                             className="secondary outline"
-                            style={{ marginRight: '8px', padding: '0.5rem' }}
+                            style={{ marginRight: '5px', padding: '0.3rem' }}
                             disabled={isMaxReached}
                             onClick={handleAddMedia}
                         >
@@ -241,7 +241,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                     <button 
                         type="button"
                         className="secondary outline"
-                        style={{ padding: '0.5rem' }}
+                        style={{ padding: '0.3rem' }}
                         disabled={isMaxReached}
                         onClick={handleOpenWebcam}
                     >
@@ -296,7 +296,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
             </div>
 
             {/* 하단 썸네일 5칸 */}
-            <div className="grid" style={{ gap: '0.5rem' }}>
+            <div className="grid" style={{ gap: '0.3rem' }}>
                 {[0, 1, 2, 3, 4].map((index) => {
                     const hasMedia = index < mediaList.length;//해당 인덱스의 이미지 존재 유무(Boolean)
                     const isChoice = index === choiceMediaNum;//해당 인덱스 이미지 선택 유무(Boolean)
@@ -306,7 +306,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                             key={index}
                             onClick={() => hasMedia && handleThumbnailClick(index)}
                             style={{ 
-                                height: '80px', 
+                                height: '55px', 
                                 aspectRatio: '1/1',
                                 backgroundColor: hasMedia ? '#fff' : '#e5e7eb', 
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', 
