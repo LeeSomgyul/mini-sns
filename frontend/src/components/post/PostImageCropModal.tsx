@@ -1,16 +1,24 @@
 import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import Cropper from 'react-easy-crop';
+import Cropper, { type Point ,type Area } from 'react-easy-crop';
 import toast from 'react-hot-toast';
 
 import {croppedImg} from '../../utils/croppedImg';
 
+//커스텀 편집 상태 통 데이터
+export interface CropUIState{
+    crop: Point;//{x,y} 위치
+    zoom: number;//확대 배율
+    rotation: number;//회전 각도
+    croppedAreaPixels?: Area | null;//최종 자르기 픽셀 영역
+}
+
 interface PostImageCropModalProps{
     imageUrl: string;//모달에서 편집할 원본 이미지 주소
     originalFileName: string;//결과물 이름
-    initialCropState?: any;//원본 편집 상태(회전, 확대 등)
+    initialCropState?: CropUIState;//원본 편집 상태(회전, 확대 등)
     closeModal: () => void;//닫기
-    cropResult: (croppedFile: File, currentCropState: any) => void;//완료 시 원본 및 수정 후 상태 모두 반환
+    cropResult: (croppedFile: File, currentCropState: CropUIState) => void;//완료 시 원본 및 수정 후 상태 모두 반환
 }
 
 //사용자의 이미지 편집 모달
@@ -21,16 +29,16 @@ export default function PostImageCropModal({
     closeModal,
     cropResult
 }: PostImageCropModalProps){
-    const [crop, setCrop] = useState(initialCropState?.crop || {x:0, y:0});//위치 상태(0,0 에서 시작)
-    const [zoom, setZoom] = useState(initialCropState?.zoom || 1);//확대 상태(1배에서 시작)
+    const [crop, setCrop] = useState<Point>(initialCropState?.crop || {x:0, y:0});//위치 상태(0,0 에서 시작)
+    const [zoom, setZoom] = useState<number>(initialCropState?.zoom || 1);//확대 상태(1배에서 시작)
     
-    const [rotation, setRotation] = useState(initialCropState?.rotation || 0);//회전 상태(0도에서 시작)
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);//수정 후 위치,회전,좌표 결과 저장
+    const [rotation, setRotation] = useState<number>(initialCropState?.rotation || 0);//회전 상태(0도에서 시작)
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area|null>(initialCropState?.croppedAreaPixels || null);//수정 후 위치,회전,좌표 결과 저장
 
     const [isProcessing, setIsProcessing] = useState(false);//수정 처리중 여부
 
     //[이미지 수정] 자르기 영역 바뀔 때마다 좌표 저장
-    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     },[]);
 
@@ -54,8 +62,10 @@ export default function PostImageCropModal({
             const uniqueId = crypto.randomUUID();
             const croppedFile = await croppedImg(imageUrl, croppedAreaPixels, rotation, `crop_${uniqueId}_${originalFileName}`);
             cropResult(croppedFile, {crop, zoom, rotation});
-        }catch(error){
-            toast.error("이미지를 처리에 실패했습니다.");
+        }catch(error:unknown){
+            if(error instanceof Error){
+                toast.error("이미지를 처리에 실패했습니다.");
+            }
         }finally{
             setIsProcessing(false);
         }

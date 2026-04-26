@@ -36,13 +36,16 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
                 }else{
                     webcamStream.getTracks().forEach(track => track.stop());
                 }
-            }catch(error: any){
+            }catch(error: unknown){
                 if(isMounted){
-                    console.error("웹캠 에러 상세(화면 뜰 때만):", error);
-                    if(error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError'){
+                    if(error instanceof Error){
+                        if(error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError'){
                         toast.error('카메라 권한이 차단되었습니다. 권한을 허용해주세요.');
+                        }else{
+                            toast.error('카메라를 실행하는 중 오류가 발생했습니다.');
+                        }
                     }else{
-                        toast.error('카메라를 실행하는 중 오류가 발생했습니다.');
+                        toast.error('알 수 없는 오류가 발생했습니다.');
                     }
                     closeModal();
                 }
@@ -78,6 +81,8 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
         const startX = (video.videoWidth - minSize)/2;
         const startY = (video.videoHeight - minSize)/2;
 
+        context?.translate(canvas.width,0);
+        context?.scale(-1,1);
         context?.drawImage(video, startX, startY, minSize, minSize, 0, 0, displaySize, displaySize);
 
         //canvas -> File 객체로 변환
@@ -92,11 +97,29 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
     };
 
     //[다시 촬영 버튼] 기존 데이터 날리고 다시 카메라 화면으로
-    const handleRetake = () => {
+    const handleRetake = async() => {
         if(capturedImage){
             URL.revokeObjectURL(capturedImage);
             setCapturedImage(null);
             setCapturedFile(null);
+        }
+
+        //카메라가 켜져있으면 다시 연결 (검정 화면 방어)
+        if(stream && videoRef.current){
+            videoRef.current.srcObject = stream;
+        }else{
+            try{
+                //카메라도 꺼졌으면 다시 실행
+                const newStream = await navigator.mediaDevices.getUserMedia({video:true});
+                setStream(newStream);
+
+                if(videoRef.current){
+                    videoRef.current.srcObject = newStream;
+                }
+            }catch{
+                toast.error("카메라를 시작할 수 없습니다.");
+            }
+            
         }
     };
 
@@ -132,7 +155,7 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
                         <img
                             src={capturedImage}
                             alt="카메라로 캡처한 사용자 사진"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                     )}
                 </div>

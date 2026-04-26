@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import type { SelectedMediaType } from '../../types/post/SelectedMediaType';
 import { getVideoValidation } from '../../utils/videoValidation';
 import PostWebcamModal from '../post/PostWebcamModal';
-import PostImageCropModal from '../post/PostImageCropModal';
+import PostImageCropModal, { type CropUIState } from '../post/PostImageCropModal';
 
 interface PostMediaUploaderProps {
     mediaList: SelectedMediaType[];
@@ -76,7 +76,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
                         rejectedFiles.push(file.name);
                         continue;
                     }
-                }catch(error){
+                }catch{
                     rejectedFiles.push(file.name);
                     continue;
                 }
@@ -120,7 +120,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
             }
 
             setIsWebcamOpen(true);
-        }catch(error){
+        }catch{
             toast.error("카메라 상태를 확인할 수 없습니다.");
         }
     }
@@ -158,7 +158,7 @@ export default function PostMediaUploader({mediaList, setMediaList, choiceMediaN
     };
 
     //[미리보기 이미지 수정]
-    const handleCropComplete = (croppedFile: File, newCropState: any) => {
+    const handleCropComplete = (croppedFile: File, newCropState: CropUIState) => {
         setMediaList((prev) => {
             const newList = [...prev];
             const deleteMedia = newList[choiceMediaNum];

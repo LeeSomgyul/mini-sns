@@ -156,7 +156,7 @@ export default function PostCreateModal({closeModal}: PostCreateModalProps) {
                         </div>
                     </div>
                     <footer>
-                        <button onClick={handleSave}>저장</button>
+                        <button onClick={handleSave} disabled={isUploading}>저장</button>
                     </footer>
                 </article>
             </dialog>
