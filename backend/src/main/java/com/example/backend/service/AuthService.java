@@ -6,7 +6,7 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.DuplicateResourceException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.LocalAccountRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.user.UserRepository;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

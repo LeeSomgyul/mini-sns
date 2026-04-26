@@ -1,6 +1,5 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.PostRequest;
 import com.example.backend.dto.PostResponse;
 import com.example.backend.entity.Post;
@@ -11,7 +10,7 @@ import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.PostMediaReposity;
 import com.example.backend.repository.PostRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

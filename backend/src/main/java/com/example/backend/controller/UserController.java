@@ -2,9 +2,13 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.NicknameCheckResponse;
+import com.example.backend.dto.UserSearchResponse;
+import com.example.backend.service.UserSearchService;
 import com.example.backend.service.UserService;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final UserSearchService userSearchService;
 
+    //닉네임 중복 체크
     @GetMapping("/nickname/exists")
     public ResponseEntity<ApiResponse<NicknameCheckResponse>> checkNickName (
             @RequestParam
@@ -52,6 +58,19 @@ public class UserController {
 
         ApiResponse<NicknameCheckResponse> response = userService.checkNicknameDuplicate(nickname, currentUserId);
 
+        return ResponseEntity.ok(response);
+    }
+
+    //사용자 검색
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<UserSearchResponse>> searchUsers(
+        @RequestParam(name = "keyword") String keyword,
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "20") int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
+        UserSearchResponse searchData = userSearchService.searchUsers(keyword, pageable);
+        ApiResponse<UserSearchResponse> response = ApiResponse.success("success", searchData);
         return ResponseEntity.ok(response);
     }
 }

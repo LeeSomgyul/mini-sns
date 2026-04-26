@@ -8,7 +8,7 @@ import com.example.backend.entity.SocialAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.SocialAccountRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.user.UserRepository;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

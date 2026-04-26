@@ -3,7 +3,7 @@ package com.example.backend;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
 import com.example.backend.repository.LocalAccountRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
