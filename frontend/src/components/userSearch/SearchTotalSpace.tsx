@@ -35,6 +35,11 @@ export const SearchTotalSpace = () => {
                 />
             </header>
             {/* 하단: 검색 결과 리스트 */}
+            <div>
+                <SearchResult
+                    keyword={searchKeyword}
+                />
+            </div>
         </article>
     );
 }
