@@ -4,15 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 import { getDeviceToken } from "../firebase";
 import api from '../api/axios';
-import { useAuth } from "../context/AuthContext";
+import {useAuthStore} from "../store/authStore";
 
 //카카오 로그인 이후 정보 가져오는 페이지
 const KakaoCallback = () => {
 
+    const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
     const navigate = useNavigate();
     const isProcessed = useRef(false);//카카오 code 사용 여부 
-
-    const { setAccessToken } = useAuth();
 
     useEffect(() => {
         //code를 이미 사용했다면 아무것도 안함(카카오 code는 2번 사용 안됨)

@@ -1,20 +1,15 @@
-import { useContext, useState, type MouseEventHandler, type SubmitEventHandler } from "react"
+import { useState, type MouseEventHandler, type SubmitEventHandler } from "react"
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
 import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext"
+import { useAuthStore } from "../store/authStore";
 import { getDeviceToken } from "../firebase";
 
 const LoginPage = () => {
 
+    const setAccessToken = useAuthStore((state) => state.setAccessToken);
     const navigate = useNavigate();
-    const authContext = useContext(AuthContext); //인증 상태 확인(로그인 유무)
-    if(!authContext){
-        throw new Error("AuthProvider 안에서 사용해주세요.");
-    }
-
-    const {setAccessToken} = authContext;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
