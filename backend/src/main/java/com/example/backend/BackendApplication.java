@@ -20,32 +20,43 @@ public class BackendApplication {
         SpringApplication.run(BackendApplication.class, args);
     }
 
-    //[삭제 예정] 로그인 테스트 사용자(서버 실행 시 1번만 작동)
+    //[삭제 예정] 테스트 더미 사용자 5명
     @Bean
     public CommandLineRunner initData(UserRepository userRepository,
                                         LocalAccountRepository localAccountRepository,
                                         PasswordEncoder passwordEncoder){
         return args -> {
-            //이미 이메일이 존재하면 중복 생성하지 않음
-            if(localAccountRepository.findByEmail("test@example.com").isEmpty()){
-                //1.유저 생성
-                User user = User.builder()
-                        .name("테스터")
-                        .nickname("코딩초보")
-                        .phoneNumber("01012345678")
-                        .build();
-                userRepository.save(user);
+            String[] nicknames = {"코딩초보", "자바고수", "스프링마스터", "리액트장인", "더미테스터"};
+            String[] names = {"김철수", "이영희", "지수", "김지수", "홍길동"};
 
-                //2.이메일 계정 생성
-                LocalAccount account = LocalAccount.builder()
-                        .user(user)
-                        .email("test@example.com")
-                        .passwordHash(passwordEncoder.encode("password123!"))
-                        .build();
-                localAccountRepository.save(account);
+            for(int i=0; i<5; i++){
+                String email = "test" + (i+1) + "@example.com";
+                String nickname = nicknames[i];
+                String name = names[i];
 
-                System.out.println("✅ 테스트용 더미 계정 생성 완료! (test@example.com / password123!)");
+                if(localAccountRepository.findByEmail(email).isEmpty()
+                    && !userRepository.existsByNickname(nickname)){
+                    //1.유저 생성
+                    User user = User.builder()
+                            .name(name)
+                            .nickname(nickname)
+                            .phoneNumber("010" + (10002000+1))
+                            .build();
+                    userRepository.save(user);
+
+                    //2.이메일 계정 생성
+                    LocalAccount account = LocalAccount.builder()
+                            .user(user)
+                            .email(email)
+                            .passwordHash(passwordEncoder.encode("password123!"))
+                            .build();
+                    localAccountRepository.save(account);
+
+                    System.out.println("✅ 더미 계정 생성: " + email + " (닉네임: " + nickname + ", 이름: " + name + ")");
+                }
             }
+
+            System.out.println("✨ 총 5명의 테스트 유저 준비가 완료되었습니다.");
         };
     }
 }

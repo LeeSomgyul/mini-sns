@@ -1,6 +1,7 @@
 package com.example.backend.exception;
 
 import com.example.backend.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -141,6 +143,20 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status("error")
                 .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    //500 전역 대표 예외
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex){
+        log.error("서버 내부 오류 발생: ", ex);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
                 .timestamp(LocalDateTime.now())
                 .build();
 

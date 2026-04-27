@@ -70,7 +70,7 @@ public class UserController {
     ){
         Pageable pageable = PageRequest.of(page, size);
         UserSearchResponse searchData = userSearchService.searchUsers(keyword, pageable);
-        ApiResponse<UserSearchResponse> response = ApiResponse.success("success", searchData);
+        ApiResponse<UserSearchResponse> response = ApiResponse.success("사용자 검색 완료", searchData);
         return ResponseEntity.ok(response);
     }
 }
