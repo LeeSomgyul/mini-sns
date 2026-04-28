@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   db:
     image: postgres:16
@@ -23,17 +23,17 @@ services:
     image: minio/minio
     container_name: minisns-minio
     ports:
-      - "9000:9000"       # API 통신용 (자바가 쓸 포트)
-      - "9001:9001"       # 관리자 화면용 (내가 볼 화면)
+      - "9000:9000" # API 통신용 (자바가 쓸 포트)
+      - "9001:9001" # 관리자 화면용 (내가 볼 화면)
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio_data:/data  
+      - ./minio_data:/data
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0 
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node #소규모 개발이라서 node(서버)가 나 1대

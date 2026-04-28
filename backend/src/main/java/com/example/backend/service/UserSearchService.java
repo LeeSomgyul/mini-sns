@@ -19,11 +19,6 @@ public class UserSearchService {
     //Pageable: "1페이지에 10명씩 보여줘" 라는 요청 설정
     public UserSearchResponse searchUsers(String keyword, Pageable pageable){
 
-        //검색어가 없거나, 1글자 이하인 경우
-        if(keyword == null || keyword.trim().length() < 2){
-            throw new InvalidRequestException("검색어를 2자 이상 입력해주세요.");
-        }
-
         //엘라스틱서치에서 찾기
         Page<UserDocument> documentPage = userSearchRepository.findByNicknameOrName(
                 keyword.trim(),
