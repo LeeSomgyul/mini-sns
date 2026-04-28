@@ -10,7 +10,7 @@ import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.PostMediaReposity;
 import com.example.backend.repository.PostRepository;
-import com.example.backend.repository.user.UserRepository;
+import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
