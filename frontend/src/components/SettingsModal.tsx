@@ -1,14 +1,16 @@
-import { useState, useContext, type MouseEventHandler } from "react";
+import { useState, type MouseEventHandler } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext"
+import {useAuthStore} from "../store/authStore";
 import type { SettingsModalProps, SettingsTabType } from '../types/modalType';
 import { ROUTES } from "../constants/routes";
 
 const SettingsModal = ({closeModal} : SettingsModalProps) => {
 
-    const authContext = useContext(AuthContext);
+    const accessToken = useAuthStore((state) => (state.accessToken));
+    const logout = useAuthStore((state) => state.logout);
+
     const navigate = useNavigate();
     const [selectedTab, setSelectedTab] = useState<SettingsTabType>('logout');
 
@@ -25,24 +27,24 @@ const SettingsModal = ({closeModal} : SettingsModalProps) => {
     };
 
     const handleRunLogout: MouseEventHandler<HTMLButtonElement> = async(e) => {
-        if(!authContext) return;
+        if(!accessToken) return;
 
         try{
             const config = {
                 headers: {
-                    Authorization: `Bearer ${authContext.accessToken}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             };
 
             //axios.post(주소, 데이터, 설정) 순서로 보내야 한다. 헤더 데이터를 전송하기 때문에 데이터(body)는 {}
             await api.post('/api/v1/auth/logout', {}, config);
 
-            authContext.logout();
+            logout();
             closeModal();
             navigate(ROUTES.LOGIN, {replace: true});
         }catch(error){
             console.log("로그아웃 실패: ", error);
-            authContext.logout();
+            logout();
             closeModal();
             navigate(ROUTES.LOGIN, {replace: true});
         }

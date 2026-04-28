@@ -1,5 +1,7 @@
 package com.example.backend.config;
 
+import com.example.backend.config.handler.CustomForbiddenHandler;
+import com.example.backend.config.handler.CustomUnauthorizedHandler;
 import com.example.backend.security.JwtFilter;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomUnauthorizedHandler customUnauthorizedHandler;
+    private final CustomForbiddenHandler customForbiddenHandler;
 
     //일반 비밀번호와 해시된 비밀번호 비교 메서드
     @Bean
@@ -54,6 +58,11 @@ public class SecurityConfig {
                                 "/api/v1/users/nickname/exists"
                             ).permitAll()
                         .anyRequest().authenticated()
+                )
+                //예외처리
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customUnauthorizedHandler)//401
+                        .accessDeniedHandler(customForbiddenHandler)//403
                 )
                 //JwtFilter.java 필터 검사 다음에 -> 스프링 시큐리티의 기본 로그인 필터 실행
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
