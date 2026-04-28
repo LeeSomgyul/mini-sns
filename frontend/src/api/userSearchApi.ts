@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import type {UserSearchResponse, UserInfo, ApiResponse} from "../types/userSearchType";
-import axios from "axios";
+import api from "../api/axios";
 
 
 //[사용자 검색 api 연결]
@@ -12,25 +12,34 @@ export const userSearchApi = (keyword: string) => {
         
         //queryFn: 데이터를 가져올 때 이 함수 실행
         queryFn: async ({pageParam, signal}): Promise<UserSearchResponse<UserInfo>> => {
-            const response = await axios.get<ApiResponse<UserSearchResponse<UserInfo>>>(
-                '/api/v1/users/search',
-                {
-                    params:{
-                        keyword: keyword,
-                        page: pageParam,
-                        size: 20
-                    },
-                    signal
-                }
-            );
-            return response.data.data;
+            try{
+                const response = await api.get<ApiResponse<UserSearchResponse<UserInfo>>>(
+                    '/api/v1/users/search',
+                    {
+                        params:{
+                            keyword: keyword,
+                            page: pageParam,
+                            size: 20
+                        },
+                        signal,
+                    }
+                );
+                return response.data.data || {content: [], last: true, page: 0};
+            }catch(error: unknown){
+                throw error;
+            }
         },
 
         //처음 페이지
         initialPageParam: 0,
 
         //다음 페이지 여부 확인 후 불러오기
-        getNextPageParam: (lastPage) => lastPage.last ? undefined : lastPage.page + 1,
+        getNextPageParam: (lastPage) => {
+            if(!lastPage || lastPage.last){
+                return undefined;
+            }
+            return lastPage.page + 1;
+        },
 
         //검색어(keyword)가 있다면 실행
         enabled: !!keyword.trim(),

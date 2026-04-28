@@ -72,7 +72,12 @@ export const SearchResult = ({keyword}: SearchResultProps) => {
     }
 
     //검색결과 사용자 정보 가져오기
-    const users = data?.pages.flatMap((page) => page.content) || [];
+    const users = data?.pages?.flatMap((page) => {
+        if(!page || !page.content){
+            return [];
+        }
+        return page.content;
+    }) || [];
 
     //검색 결과 없을 시
     if(users.length === 0){
@@ -87,27 +92,30 @@ export const SearchResult = ({keyword}: SearchResultProps) => {
     return(
         <section>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {users.map((user) => (
-                    <div
-                        key={user.userId}
-                        style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', cursor: 'pointer', borderBottom: '1px solid var(--pico-muted-border-color)' }}
-                        onClick={() => console.log(`${user.userId}번 프로필로 이동`)}//🚨🚨프로필 구현 후 연결🚨🚨
-                    >
-                        {/* 프로필 이미지 */}
-                        <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
-                            <img
-                                src={user.profileImageUrl || DEFAULT_PROFILE}
-                                alt={user.nickname}
-                                style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}
-                            />
+                {users.map((user) => {
+                    if(!user) return null;
+                    return(
+                        <div
+                            key={user.userId}
+                            style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', cursor: 'pointer', borderBottom: '1px solid var(--pico-muted-border-color)' }}
+                            onClick={() => console.log(`${user.userId}번 프로필로 이동`)}//🚨🚨프로필 구현 후 연결🚨🚨
+                        >
+                            {/* 프로필 이미지 */}
+                            <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
+                                <img
+                                    src={user.profileImageUrl || DEFAULT_PROFILE}
+                                    alt={user.nickname}
+                                    style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}
+                                />
+                            </div>
+                            {/* 닉네임, 이름 */}
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <strong style={{ fontSize: '1rem' }}>{user.nickname}</strong>
+                                <small style={{ color: 'var(--pico-muted-color)' }}>{user.name}</small>
+                            </div>
                         </div>
-                        {/* 닉네임, 이름 */}
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <strong style={{ fontSize: '1.1rem' }}>{user.nickname}</strong>
-                            <small style={{ color: 'var(--pico-muted-color)' }}>{user.name}</small>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
             {/* 무한 스크롤 + 로딩 UI */}
             <div ref={observerRef} style={{ height: '40px', marginTop: '1rem', textAlign: 'center' }}>
