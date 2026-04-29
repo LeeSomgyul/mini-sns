@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 //[엘라스틱서치] 사용자 검색
 @Document(indexName = "users", createIndex = false)
+@Setting(settingPath = "elasticsearch/settings-users.json")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
