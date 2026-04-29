@@ -27,14 +27,8 @@ public class UserSearchService {
         );
 
         //엘라스틱서치의 결과를 프론트엔드가 원하는 응답 형식으로 변환
-        Page<UserSearchResponse.UserInfo> resultPage = documentPage.map(doc ->
-                UserSearchResponse.UserInfo.builder()
-                        .userId(doc.getId())
-                        .nickname(doc.getNickname())
-                        .name(doc.getName())
-                        .profileImageUrl(doc.getProfileImageUrl())
-                        .build()
-        );
+        Page<UserSearchResponse.UserInfo> resultPage = documentPage
+                .map(UserSearchResponse.UserInfo::from);
 
         return UserSearchResponse.from(resultPage);
     }

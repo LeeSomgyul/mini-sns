@@ -119,13 +119,7 @@ public class AuthService {
         localAccountRepository.save(localAccount);//DB 저장
 
         //엘라스틱서치에 검색용 데이터 저장
-        UserDocument userDocument = UserDocument.builder()
-                .id(user.getId())
-                .nickname(user.getNickname())
-                .name(user.getName())
-                .profileImageUrl(user.getProfileImageUrl())
-                .build();
-        userSearchRepository.save(userDocument);
+        userSearchRepository.save(UserDocument.from(user));
 
         //8.사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);

@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import com.example.backend.document.UserDocument;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 
@@ -14,15 +15,7 @@ public record UserSearchResponse (
         int totalPages,
         boolean last
 ){
-    @Builder
-    public record UserInfo(
-            Long userId,
-            String nickname,
-            String name,
-            String profileImageUrl
-    ){}
-
-    //Service에서 return 덩어리 생성
+    //Service에서 UserSearchResponse return 덩어리 생성
     public static UserSearchResponse from (Page<UserSearchResponse.UserInfo> pageData){
         return UserSearchResponse.builder()
                 .content(pageData.getContent())
@@ -32,5 +25,23 @@ public record UserSearchResponse (
                 .totalPages(pageData.getTotalPages())
                 .last(pageData.isLast())
                 .build();
+    }
+
+    @Builder
+    public record UserInfo(
+            Long userId,
+            String nickname,
+            String name,
+            String profileImageUrl
+    ){
+        //Service에서 UserInfo return 덩어리 생성
+        public static UserInfo from (UserDocument userDocument){
+            return UserInfo.builder()
+                    .userId(userDocument.id())
+                    .nickname(userDocument.nickname())
+                    .name(userDocument.name())
+                    .profileImageUrl(userDocument.profileImageUrl())
+                    .build();
+        }
     }
 }
