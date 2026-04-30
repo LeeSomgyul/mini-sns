@@ -1,8 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.document.UserDocument;
-import com.example.backend.dto.UserSearchResponse;
-import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.dto.user.UserSearchResponse;
 import com.example.backend.repository.elastic.UserSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

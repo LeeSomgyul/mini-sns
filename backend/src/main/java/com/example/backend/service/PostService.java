@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.PostRequest;
-import com.example.backend.dto.PostResponse;
+import com.example.backend.dto.post.PostRequest;
+import com.example.backend.dto.post.PostResponse;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
 import com.example.backend.entity.PostTag;
@@ -107,28 +107,6 @@ public class PostService {
             post.getMediaList().add(postMedia);
         }
 
-        //응답
-        return PostResponse.builder()
-                .postId(post.getId())
-                .authorId(authorId)
-                .thumbnailUrl(post.getThumbnailUrl())
-                .content(post.getContent())
-                .mediaList(post.getMediaList().stream()
-                        .map(media -> PostResponse.MediaResponse.builder()
-                                .mediaId(media.getId())
-                                .type(media.getMediaType().name())
-                                .url(media.getUrl())
-                                .thumbnailUrl(media.getThumbnailUrl())
-                                .sortOrder(media.getSortOrder())
-                                .build())
-                        .toList())
-                .tagUsers(post.getTags().stream()
-                        .map(tag -> PostResponse.TagUserResponse.builder()
-                                .userId(tag.getUser().getId())
-                                .nickname(tag.getUser().getNickname())
-                                .build())
-                        .toList()
-                )
-                .build();
+        return PostResponse.of(post, authorId);
     }
 }

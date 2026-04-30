@@ -1,8 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.ApiResponse;
-import com.example.backend.dto.PresignedUrlRequest;
-import com.example.backend.dto.PresignedUrlResponse;
+import com.example.backend.dto.file.PresignedUrlRequest;
+import com.example.backend.dto.file.PresignedUrlResponse;
 import com.example.backend.exception.FileProcessException;
 import com.example.backend.exception.InvalidRequestException;
 import io.minio.GetPresignedObjectUrlArgs;
@@ -56,7 +55,7 @@ public class MinioService {
                             .build()
             );
 
-            return new PresignedUrlResponse(presignedUrl, objectKey);
+            return PresignedUrlResponse.of(presignedUrl, objectKey);
         }catch(Exception e){
             log.error("파일 업로드 에러:", e);
             throw new FileProcessException("파일 업로드 URL 생성에 실패했습니다.");

@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.ApiResponse;
-import com.example.backend.dto.NicknameCheckResponse;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.user.NicknameCheckResponse;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +38,7 @@ public class UserService {
 
         String message = exists ? "이미 사용 중인 닉네임입니다." : "사용 가능한 닉네임입니다.";
 
-        NicknameCheckResponse nicknameCheckData = NicknameCheckResponse.builder()
-                .exists(exists)
-                .build();
-
         //3.결과 반환
-        return ApiResponse.success(message, nicknameCheckData);
+        return ApiResponse.success(message, NicknameCheckResponse.from(exists));
     }
 }

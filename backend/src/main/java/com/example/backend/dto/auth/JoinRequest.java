@@ -1,5 +1,5 @@
 //회원가입 요청
-package com.example.backend.dto;
+package com.example.backend.dto.auth;
 
 import jakarta.validation.constraints.*;
 

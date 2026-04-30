@@ -1,4 +1,4 @@
-package com.example.backend.dto;
+package com.example.backend.dto.user;
 
 import com.example.backend.document.UserDocument;
 import lombok.Builder;
