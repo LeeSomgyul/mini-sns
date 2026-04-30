@@ -4,6 +4,7 @@ import com.example.backend.dto.*;
 import com.example.backend.exception.*;
 import com.example.backend.repository.LocalAccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,6 +17,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -51,6 +53,9 @@ public class EmailService {
         //인증번호 6자리 난수 생성
         String verificationCode = String.format("%06d", new Random().nextInt(1000000));
 
+        //🚨🚨api 테스트용🚨🚨
+        log.info("테스트용 이메일 인증 코드 [{}] 발송 대상: {}", verificationCode, request.email());
+
         //메일 발송
         try{
             sendMail(request.email(), verificationCode);
@@ -79,7 +84,7 @@ public class EmailService {
         //SimpleMailMessage: 간단한 텍스트 전용 메일보내기에 사용
         SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom("rmawl8600@naver.com");
+        message.setFrom("rmawl8600@naver.com");//🚨🚨발송용 계정: 배포 시 수정🚨🚨
         message.setTo(email);//받는사람 메일(어디로 보내나?)
         message.setSubject("[🔐테스트] 회원가입 인증번호입니다.");//메일 제목
         message.setText("인증번호: " + verificationCode + "\n3분 이내에 입력해주세요.");//메일 내용

@@ -31,6 +31,8 @@ spring:
       enabled: true
       max-file-size: 500MB  #파일 한 개당 최대 크기
       max-request-size: 500MB #한번 요청할때 총 파일의 크기
+  elasticsearch:
+    uris: http://localhost:9200
 jwt:
   secret: ${JWT_SECRET}
 kakao:
@@ -46,3 +48,9 @@ minio:
   secretKey: ${MINIO_SECRET_KEY}
   bucket: mini-sns
   default-image: /minio/mini-sns-default/default_loading_image.png
+logging:
+  level:
+    org.springframework.data.elasticsearch.client.elc: TRACE
+    co.elastic.clients.transport: TRACE
+    org.elasticsearch.client.RestClient: TRACE
+    tracer: TRACE

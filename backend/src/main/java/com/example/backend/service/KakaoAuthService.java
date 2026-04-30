@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.document.UserDocument;
 import com.example.backend.dto.KakaoLoginRequest;
 import com.example.backend.dto.KakaoTokenResponse;
 import com.example.backend.dto.KakaoUserInfoResponse;
@@ -8,7 +9,8 @@ import com.example.backend.entity.SocialAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.SocialAccountRepository;
-import com.example.backend.repository.user.UserRepository;
+import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.elastic.UserSearchRepository;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +38,7 @@ public class KakaoAuthService {
 
     private final RestClient restClient = RestClient.create();
     private final SocialAccountRepository socialAccountRepository;
+    private final UserSearchRepository userSearchRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
@@ -84,6 +87,9 @@ public class KakaoAuthService {
                 newRefreshToken,
                 Duration.ofDays(7)
         );
+
+        //엘라스틱서치에 검색용 데이터 저장
+        userSearchRepository.save(UserDocument.from(user));
 
         return TokenResponse.builder()
                 .userId(user.getId())

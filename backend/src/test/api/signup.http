@@ -1,0 +1,43 @@
+### 변수 설정 
+@baseUrl = http://localhost:8080/api/v1
+@nickname = 김솜규링
+@name = 김솜귤
+@email = test100@example.com
+
+
+
+### 1.닉네임 중복 체크
+GET {{baseUrl}}/users/nickname/exists?nickname={{nickname}}
+
+### 2.이메일 인증번호 발송
+POST {{baseUrl}}/auth/email/send
+Content-Type: application/json
+
+{
+    "email": "{{email}}"
+}
+
+### 3.이메일 인증번호 검증
+# @name EmailVerifyRequest
+POST {{baseUrl}}/auth/email/verify
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "code": "162091"
+}
+
+### 4. 회원가입 
+POST {{baseUrl}}/auth/join
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "password123!",
+    "nickname": "{{nickname}}",
+    "name": "{{name}}",
+    "phoneNumber": "01012345678",
+    "verificationToken": "{{EmailVerifyRequest.response.body.data.verifyToken}}",
+    "deviceToken": "dummy_fcm_token"
+}
+

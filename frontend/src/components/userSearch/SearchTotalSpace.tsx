@@ -25,7 +25,7 @@ export const SearchTotalSpace = () => {
     };
     
     return(
-        <article className="search-sidebar-container">
+        <article className="search-sidebar-container"  style={{ height: '100%'}}>
             {/* 상단: 검색 바*/}
             <header className="sticky-search-header">
                 <SearchInput

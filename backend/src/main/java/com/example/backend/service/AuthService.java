@@ -1,12 +1,14 @@
 package com.example.backend.service;
 
+import com.example.backend.document.UserDocument;
 import com.example.backend.dto.*;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.DuplicateResourceException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.repository.LocalAccountRepository;
-import com.example.backend.repository.user.UserRepository;
+import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.elastic.UserSearchRepository;
 import com.example.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ public class AuthService {
 
     private final LocalAccountRepository localAccountRepository;
     private final UserRepository userRepository;
+    private final UserSearchRepository userSearchRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
@@ -114,6 +117,9 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .build();
         localAccountRepository.save(localAccount);//DB 저장
+
+        //엘라스틱서치에 검색용 데이터 저장
+        userSearchRepository.save(UserDocument.from(user));
 
         //8.사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);

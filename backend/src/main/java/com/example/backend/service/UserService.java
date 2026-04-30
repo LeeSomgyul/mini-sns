@@ -3,7 +3,7 @@ package com.example.backend.service;
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.NicknameCheckResponse;
 import com.example.backend.entity.User;
-import com.example.backend.repository.user.UserRepository;
+import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

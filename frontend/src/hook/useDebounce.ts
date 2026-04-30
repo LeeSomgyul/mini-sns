@@ -13,7 +13,7 @@ export function useDebounce<T>(value: T, delay: number): T{
         //0.5초 뒤에 값을 업데이트 하는 타이머
         const timer = setTimeout(() => {
             setDebouncedValue(value);
-        });
+        },delay);
 
         //0.5초 이내에 value가 바뀌면 이전 타이머 취소
         return() => {

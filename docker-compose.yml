@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   db:
     image: postgres:16
@@ -11,21 +11,52 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+
   sns-redis:
     image: redis:latest
     container_name: minisns-redis
     ports:
       - "6379:6379"
     restart: always
+
   minio:
     image: minio/minio
     container_name: minisns-minio
     ports:
-      - "9000:9000"       # API 통신용 (자바가 쓸 포트)
-      - "9001:9001"       # 관리자 화면용 (내가 볼 화면)
+      - "9000:9000" # API 통신용 (자바가 쓸 포트)
+      - "9001:9001" # 관리자 화면용 (내가 볼 화면)
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio_data:/data  
+      - ./minio_data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node #소규모 개발이라서 node(서버)가 나 1대
+      - xpack.security.enabled=false # 🚨🚨로컬 개발용이므로 보안(비밀번호) 잠깐 해제🚨🚨
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # 512MB로 메모리 제한
+    ports:
+      - "9200:9200"
+    networks:
+      - elastic-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.3.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic-net
+
+networks:
+  elastic-net:
+    driver: bridge
