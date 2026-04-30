@@ -1,6 +1,6 @@
 package com.example.backend.config.handler;
 
-import com.example.backend.dto.ErrorResponse;
+import com.example.backend.dto.common.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

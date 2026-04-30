@@ -1,10 +1,10 @@
 package com.example.backend.service;
 
 import com.example.backend.document.UserDocument;
-import com.example.backend.dto.KakaoLoginRequest;
-import com.example.backend.dto.KakaoTokenResponse;
-import com.example.backend.dto.KakaoUserInfoResponse;
-import com.example.backend.dto.TokenResponse;
+import com.example.backend.dto.kakao.KakaoLoginRequest;
+import com.example.backend.dto.kakao.KakaoTokenResponse;
+import com.example.backend.dto.kakao.KakaoUserInfoResponse;
+import com.example.backend.dto.user.TokenResponse;
 import com.example.backend.entity.SocialAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidTokenException;
@@ -91,12 +91,7 @@ public class KakaoAuthService {
         //엘라스틱서치에 검색용 데이터 저장
         userSearchRepository.save(UserDocument.from(user));
 
-        return TokenResponse.builder()
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+        return TokenResponse.of(user, newAccessToken, newRefreshToken);
     }
 
     //카카오 로그인 시도 시, url에 같이 넘겨주는 code로 카카오에 요청에서 accessToken가져오는 메서드

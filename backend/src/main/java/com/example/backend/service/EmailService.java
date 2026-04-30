@@ -1,6 +1,10 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.*;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.mail.EmailSendRequest;
+import com.example.backend.dto.mail.EmailSendResponse;
+import com.example.backend.dto.mail.EmailVerifyRequest;
+import com.example.backend.dto.mail.EmailVerifyResponse;
 import com.example.backend.exception.*;
 import com.example.backend.repository.LocalAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,11 +75,7 @@ public class EmailService {
         //인증번호 몇번 틀렸는지(키, 몇 번 입력했는지, 3분(인증코드와 동일)) -> 이메일 발송 Service에서 틀릴때마다 값 +1
         stringRedisTemplate.opsForValue().set(REDIS_ATTEMPT_PREFIX + request.email(), "0", Duration.ofMinutes(3));
 
-        EmailSendResponse emailSendData = EmailSendResponse.builder()
-                .expiresIn(180)
-                .build();
-
-        return ApiResponse.success("인증 이메일이 성공적으로 발송되었습니다.", emailSendData);
+        return ApiResponse.success("인증 이메일이 성공적으로 발송되었습니다.", EmailSendResponse.form(180));
     }
 
 
@@ -134,11 +134,7 @@ public class EmailService {
         //인증 성공 후 기존 데이터 삭제(틀린 횟수, 인증 코드)
         stringRedisTemplate.delete(List.of(REDIS_ATTEMPT_PREFIX + request.email(), REDIS_CODE_PREFIX + request.email()));
 
-        EmailVerifyResponse emailVerifyData = EmailVerifyResponse.builder()
-                .verifyToken(verifyToken)
-                .build();
-
-        return ApiResponse.success("인증에 성공하였습니다.", emailVerifyData);
+        return ApiResponse.success("인증에 성공하였습니다.", EmailVerifyResponse.form(verifyToken));
     }
 
 }

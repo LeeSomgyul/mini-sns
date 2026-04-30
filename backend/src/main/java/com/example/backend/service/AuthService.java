@@ -1,7 +1,11 @@
 package com.example.backend.service;
 
 import com.example.backend.document.UserDocument;
-import com.example.backend.dto.*;
+import com.example.backend.dto.auth.JoinRequest;
+import com.example.backend.dto.auth.JoinResponse;
+import com.example.backend.dto.auth.LoginRequest;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.user.TokenResponse;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.DuplicateResourceException;
@@ -66,13 +70,8 @@ public class AuthService {
                 Duration.ofDays(7)//7일 보관
         );
 
-        //6.결과 반환(TokenResponse 바구니에 담에서 Controller로 전달)
-        return TokenResponse.builder()
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        //6.결과 반환
+        return TokenResponse.of(user, accessToken, refreshToken);
     }
 
     //회원가입
@@ -124,14 +123,8 @@ public class AuthService {
         //8.사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);
 
-        JoinResponse joinData = JoinResponse.builder()
-                .userId(user.getId())
-                .email(localAccount.getEmail())
-                .nickname(user.getNickname())
-                .build();
-
         //9.JoinResponse 응답
-        return ApiResponse.success("회원가입이 완료되었습니다.", joinData);
+        return ApiResponse.success("회원가입이 완료되었습니다.", JoinResponse.of(user, localAccount));
     }
 
     //로그아웃
@@ -193,11 +186,6 @@ public class AuthService {
                 Duration.ofDays(7)
         );
 
-        return TokenResponse.builder()
-                .userId(userId)
-                .nickname(nickname)
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+        return TokenResponse.of(user, newAccessToken, newRefreshToken);
     }
 }

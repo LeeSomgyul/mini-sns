@@ -10,8 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
@@ -28,11 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         //위 정보로 User객체 가져오기
         User user = localAccount.getUser();
 
-        return CustomUserDetails.builder()
-                .userId(user.getId())
-                .email(localAccount.getEmail())
-                .password(localAccount.getPasswordHash())
-                .authorities(Collections.emptyList())
-                .build();
+        return CustomUserDetails.of(user, localAccount);
     }
 }

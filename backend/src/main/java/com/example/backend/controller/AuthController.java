@@ -1,6 +1,12 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.*;
+import com.example.backend.dto.auth.JoinRequest;
+import com.example.backend.dto.auth.JoinResponse;
+import com.example.backend.dto.auth.LoginRequest;
+import com.example.backend.dto.auth.LoginResponse;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.kakao.KakaoLoginRequest;
+import com.example.backend.dto.user.TokenResponse;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.AuthService;
@@ -106,17 +112,9 @@ public class AuthController {
                 .maxAge(604800)//만료 기간 7일
                 .build();
 
-        //프론트엔드에 보낼 응답 response에 담기
-        LoginResponse loginData = LoginResponse.builder()
-                .userId(response.userId())
-                .nickname(response.nickname())
-                .accessToken(response.accessToken())
-                .expiresIn(1800)//accessToken은 만료 시간 30분
-                .build();
-
         //합쳐서 모두 반환
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(ApiResponse.success("토큰 발급 완료", loginData));
+                .body(ApiResponse.success("토큰 발급 완료", LoginResponse.from(response)));
     }
 }

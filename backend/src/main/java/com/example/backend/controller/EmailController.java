@@ -1,6 +1,10 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.*;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.mail.EmailSendRequest;
+import com.example.backend.dto.mail.EmailSendResponse;
+import com.example.backend.dto.mail.EmailVerifyRequest;
+import com.example.backend.dto.mail.EmailVerifyResponse;
 import com.example.backend.service.EmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

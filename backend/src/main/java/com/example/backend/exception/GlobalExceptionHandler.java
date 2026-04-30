@@ -1,6 +1,6 @@
 package com.example.backend.exception;
 
-import com.example.backend.dto.ErrorResponse;
+import com.example.backend.dto.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

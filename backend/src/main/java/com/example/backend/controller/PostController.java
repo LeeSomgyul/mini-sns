@@ -1,6 +1,10 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.*;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.file.PresignedUrlRequest;
+import com.example.backend.dto.file.PresignedUrlResponse;
+import com.example.backend.dto.post.PostRequest;
+import com.example.backend.dto.post.PostResponse;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.MinioService;
 import com.example.backend.service.PostService;

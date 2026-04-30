@@ -1,8 +1,8 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.ApiResponse;
-import com.example.backend.dto.NicknameCheckResponse;
-import com.example.backend.dto.UserSearchResponse;
+import com.example.backend.dto.common.ApiResponse;
+import com.example.backend.dto.user.NicknameCheckResponse;
+import com.example.backend.dto.user.UserSearchResponse;
 import com.example.backend.service.UserSearchService;
 import com.example.backend.service.UserService;
 import jakarta.validation.constraints.Pattern;
