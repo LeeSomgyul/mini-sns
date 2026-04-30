@@ -44,11 +44,11 @@ export const SearchResult = ({keyword}: SearchResultProps) => {
     //초기 안내 메시지
     if(!keyword){
         return(
-            <article>
+            <div>
                 <p style={{ textAlign: 'center', color: 'gray' }}>
                     사용자의 이름이나 닉네임을 입력해주세요.
                 </p>
-            </article>
+            </div>
         );
     }
 
@@ -104,6 +104,9 @@ export const SearchResult = ({keyword}: SearchResultProps) => {
                             <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
                                 <img
                                     src={user.profileImageUrl || DEFAULT_PROFILE}
+                                    onError={(e) => {
+                                        e.currentTarget.src = DEFAULT_PROFILE;
+                                    }}
                                     alt={user.nickname}
                                     style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}
                                 />
