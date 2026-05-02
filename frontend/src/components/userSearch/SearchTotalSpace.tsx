@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useDebounce } from "../../hook/useDebounce";
+import { useDebounce } from "../../hook/common/useDebounce";
 import { SearchInput } from "./SearchInput";
 import { SearchResult } from "./SearchResult";
 

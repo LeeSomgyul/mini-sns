@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
-import type {UserSearchResponse, UserInfo, ApiResponse} from "../types/userSearchType";
+import type { ApiResponse } from "../common/types/commonType";
+import type {UserSearchResponse, UserInfo} from "../types/userSearchType";
 import api from "../api/axios";
 
 
