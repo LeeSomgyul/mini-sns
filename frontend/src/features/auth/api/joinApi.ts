@@ -1,12 +1,12 @@
 import api from "../../../api/axios";
 import type { ApiResponse } from "../../../common/types/commonType";
-import type { NicknameCheckResponse } from "../../../types/user/nicknameCheck";
-import type { EmailSendRequest, EmailSendResponse } from "../../../types/mail/emailSend";
-import type { EmailVerifyRequest, EmailVerifyResponse } from "../../../types/mail/emailVerify";
-import type { JoinRequest, JoinResponse } from "../types/join";
+import type { NicknameCheckResponse } from "../types/nicknameCheckType";
+import type { EmailSendRequest, EmailSendResponse } from "../types/emailSend";
+import type { EmailVerifyRequest, EmailVerifyResponse } from "../types/emailVerify";
+import type { JoinRequest, JoinResponse } from "../types/joinType";
 
 
-export const authApi = {
+export const joinApi = {
     //닉네임 중복체크
     checkNickName: async(nickname: string) => {
         const response = await api.get<ApiResponse<NicknameCheckResponse>>(

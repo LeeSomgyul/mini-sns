@@ -33,13 +33,25 @@ const queryClient = new QueryClient({
   mutationCache: new MutationCache({
     //mutation: 데이터 바꾸기
     onError: (error: unknown, _variables, _context, mutation) => {
-      if(typeof mutation.meta?.errorMessage === 'string'){
+      // 1. 커스텀 에러 메시지가 있으면 우선 출력
+      if (typeof mutation.meta?.errorMessage === 'string') {
         toast.error(mutation.meta.errorMessage);
-      }else if(isAxiosError(error) && error.response?.status && error.response.status >= 500){
+        return; 
+      } 
+      
+      // 2. 서버가 문제있다면 (500번대) 무조건 출력
+      if (isAxiosError(error) && error.response?.status && error.response.status >= 500) {
         toast.error('서버 응답 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-      }else{
-        toast.error('요청을 처리하지 못했습니다.');
+        return;
       }
+
+      // 3. 개별 Hook에서 전역 에러 사용하지 말라 되어있으면 실행 
+      if (mutation.meta?.disableGlobalError) {
+        return; 
+      }
+
+      //4. 위 조건들에 해당하지 않는 경우
+      toast.error('요청을 처리하지 못했습니다.');
     },
     onSuccess: (_data, _variables, _context, mutation) => {
       if(typeof mutation.meta?.successMessage === 'string'){

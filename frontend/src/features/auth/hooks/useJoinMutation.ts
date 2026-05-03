@@ -1,8 +1,8 @@
-import type { JoinRequest, JoinResponse } from "../types/join";
+import type { JoinRequest, JoinResponse } from "../types/joinType";
 import type { AxiosError } from "axios";
 import type { JoinFormValues } from "../schemas/joinSchema";
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "../api/authApi";
+import { joinApi } from "../api/joinApi";
 
 type JoinMutationParams = {
     formData: JoinFormValues;
@@ -25,7 +25,7 @@ export const useJoinMutation = () => {
                 verificationToken: verificationToken,
             };
 
-            return authApi.join(request);
+            return joinApi.join(request);
         },
     });
 };

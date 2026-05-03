@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "../api/authApi";
-import type { EmailSendRequest } from "../../../types/mail/emailSend";
-import type { EmailVerifyRequest } from "../../../types/mail/emailVerify";
+import { joinApi } from "../api/joinApi";
+import type { EmailSendRequest } from "../types/emailSend";
+import type { EmailVerifyRequest } from "../types/emailVerify";
 
 
 
@@ -10,21 +10,21 @@ import type { EmailVerifyRequest } from "../../../types/mail/emailVerify";
 //[닉네임 중복체크]
 export const useCheckNickNameMutation = () => {
     return useMutation({
-        mutationFn: (nickname: string) => authApi.checkNickName(nickname),
+        mutationFn: (nickname: string) => joinApi.checkNickName(nickname),
     });
 };
 
 //[이메일 인증번호 전송]
 export const useEmailSendMutation = () => {
     return useMutation({
-        mutationFn: (request: EmailSendRequest) => authApi.emailSend(request),
+        mutationFn: (request: EmailSendRequest) => joinApi.emailSend(request),
     });
 };
 
 //[이메일 인증번호 검증]
 export const useEmailVerifyMutation = () => {
     return useMutation({
-        mutationFn: (request: EmailVerifyRequest) => authApi.emailVerify(request),
+        mutationFn: (request: EmailVerifyRequest) => joinApi.emailVerify(request),
     });
 };
 
