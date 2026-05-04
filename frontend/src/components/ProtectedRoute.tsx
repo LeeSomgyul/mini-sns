@@ -1,4 +1,4 @@
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../features/auth/store/authStore";
 import { Navigate, Outlet } from "react-router-dom";
 
 //로그인하지 않은 사용자는 못 들어가는 경로 관리 

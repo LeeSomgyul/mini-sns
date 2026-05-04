@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../features/auth/store/authStore";
 
 //로그인한 사용자는 "/" 경로로 이동 관리
 const PublicRoute = () => {

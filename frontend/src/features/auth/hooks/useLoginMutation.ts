@@ -5,7 +5,7 @@ import type {LoginFormValues} from "../schemas/loginSchema";
 import { getDeviceToken } from "../../../firebase";
 import { loginApi } from "../api/loginApi";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../../store/authStore";
+import { useAuthStore } from "../store/authStore";
 import { ROUTES } from "../../../constants/routes";
 
 export const useLoginMutation = () => {

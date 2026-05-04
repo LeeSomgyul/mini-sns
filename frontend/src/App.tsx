@@ -5,22 +5,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Layout from "./Layout";
 import { ROUTES } from "./constants/routes";
-import KakaoCallback from "./pages/KakaoCallback";
-import { useAuthStore } from "./store/authStore";
-import { useEffect } from "react";
+import KakaoCallback from "./features/auth/pages/KakaoCallbackPage";
+import { useTokenRefresh } from "./features/auth/hooks/useTokenRefresh";
 
 function App() {
-
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const pageRefresh = useAuthStore((state) => state.pageRefresh);
-
-  //앱이 켜질 때 토큰 발급
-  useEffect(() => {
-    pageRefresh();
-  },[pageRefresh]);
+  const { isAuthLoading } = useTokenRefresh();
 
   //토큰 재발급 기다리는 동안
-  if(isLoading){
+  if(isAuthLoading){
     return <div>로그인 정보를 확인 중입니다...</div>;
   }
 
