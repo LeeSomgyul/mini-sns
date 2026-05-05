@@ -2,7 +2,8 @@ import { useFormContext } from 'react-hook-form';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { TagUserType } from '../types/TagUserType';
 
-export const useTagMutation = () => {
+// [테그 폼 데이터 관리]
+export const useTagManager = () => {
     const { watch, setValue } = useFormContext<PostFormValues>();
 
     // 현재 태그된 유저 목록 가져오기 (초기값은 빈 배열)

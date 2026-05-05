@@ -1,15 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthStore } from "../features/auth/store/authStore";
+import { useAuthStore } from "../../features/auth/store/authStore";
 
 //로그인한 사용자는 "/" 경로로 이동 관리
 const PublicRoute = () => {
-    //[전역 상태 가져오기]
-    const isLoading = useAuthStore((state) => state.isLoading);
     const accessToken = useAuthStore((state) => state.accessToken);
-
-    if(isLoading){
-        return null;
-    }
 
     //이미 로그인한 사용자는 "/" 로 이동
     if(accessToken){

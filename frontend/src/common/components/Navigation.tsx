@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom"; 
 import { useState } from "react";
 
-import type { NavItemType, ModalType } from "../types/navItemType";
-import { ROUTES } from "../constants/routes";
+import type { NavItemType, ModalType } from "../../types/navItemType";
+import { ROUTES } from "../../constants/routes";
 import SettingsModal from "./SettingsModal";
-import PostCreateModal from "../features/post/pages/PostCreateModal";
+import {PostCreateModal} from "../../features/post/pages/PostCreateModal";
 
 
 const Navigation = () => {

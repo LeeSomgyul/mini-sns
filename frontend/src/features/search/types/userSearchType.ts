@@ -1,6 +1,6 @@
 //search-02 사용자 검색에서 사용
 export interface UserSearchResponse<T>{
-    content: T[];
+    content: T[];//하단 정의
     page: number;
     size: number;
     totalElements: number;

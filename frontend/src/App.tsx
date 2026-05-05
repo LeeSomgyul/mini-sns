@@ -1,18 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import { LoginPage, JoinPage, FeedPage, ProfilePage } from "./pages/index";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
+import ProtectedRoute from "./common/components/ProtectedRoute";
+import PublicRoute from "./common/components/PublicRoute";
 import Layout from "./Layout";
 import { ROUTES } from "./constants/routes";
 import KakaoCallback from "./features/auth/pages/KakaoCallbackPage";
 import { useTokenRefresh } from "./features/auth/hooks/useTokenRefresh";
 
 function App() {
-  const { isAuthLoading } = useTokenRefresh();
+  const { isLoading } = useTokenRefresh();
 
   //토큰 재발급 기다리는 동안
-  if(isAuthLoading){
+  if(isLoading){
     return <div>로그인 정보를 확인 중입니다...</div>;
   }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-export const useDescriptionMutation = (value: string, maxHeight: number = 500) => {
+//[글자수에 따라 입력창 높이 자동 조절]
+export const useAutoResize = (value: string, maxHeight: number = 500) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     useEffect(() => {

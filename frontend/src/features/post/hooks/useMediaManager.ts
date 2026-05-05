@@ -6,7 +6,7 @@ import type { SelectedMediaType } from '../types/SelectedMediaType';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { CropUIState } from '../components/PostImageCropModal';
 
-export const useMediaMutation = () => {
+export const useMediaManager = () => {
     // React Hook Form 연동
     const { setValue, watch } = useFormContext<PostFormValues>();
     const mediaList = watch('mediaList') || [];
@@ -21,13 +21,15 @@ export const useMediaMutation = () => {
     const LIMIT = 5;
     const isMaxReached = mediaList.length >= LIMIT;
 
-    // 1. 파일 추가 로직 (유효성 검사 포함)
+    // [미디어 추가(변경) 시 검사]
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const newFiles = Array.from(e.target.files || []);
         if (!newFiles.length) return;
 
         const rejectedFiles: string[] = [];
         const validFiles: SelectedMediaType[] = [];
+
+        // 갯수 제한: 최대 5개까지만 등록 가능
         const currentCount = mediaList.length;
 
         if (currentCount + newFiles.length > LIMIT) {
@@ -40,17 +42,20 @@ export const useMediaMutation = () => {
             const isImage = file.type.startsWith('image/');
             const isVideo = file.type.startsWith('video/');
 
+            // 용량 제한: 사진은 10MB 까지만 가능
             if (isImage && file.size > 10 * 1024 * 1024) {
                 rejectedFiles.push(file.name);
                 continue;
             }
 
+            // 용량 제한: 영상은 100MB 까지만 가능
             if (isVideo) {
                 if (file.size > 100 * 1024 * 1024) {
                     rejectedFiles.push(file.name);
                     continue;
                 }
                 try {
+                    //시간 제한: 영상은 60초 까지만 가능
                     const videoDuration = await getVideoValidation(file);
                     if (videoDuration > 60) {
                         rejectedFiles.push(file.name);
@@ -62,6 +67,7 @@ export const useMediaMutation = () => {
                 }
             }
 
+            // 모두 통과한 미디어: 브라우저에서 볼 수 있는 URL 주소 형식 발급 
             validFiles.push({
                 file,
                 previewUrl: URL.createObjectURL(file)
@@ -78,9 +84,11 @@ export const useMediaMutation = () => {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    // 2. 미디어 제거 로직
+    // [미디어 제거]
     const handleRemoveMedia = (indexToRemove: number) => {
         const newList = mediaList.filter((_, index) => index !== indexToRemove);
+
+        // 미디어 추가할때 생성한 미리보기 URL 제거
         URL.revokeObjectURL(mediaList[indexToRemove].previewUrl);
         
         setValue('mediaList', newList, { shouldValidate: true });
@@ -93,7 +101,7 @@ export const useMediaMutation = () => {
         }
     };
 
-    // 3. 웹캠 캡처 완료 처리
+    // [웹캠]
     const handleWebcamCapture = (file: File) => {
         if (mediaList.length >= LIMIT) return;
         const newMedia = { file, previewUrl: URL.createObjectURL(file) };
@@ -103,7 +111,7 @@ export const useMediaMutation = () => {
         setChoiceMediaNum(newList.length - 1);
     };
 
-    // 4. 크롭 완료 처리
+    // [크롭]
     const handleCropComplete = (croppedFile: File, newCropState: CropUIState) => {
         const newList = [...mediaList];
         const targetMedia = newList[choiceMediaNum];

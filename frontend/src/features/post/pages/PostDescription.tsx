@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useDescriptionMutation } from '../hooks/useDescriptionMutation';
+import { useAutoResize } from '../hooks/useAutoResize';
 import type { PostFormValues } from '../schemas/postSchema';
 
 export default function PostDescription() {
@@ -10,7 +10,7 @@ export default function PostDescription() {
     const content = watch('content') || ''; 
 
     // useDescriptionMutation 사용해서 글자수에 따른 입력창 높이 받아오기 
-    const autoResizeRef = useDescriptionMutation(content, 500);
+    const autoResizeRef = useAutoResize(content, 500);
 
     // ref: HTML 요소 연결 (textarea)
     // onChange: textarea에서 사용자가 입력값 바꿀때마다 값 저장하는 함수

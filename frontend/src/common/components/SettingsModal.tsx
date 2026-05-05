@@ -2,9 +2,9 @@ import { useState, type MouseEventHandler } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../api/axios";
-import {useAuthStore} from "../features/auth/store/authStore";
-import type { SettingsModalProps, SettingsTabType } from '../types/modalType';
-import { ROUTES } from "../constants/routes";
+import {useAuthStore} from "../../features/auth/store/authStore";
+import type { SettingsModalProps, SettingsTabType } from '../../types/modalType';
+import { ROUTES } from "../../constants/routes";
 
 const SettingsModal = ({closeModal} : SettingsModalProps) => {
 

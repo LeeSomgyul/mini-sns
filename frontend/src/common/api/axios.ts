@@ -1,5 +1,5 @@
 import axios from "axios";
-import {useAuthStore} from "../features/auth/store/authStore";
+import {useAuthStore} from "../../features/auth/store/authStore";
 
 const api = axios.create({
     baseURL: 'http://localhost:8080',//백엔드 8080과 통신

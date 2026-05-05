@@ -1,4 +1,4 @@
-import { SearchTotalSpace } from "../components/userSearch/SearchTotalSpace";
+import { SearchTotalSpace } from "../features/search/pages/SearchTotalSpace";
 
 //[홈] 피드 + 사용자 검색(userSearch)
 const FeedPage = () => {

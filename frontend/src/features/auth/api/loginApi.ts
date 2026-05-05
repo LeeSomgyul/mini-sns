@@ -1,4 +1,4 @@
-import api from "../../../api/axios";
+import api from "../../../common/api/axios";
 import type { ApiResponse } from "../../../common/types/commonType";
 import type { KakaoLoginRequest } from "../types/kakaoLoginType";
 import type { LoginRequest, LoginResponse } from "../types/loginType";

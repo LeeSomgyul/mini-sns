@@ -1,4 +1,4 @@
-import api from "../../../api/axios";
+import api from "../../../common/api/axios";
 import type { ApiResponse } from "../../../common/types/commonType";
 import type { NicknameCheckResponse } from "../types/nicknameCheckType";
 import type { EmailSendRequest, EmailSendResponse } from "../types/emailSend";

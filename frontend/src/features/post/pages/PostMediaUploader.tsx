@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useMediaMutation } from '../hooks/useMediaMutation';
+import { useMediaManager } from '../hooks/useMediaManager';
 import PostWebcamModal from '../components/PostWebcamModal';
 import PostImageCropModal from '../components/PostImageCropModal';
 
@@ -20,7 +20,7 @@ export default function PostMediaUploader() {
         handleRemoveMedia,
         handleWebcamCapture,
         handleCropComplete,
-    } = useMediaMutation();
+    } = useMediaManager();
 
     const handleAddMedia = () => {
         if (isMaxReached) {

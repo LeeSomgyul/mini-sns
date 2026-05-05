@@ -1,8 +1,8 @@
-import { useTagMutation } from '../hooks/useTagMutation';
+import { useTagManager } from '../hooks/useTagManager';
 
 export default function PostTag() {
     // 커스텀 훅에서 상태와 메서드 가져오기 (Props 제거됨)
-    const { tagUsers, handleAddTag, handleRemoveTag } = useTagMutation();
+    const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
 
     return (
         <div>
