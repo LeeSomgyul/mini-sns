@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { NavItemType, ModalType } from "../types/navItemType";
 import { ROUTES } from "../constants/routes";
 import SettingsModal from "./SettingsModal";
-import PostCreateModal from "./post/PostCreateModal";
+import PostCreateModal from "../features/post/pages/PostCreateModal";
 
 
 const Navigation = () => {

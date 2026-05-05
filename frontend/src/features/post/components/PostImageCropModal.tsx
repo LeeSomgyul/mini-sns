@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import Cropper, { type Point ,type Area } from 'react-easy-crop';
 import toast from 'react-hot-toast';
 
-import {croppedImg} from '../../utils/croppedImg';
+import {croppedImg} from '../util/croppedImg';
 
 //커스텀 편집 상태 통 데이터
 export interface CropUIState{
