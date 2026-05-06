@@ -30,6 +30,7 @@ export default function PostMediaUploader() {
         fileInputRef.current?.click();
     };
 
+    //웹캠 모달 오픈 
     const handleOpenWebcam = async () => {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
             toast.error('이 브라우저 환경에서는 카메라를 지원하지 않습니다.');

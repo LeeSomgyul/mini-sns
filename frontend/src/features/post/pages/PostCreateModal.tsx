@@ -57,7 +57,6 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
                         <span>피드 작성</span>
                     </header>
 
-                    {/* 🌟 중요: FormProvider로 자식 컴포넌트들을 감싸줍니다. */}
                     <FormProvider {...methods}>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="grid">
@@ -73,7 +72,7 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
                                 </div>
                             </div>
                             
-                            {/* React Hook Form의 에러 메시지 렌더링 (mediaList 또는 content) */}
+                            {/* 에러 메시지 렌더링 (mediaList 또는 content) */}
                             {(errors.mediaList || errors.content) && (
                                 <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>
                                     {errors.mediaList?.message || errors.content?.message}

@@ -6,9 +6,17 @@ import type { SelectedMediaType } from '../types/SelectedMediaType';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { CropUIState } from '../components/PostImageCropModal';
 
+//handleFileChange 메서드의 미디어 검사 결과 타입
+type ValidationResult = {
+    success: boolean;
+    data?: SelectedMediaType;//success 경우에만 담는 데이터
+    errorFileName?: string;
+}
+
 export const useMediaManager = () => {
-    // React Hook Form 연동
-    const { setValue, watch } = useFormContext<PostFormValues>();
+    const { setValue, watch, getValues } = useFormContext<PostFormValues>();
+    
+    //과거 미디어 목록 
     const mediaList = watch('mediaList') || [];
     
     // UI 동작을 위한 상태 관리 (서버 전송 X)
@@ -23,56 +31,63 @@ export const useMediaManager = () => {
 
     // [미디어 추가(변경) 시 실행]
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        
+        //파일 객체를 배열 형식으로 변환
         const newFiles = Array.from(e.target.files || []);
+
+        //파일 등록 안했다면 return
         if (!newFiles.length) return;
 
-        const rejectedFiles: string[] = [];
-        const validFiles: SelectedMediaType[] = [];
-
-        // 갯수 제한: 최대 5개까지만 등록 가능
-        const currentCount = mediaList.length;
+        // postSchema.ts의 mediaList: 사용자가 등록한 최신 미디어 목록 검사
+        const currentMediaList = (getValues('mediaList') || []) as SelectedMediaType[];
+        const currentCount = currentMediaList.length;
 
         if (currentCount + newFiles.length > LIMIT) {
             toast.error(`최대 ${LIMIT}개까지만 등록 가능합니다.`);
         }
 
+        // 사용자가 5개상 올렸다면 5개까지 자른 다음 newFiles 배열에 저장
         const availableFiles = newFiles.slice(0, LIMIT - currentCount);
 
-        for (const file of availableFiles) {
+        // 미디어 동시 검사
+        const validationPromises = availableFiles.map(async(file): Promise<ValidationResult> => {
+            
+            // 이미지, 미디어 분별
             const isImage = file.type.startsWith('image/');
             const isVideo = file.type.startsWith('video/');
 
             // 용량 제한: 사진은 10MB 까지만 가능
-            if (isImage && file.size > 10 * 1024 * 1024) {
-                rejectedFiles.push(file.name);
-                continue;
-            }
+            if (isImage && file.size > 10 * 1024 * 1024) return {success: false, errorFileName: file.name};
 
             // 용량 제한: 영상은 100MB 까지만 가능
             if (isVideo) {
-                if (file.size > 100 * 1024 * 1024) {
-                    rejectedFiles.push(file.name);
-                    continue;
-                }
+                if (file.size > 100 * 1024 * 1024) return {success: false, errorFileName: file.name};
                 try {
                     //시간 제한: 영상은 60초 까지만 가능
                     const videoDuration = await getVideoValidation(file);
-                    if (videoDuration > 60) {
-                        rejectedFiles.push(file.name);
-                        continue;
-                    }
+                    if (videoDuration > 60) return {success: false, errorFileName: file.name};
                 } catch {
-                    rejectedFiles.push(file.name);
-                    continue;
+                    return{success: false, errorFileName: file.name}
                 }
             }
 
             // 모두 통과한 미디어: 브라우저에서 볼 수 있는 URL 주소 형식 발급 
-            validFiles.push({
-                file,
-                previewUrl: URL.createObjectURL(file)
-            });
-        }
+            return{
+                success: true,
+                data: {file, previewUrl: URL.createObjectURL(file)}
+            }
+        });
+
+        //결과
+        const result = await Promise.all(validationPromises);
+
+        //검사 통과 & 미통과
+        const validFiles = result
+            .filter(res => res.success === true)
+            .map(res => res.data as SelectedMediaType);
+        const rejectedFiles = result
+            .filter(res => res.success === false)
+            .map(res => res.errorFileName as string);
 
         //추가 실패한 파일에 대한 종합 알림
         if (rejectedFiles.length > 0) {
@@ -80,10 +95,15 @@ export const useMediaManager = () => {
         }
 
         // meidaList에 데이터 저장
-        setValue('mediaList', [...mediaList, ...validFiles], { shouldValidate: true });
+        if(validFiles.length > 0){
+            setValue('mediaList', [...currentMediaList, ...validFiles], { shouldValidate: true });
+        }
+        
         // 똑같은 파일 연속 업로드 가능하도록 
         if (fileInputRef.current) fileInputRef.current.value = '';
-    };
+            
+    }
+
 
     // [미디어 제거]
     const handleRemoveMedia = (indexToRemove: number) => {
