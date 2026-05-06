@@ -18,7 +18,6 @@ const queryClient = new QueryClient({
       if(isAxiosError(error)){
         if(error.response?.status === 401){
           toast.error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
-          window.location.href = ROUTES.LOGIN;
         }
       }else if(error instanceof Error){
         console.log(`[시스템 에러]:`,error.message);

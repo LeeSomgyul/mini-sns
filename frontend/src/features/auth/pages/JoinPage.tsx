@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 
 import { joinSchema, type JoinFormValues } from "../schemas/joinSchema";
 import { useJoinMutation } from "../hooks/useJoinMutation";
 import { useCheckNickNameMutation, useEmailSendMutation, useEmailVerifyMutation } from "../hooks/useAuthMutation";
+import { ROUTES } from "../../../constants/routes";
+
 
 const JoinPage = () => {
+    const navigate = useNavigate();
+
     // 1. 리엑트 훅 설정 
     const { 
         register, 
@@ -122,7 +127,7 @@ const JoinPage = () => {
             {
                 onSuccess: (response) => {
                     alert(`${response.nickname}님, 회원가입이 완료되었습니다.`);
-                    window.location.href = "/login";
+                    navigate(ROUTES.LOGIN, {replace: true});
                 },
                 onError: (error) => {
                     if (error instanceof AxiosError) {

@@ -21,7 +21,7 @@ export const useMediaManager = () => {
     const LIMIT = 5;
     const isMaxReached = mediaList.length >= LIMIT;
 
-    // [미디어 추가(변경) 시 검사]
+    // [미디어 추가(변경) 시 실행]
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const newFiles = Array.from(e.target.files || []);
         if (!newFiles.length) return;
@@ -74,6 +74,7 @@ export const useMediaManager = () => {
             });
         }
 
+        //추가 실패한 파일에 대한 종합 알림
         if (rejectedFiles.length > 0) {
             toast.error(`${rejectedFiles.length}개 제외: 사진 10MB / 영상 100MB·60초 제한`, { duration: 5000 });
         }

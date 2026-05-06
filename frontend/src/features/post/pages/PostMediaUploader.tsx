@@ -46,6 +46,7 @@ export default function PostMediaUploader() {
         }
     };
 
+    console.log("현재 RHF가 인식하는 mediaList:", mediaList);
     return (
         <div>
             {/* 모달 영역 */}

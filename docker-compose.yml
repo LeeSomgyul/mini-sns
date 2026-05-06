@@ -44,6 +44,8 @@ services:
       - "9200:9200"
     networks:
       - elastic-net
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.3
@@ -56,7 +58,12 @@ services:
       - elasticsearch
     networks:
       - elastic-net
-
+    volumes:
+      - kibana_data:/usr/share/kibana/data
 networks:
   elastic-net:
     driver: bridge
+volumes:
+  es_data:
+  kibana_data:
+  minio_data:
