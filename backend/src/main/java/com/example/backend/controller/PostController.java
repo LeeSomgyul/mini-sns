@@ -25,6 +25,12 @@ public class PostController {
     private final PostService postService;
     private final MinioService minioService;
 
+//🚨🚨 프론트 UPPY 관련 추가하기 🚨🚨
+//    🟢 방법 B: 백엔드 배치(Batch) 작업으로 일괄 청소 (현업 표준)
+//    프론트엔드는 이미 올라간 파일이든 아니든 신경 쓰지 않고 글쓰기(Submit) 버튼을 눌렀을 때 최종적으로 남은 파일의 Key들만 서버에 보냅니다.
+//
+//    백엔드 서버에는 스프링 스케줄러(Scheduler)를 하나 띄워둡니다. 매일 새벽 3시에 MinIO를 쭉 훑으면서, "업로드된 지 24시간이 지났는데 DB의 Post 테이블에 연결되지 않은 잉여 파일들"을 싹 다 지워버립니다.
+
     //1.Presigned URL 발급 API
     //프론트엔드에서 서버에 파일명을 주면, minio에 업로드할 수 있는 임시 url을 반환
     @PostMapping("/presigned-url")

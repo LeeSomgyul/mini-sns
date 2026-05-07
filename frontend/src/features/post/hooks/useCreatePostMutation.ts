@@ -27,6 +27,7 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
             filename: file.name,
             fileType: type
         });
+
         await postApi.uploadToMinio(presignedUrl, file);
         return objectKey;
     };

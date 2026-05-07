@@ -1,64 +1,60 @@
-import toast from 'react-hot-toast';
-import { useMediaManager } from '../hooks/useMediaManager';
 import PostWebcamModal from '../components/PostWebcamModal';
-import PostImageCropModal from '../components/PostImageCropModal';
+import PostImageCropModal, { type CropUIState } from '../components/PostImageCropModal';
+import { useMediaManager } from '../hooks/useMediaManager';
+import { useMediaUI } from '../hooks/useMediaUI';
 
 export default function PostMediaUploader() {
-    const {
-        mediaList,
-        choiceMediaNum,
-        setChoiceMediaNum,
-        isVideoPlaying,
-        setIsVideoPlaying,
-        isWebcamOpen,
-        setIsWebcamOpen,
-        isCropModalOpen,
-        setIsCropModalOpen,
-        fileInputRef,
-        isMaxReached,
-        handleFileChange,
-        handleRemoveMedia,
-        handleWebcamCapture,
-        handleCropComplete,
-    } = useMediaManager();
+    const {mediaList ,actions} = useMediaManager();
+    const {uiState, uiActions} = useMediaUI();
 
-    const handleAddMedia = () => {
-        if (isMaxReached) {
-            toast.error('이미지 및 파일은 최대 5개까지만 업로드 가능합니다.');
-            return;
-        }
-        fileInputRef.current?.click();
-    };
-
-    //웹캠 모달 오픈 
-    const handleOpenWebcam = async () => {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-            toast.error('이 브라우저 환경에서는 카메라를 지원하지 않습니다.');
-            return;
-        }
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const hasCamera = devices.some(device => device.kind === 'videoinput');
-            if (!hasCamera) return toast.error('카메라 장치를 찾을 수 없습니다.');
-            
-            setIsWebcamOpen(true);
-        } catch {
-            toast.error('카메라 상태를 확인할 수 없습니다.');
+       
+    //[미디어 제거 핸들러]
+    const onRemoveMedia = (indexToRemove: number) => {
+        //업로드 했던 데이터 삭제
+        actions.removeMedia(indexToRemove);
+        
+        //UI 상태 업데이트
+         if (uiState.choiceMediaNum === indexToRemove) {
+            uiActions.setChoiceMediaNum(0);
+        } else if (uiState.choiceMediaNum > indexToRemove) {
+            uiActions.setChoiceMediaNum(prev => prev - 1);
         }
     };
 
-    console.log("현재 RHF가 인식하는 mediaList:", mediaList);
+    //[크롭 핸들러]
+    const onCropComplete = (newCropState: CropUIState) => {
+        //현재 보고있는 인덱스의 새로운 크롭 상태 전달
+        actions.completeCrop(uiState.choiceMediaNum, newCropState);
+        
+        //모달 닫기
+        uiActions.closeCropModal();
+    }
+
+    //[웹캠 핸들러]: 웹캠 모달 창 안에서 사진을 찍었을때 실행
+    const onWebcamCapture = (file: File) => {
+        const currentLength = mediaList.length;
+        const isSuccess = actions.captureWebcam(file);
+
+        if(isSuccess){
+            uiActions.setChoiceMediaNum(currentLength);
+            uiActions.closeWebcamModal();
+        }
+    };
+
+    //현재 선택된 미디어
+    const currentMedia = mediaList[uiState.choiceMediaNum];
+
     return (
         <div>
             {/* 모달 영역 */}
-            {isWebcamOpen && (
+            {uiState.isWebcamOpen && (
                 <PostWebcamModal
-                    closeModal={() => setIsWebcamOpen(false)}
-                    captureResult={handleWebcamCapture}
+                    closeModal={uiActions.closeWebcamModal}
+                    captureResult={onWebcamCapture}
                 />
             )}
 
-            {isCropModalOpen && mediaList[choiceMediaNum] && !mediaList[choiceMediaNum].file.type.startsWith('video/') && (
+            {uiState.isCropModalOpen && mediaList[choiceMediaNum] && !mediaList[choiceMediaNum].file.type.startsWith('video/') && (
                 <PostImageCropModal
                     imageUrl={mediaList[choiceMediaNum].previewUrl}
                     originalFileName={mediaList[choiceMediaNum].file.name}
