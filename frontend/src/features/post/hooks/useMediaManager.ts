@@ -86,7 +86,7 @@ export const useMediaManager = () => {
             };
 
             //기존 파일 + 새 업로드 파일
-            setValue('mediaList', [...currentList, newItem]);
+            setValue('mediaList', [...currentList, newItem], {shouldValidate: true});
         });
 
         // 4. [업로드 성공 이벤트]: objectKey를 React Hook Form에 저장 (브라우저 -> 백엔드 서버)
@@ -256,7 +256,7 @@ export const useMediaManager = () => {
     };
 
     // [크롭]
-    const handleCropComplete = (targetIndex: number, newCropState: CropUIState) => {
+    const handleCropComplete = (targetIndex: number, newCropState: CropUIState, newCroppedUrl: string) => {
         const currentList = getValues('mediaList') || [];
         const targetMedia = currentList[targetIndex];
 
@@ -266,7 +266,8 @@ export const useMediaManager = () => {
 
         newList[targetIndex] = {
             ...targetMedia,
-            cropState: newCropState
+            cropState: newCropState,
+            croppedPreviewUrl: newCroppedUrl
         };
 
         setValue('mediaList', newList, {shouldValidate: true});

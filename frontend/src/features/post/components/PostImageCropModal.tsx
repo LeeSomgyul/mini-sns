@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Cropper, { type Point ,type Area } from 'react-easy-crop';
 
+import {getCroppedImgPreview} from "../util/getCroppedImgPreview";
+
 // [상태] PostImageCropModalProps의 cropResult
 export interface CropUIState{
     crop: Point;//{x,y} 위치
@@ -16,7 +18,7 @@ interface PostImageCropModalProps{
     originalFileName: string;//결과물 이름
     initialCropState?: CropUIState;//원본 편집 상태(회전, 확대 등)
     closeModal: () => void;//닫기
-    cropResult: (newCropState: CropUIState) => void;//완료 시 원본 및 수정 후 상태 모두 반환
+    cropResult: (newCropState: CropUIState, newCroppedUrl: string) => void;//완료 시 원본 및 수정 후 상태 모두 반환
 }
 
 // [모달] 이미지 편집
@@ -35,7 +37,7 @@ export default function PostImageCropModal({
 
 
     //[이미지 수정] 자르기 영역 바뀔 때마다 좌표 저장
-    const onCropComplete = useCallback((croppedAreaPixels: Area) => {
+    const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     },[]);
 
@@ -51,18 +53,32 @@ export default function PostImageCropModal({
         setRotation(0);
     };
 
-    //[편집 저장 버튼]
+    //[크롭 편집 저장 버튼]
     const handleSave = async() => {
-        //1. 사용자가 조작한 값들
-        const newCropState: CropUIState = {
-            crop,
-            zoom,
-            rotation,
-            croppedAreaPixels: croppedAreaPixels//백엔드에서 실제로 자를 때 필요한 '진짜 픽셀 좌표'
-        }
 
-        //2. 부모에게 상태 전달
-        cropResult(newCropState);
+        if(!croppedAreaPixels) return;
+
+        try{
+            //1. 프론트엔드 미리보기용 이미지 URL 생성
+            const newCroppedUrl = await getCroppedImgPreview(
+                imageUrl,
+                croppedAreaPixels,
+                rotation
+            );
+
+            //2. 부모(PostImageCropModal)에게 전달할 데이터 정리
+            const newCropState: CropUIState = {
+                crop,
+                zoom,
+                rotation,
+                croppedAreaPixels//백엔드에서 실제로 자를 때 필요한 '진짜 픽셀 좌표'
+            }
+
+            //3. 부모에게 상태 전달
+            cropResult(newCropState, newCroppedUrl);
+        }catch(error){
+            console.error("이미지 자르기 처리 중 오류 발생: ", error);
+        }
     };
 
     return createPortal(

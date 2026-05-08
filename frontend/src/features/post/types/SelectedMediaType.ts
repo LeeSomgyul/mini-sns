@@ -8,6 +8,7 @@ export interface SelectedMediaType{
     //[프론트엔드 UI 및 편집용 데이터]
     previewUrl: string;//화면 미리보기용 원본 URL
     originalFile: File;//편집에서 사용될 원본 파일
+    croppedPreviewUrl?: string;//이미지 편집 후 UI에서 보여질 이미지
     
     //[서버 전송용 데이터]
     originalKey?: string;//원본 파일 경로

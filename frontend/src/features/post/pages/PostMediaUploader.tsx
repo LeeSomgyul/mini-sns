@@ -25,9 +25,9 @@ export default function PostMediaUploader() {
     };
 
     //[크롭 핸들러]
-    const onCropComplete = (newCropState: CropUIState) => {
+    const onCropComplete = (newCropState: CropUIState, newCroppedUrl: string) => {
         //현재 보고있는 인덱스의 새로운 크롭 상태 전달
-        actions.completeCrop(uiState.choiceMediaNum, newCropState);
+        actions.completeCrop(uiState.choiceMediaNum, newCropState, newCroppedUrl);
         
         //모달 닫기
         uiActions.closeCropModal();
@@ -69,10 +69,10 @@ export default function PostMediaUploader() {
 
             {/* 상단 헤더 및 버튼 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <div>
+                <>
                     <div style={{ margin: 0, fontSize: '0.7rem' }}>이미지 및 영상 등록</div>
                     <div style={{ fontSize: '0.7rem' }}>({mediaList.length}/5)</div>
-                </div>
+                </>
                 <div style={{ display: 'flex' }}>
                     <div>
                         <input
@@ -120,7 +120,11 @@ export default function PostMediaUploader() {
                         )
                     ) : (
                         <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                            <img src={currentMedia.previewUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img 
+                                src={currentMedia.croppedPreviewUrl || currentMedia.previewUrl}
+                                alt="미리보기"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
                             <button
                                 type="button"
                                 className="secondary"
@@ -167,7 +171,11 @@ export default function PostMediaUploader() {
                                     {mediaList[index].type === 'VIDEO' ? (
                                         <video src={mediaList[index].previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
-                                        <img src={mediaList[index].previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <img
+                                            src={mediaList[index].croppedPreviewUrl || mediaList[index].previewUrl}
+                                            alt=""
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
                                     )}
                                     <button
                                         type="button"
