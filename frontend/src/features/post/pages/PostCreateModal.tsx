@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useBlocker } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -30,18 +31,52 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
     // 2. 비즈니스 로직(업로드)이 담긴 Custom Hook 호출
     const { mutate, isPending } = useCreatePostMutation({ closeModal });
 
-    // 3. 메모리 누수 방지 로직 (watch로 mediaList의 변화를 감지)
+    // 3. 입력되고 있는 데이터가 있는지 감시
     const mediaList = watch("mediaList");
+    const content = watch("content");
+    const tagUsers = watch("tagUsers");
+
+    //작성중인 데이터가 있는지 유무
+    const hasUnsavedChanges = mediaList.length > 0 || content.trim() !== '' || tagUsers.length > 0;
+
+    //뒤로가기, 페이지 이동 방지
+    useBlocker(
+        ({currentLocation, nextLocation}) =>
+            hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+    );
+
+    //작성중인 데이터가 있다면 새로고침/창 닫기 방지
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if(hasUnsavedChanges){
+                event.preventDefault();//새로고침 막기
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return() => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    },[hasUnsavedChanges]);
+
+    const mediaListRef = useRef(mediaList);
+
+    //최신 상태를 리렌더링 하지 않고 업데이트
+    useEffect(() => {
+        mediaListRef.current = mediaList;
+    }, [mediaList]);
+
+    //모달 닫힐 때 메모리 데이터 삭제
     useEffect(() => {
         return () => {
-            // 모달 닫힐 때 URL.revokeObjectURL 실행
-            mediaList.forEach((media) => {
+            mediaListRef.current.forEach((media) => {
                 if (media.previewUrl) {
                     URL.revokeObjectURL(media.previewUrl);
                 }
             });
         };
-    }, [mediaList]);
+    }, []);
 
     // 4. 최종 저장 핸들러 (유효성 검사 통과 시 실행됨)
     const onSubmit = (data: PostFormValues) => {

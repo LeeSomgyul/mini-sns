@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import {Uppy, type UppyFile} from '@uppy/core';
+import {Uppy} from '@uppy/core';
 import AwsS3 from '@uppy/aws-s3';
 
 import { getVideoValidation } from '../util/videoValidation';
@@ -9,14 +9,6 @@ import type { SelectedMediaType } from '../types/SelectedMediaType';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { CropUIState } from '../components/PostImageCropModal';
 import { postApi } from '../api/postApi';
-import {extractVideoThumbnail, extractImageThumbnail} from '../util/extractThumbnail';
-
-interface MyFileMeta{
-    [key: string]: any;//아래 3가지 외에도 다른 키 들어올 수 있다는 의미
-    originalObjectKey?: string;
-    thumbnailObjectKey?: string;
-    uploadType?: 'IMAGE' | 'VIDEO' | 'THUMBNAIL';
-}
 
 //[미디어가 업로드되는 순간 실행]
 //역할: 미디어 파일 받기, uppy로 넘기기, 서버와 통신
@@ -31,9 +23,9 @@ export const useMediaManager = () => {
     const isMaxReached = mediaList.length >= 5;
     
     //[UPPY]
-    const uppy = useMemo(() => {
+    const [uppy] = useState(() => {
 
-        // 1. Uppy 객체 생성
+        // 1. [Uppy 객체 생성]
         const u = new Uppy({
             // 해당 업로더의 고유 이름
             id: 'media-uploader',
@@ -72,8 +64,11 @@ export const useMediaManager = () => {
             }, 
         });
 
-        //3. 새로운 파일 리스트 업데이트 & 썸네일 생성 및 minio에 업로드
-        u.on('file-added', async(file) => {
+        //3. [새로운 파일 리스트 업데이트] 화면에 미리보기 즉시 띄우기
+        u.on('file-added', (file) => {
+
+            const currentList = getValues('mediaList')||[];
+
             //업로드한 파일이 영상인지 확인
             const isVideo = file.type.startsWith('video/');
 
@@ -90,48 +85,17 @@ export const useMediaManager = () => {
                 cropState: {zoom: 1, rotation: 0, crop: {x: 0, y: 0}},
             };
 
-            //기존 업로드 되어있는 미디어 파일들 가져오기
-            const currentList = getValues('mediaList')||[];
-
             //기존 파일 + 새 업로드 파일
-            setValue('mediaList', [...currentList, newItem], {shouldValidate: true});
-
-            //썸네일 추출 및 minio 업로드
-            try{
-                //영상 & 이미지 썸네일 추출
-                const thumbnailFile = isVideo
-                    ? await extractVideoThumbnail(originalFile)
-                    : await extractImageThumbnail(originalFile);
-
-                //Presigned URL 발급
-                const {presignedUrl, objectKey} = await postApi.getPresignedUrl({
-                    filename: file.name,
-                    fileType: 'THUMBNAIL'
-                });
-
-                //minio 업로드
-                await postApi.uploadToMinio(presignedUrl, thumbnailFile);
-
-                //objectKey(DB 저장용 경로)를 메타 데이터(메모리)에 저장
-                u.setFileMeta(file.id, {thumbnailObjectKey: objectKey});
-            }catch(error){
-                console.error('썸네일 생성 실패: ', error);
-                toast.error('썸네일 생성에 실패했습니다.');
-            }
+            setValue('mediaList', [...currentList, newItem]);
         });
-        return u;
-    },[]);
 
-    //업로드 완료 시 objectKey를 React Hook Form에 저장 (브라우저 -> 백엔드 서버)
-    useEffect(() => {
-        //[업로드 성공 이벤트]
-        const handleUploadSuccess = (file?: UppyFile<MyFileMeta, any>) => {
-
+        // 4. [업로드 성공 이벤트]: objectKey를 React Hook Form에 저장 (브라우저 -> 백엔드 서버)
+        u.on('upload-success', (file) => {
             //파일이 없으면 종료
             if(!file) return;
 
             //objectKey 가져오기
-            const {originalObjectKey, thumbnailObjectKey} = file.meta;
+            const {originalObjectKey} = file.meta;
 
             //현재 추가한 미디어 리스트들
             const currentList = getValues('mediaList') || [];
@@ -142,21 +106,18 @@ export const useMediaManager = () => {
                     return{
                         ...item,
                         status: 'SUCCESS',
-                        originalKey: originalObjectKey,
-                        thumbnailKey: thumbnailObjectKey
+                        originalKey: originalObjectKey as string
                     }
                 }
                 return item;
             });
 
+            //기존 파일 + 새 업로드 파일
             setValue('mediaList', updatedList, {shouldValidate: true});
-        };
+        });
 
-        //[업로드 실패 이벤트]
-        const handleUploadError = (file: UppyFile<MyFileMeta,any> | undefined, error: any) => {
-            
-            console.log('업로드 에러: ', error);
-
+        // 5. [업로드 실패 이벤트]
+        u.on('upload-error', (file) => {
             const currentList = getValues('mediaList') || [];
             const updatedList: SelectedMediaType[] = currentList.map(item => {
                 if(item.id === file?.id){
@@ -169,13 +130,10 @@ export const useMediaManager = () => {
             })
 
             setValue('mediaList', updatedList, {shouldValidate: true});
-        };
+        });
 
-        return () => {
-            uppy.off('upload-success', handleUploadSuccess);
-            uppy.off('upload-error', handleUploadError);
-        }
-    }, [uppy, getValues, setValue]);
+        return u;
+    });
 
 
     // [미디어 추가(변경) 시 실행]
@@ -231,7 +189,15 @@ export const useMediaManager = () => {
                     data: file,
                 });
             }catch(error: unknown){
-                toast.error('파일은 최대 5개까지만 등록 가능합니다.');
+                if(error instanceof Error){
+                    if(error.message.includes('already exists')){
+                        toast.error('이미 추가된 파일입니다.');
+                    }else if(error.message.includes('exceeds maximum')){
+                        toast.error('최대 5개까지만 등록 가능합니다.');
+                    }
+                }else{
+                    toast.error('파일을 추가하는 중 알 수 없는 오류가 발생했습니다.');
+                }
                 break;
             }
         }
@@ -264,8 +230,6 @@ export const useMediaManager = () => {
         const newList = mediaList.filter((_, index) => index !== indexToRemove);
         
         setValue('mediaList', newList, { shouldValidate: true });
-
-        
     };
 
     // [웹캠]

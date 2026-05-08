@@ -1,3 +1,5 @@
+import type {CropUIState} from '../components/PostImageCropModal';
+
 type backendFileType = 'IMAGE' | 'VIDEO' | 'THUMBNAIL';
 type backendMediaType = 'IMAGE' | 'VIDEO';
 
@@ -19,8 +21,8 @@ export interface postRequest{
 
 export interface MediaUploadRequest{
     mediaUrl: string;
-    thumbnailUrl: string;
     mediaType: backendFileType;
+    cropState: CropUIState | null;
 }
 
 export interface postResponse{

@@ -2,10 +2,13 @@ import PostWebcamModal from '../components/PostWebcamModal';
 import PostImageCropModal, { type CropUIState } from '../components/PostImageCropModal';
 import { useMediaManager } from '../hooks/useMediaManager';
 import { useMediaUI } from '../hooks/useMediaUI';
+import { useState } from 'react';
 
 export default function PostMediaUploader() {
-    const {mediaList ,actions} = useMediaManager();
-    const {uiState, uiActions} = useMediaUI();
+    const {mediaList ,actions, isMaxReached} = useMediaManager();
+    const {uiState, uiActions, fileInputRef} = useMediaUI();
+
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);//비디오 재생중 여부
 
        
     //[미디어 제거 핸들러]
@@ -46,21 +49,21 @@ export default function PostMediaUploader() {
 
     return (
         <div>
-            {/* 모달 영역 */}
+            {/* 웹캠 모달 */}
             {uiState.isWebcamOpen && (
                 <PostWebcamModal
                     closeModal={uiActions.closeWebcamModal}
                     captureResult={onWebcamCapture}
                 />
             )}
-
-            {uiState.isCropModalOpen && mediaList[choiceMediaNum] && !mediaList[choiceMediaNum].file.type.startsWith('video/') && (
+            {/* 이미지 편집 모달 */}
+            {uiState.isCropModalOpen && currentMedia && currentMedia.type === 'IMAGE' && (
                 <PostImageCropModal
-                    imageUrl={mediaList[choiceMediaNum].previewUrl}
-                    originalFileName={mediaList[choiceMediaNum].file.name}
-                    initialCropState={mediaList[choiceMediaNum].cropState}
-                    closeModal={() => setIsCropModalOpen(false)}
-                    cropResult={handleCropComplete}
+                    imageUrl={currentMedia.previewUrl}
+                    originalFileName={currentMedia.originalFile.name}
+                    initialCropState={currentMedia.cropState}
+                    closeModal={uiActions.closeCropModal}
+                    cropResult={onCropComplete}
                 />
             )}
 
@@ -77,14 +80,14 @@ export default function PostMediaUploader() {
                             accept="image/*,video/mp4,video/quicktime"
                             ref={fileInputRef}
                             style={{ display: 'none' }}
-                            onChange={handleFileChange}
+                            onChange={actions.addMedia}
                         />
                         <button 
                             type="button" 
                             className="secondary outline" 
                             style={{ marginRight: '5px', padding: '0.3rem' }} 
                             disabled={isMaxReached} 
-                            onClick={handleAddMedia}
+                            onClick={() => fileInputRef.current?.click()}
                         >
                             추가
                         </button>
@@ -94,7 +97,7 @@ export default function PostMediaUploader() {
                         className="secondary outline" 
                         style={{ padding: '0.3rem' }} 
                         disabled={isMaxReached} 
-                        onClick={handleOpenWebcam}
+                        onClick={uiActions.openWebcamModal}
                     >
                         카메라
                     </button>
@@ -103,13 +106,13 @@ export default function PostMediaUploader() {
 
             {/* 메인 미리보기 화면 */}
             <div style={{ aspectRatio: '1/1', height: '100%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
-                {mediaList.length > 0 && mediaList[choiceMediaNum] ? (
-                    mediaList[choiceMediaNum].file.type.startsWith('video/') ? (
+                {mediaList.length > 0 && currentMedia ? (
+                    currentMedia.type === 'VIDEO' ? (
                         isVideoPlaying ? (
-                            <video src={mediaList[choiceMediaNum].previewUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <video src={currentMedia.previewUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <div onClick={() => setIsVideoPlaying(true)} style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
-                                <video src={mediaList[choiceMediaNum].previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <video src={currentMedia.previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: '24px' }}>
                                     ▶
                                 </div>
@@ -117,12 +120,12 @@ export default function PostMediaUploader() {
                         )
                     ) : (
                         <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                            <img src={mediaList[choiceMediaNum].croppedPreviewUrl || mediaList[choiceMediaNum].previewUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={currentMedia.previewUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <button
                                 type="button"
                                 className="secondary"
                                 style={{ position: 'absolute', top: '10px', right: '10px', padding: '0.2rem 0.5rem', fontSize: '0.8rem', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '4px' }}
-                                onClick={() => setIsCropModalOpen(true)}
+                                onClick={uiActions.openCropModal}
                             >
                                 편집
                             </button>
@@ -137,15 +140,16 @@ export default function PostMediaUploader() {
             <div className="grid" style={{ gap: '0.3rem', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
                 {[0, 1, 2, 3, 4].map((index) => {
                     const hasMedia = index < mediaList.length;
-                    const isChoice = index === choiceMediaNum;
+                    const isChoice = index === uiState.choiceMediaNum;
 
                     return (
                         <div 
                             key={index}
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 if (hasMedia) {
                                     setIsVideoPlaying(true);
-                                    setChoiceMediaNum(index);
+                                    uiActions.setChoiceMediaNum(index);
                                 }
                             }}
                             style={{ 
@@ -160,17 +164,17 @@ export default function PostMediaUploader() {
                         >
                             {hasMedia ? (
                                 <>
-                                    {mediaList[index].file.type.startsWith('video/') ? (
+                                    {mediaList[index].type === 'VIDEO' ? (
                                         <video src={mediaList[index].previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
-                                        <img src={mediaList[index].croppedPreviewUrl || mediaList[index].previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <img src={mediaList[index].previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     )}
                                     <button
                                         type="button"
                                         className="close"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleRemoveMedia(index);
+                                            onRemoveMedia(index);
                                         }}
                                         style={{ position: 'absolute', top: '5px', right: '5px' }}
                                     />                                

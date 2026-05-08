@@ -11,7 +11,6 @@ export interface SelectedMediaType{
     
     //[서버 전송용 데이터]
     originalKey?: string;//원본 파일 경로
-    thumbnailKey?: string;//썸네일 파일 경로
 
     //[수정 데이터]
     cropState:{

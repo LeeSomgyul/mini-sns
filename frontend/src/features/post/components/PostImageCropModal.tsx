@@ -1,11 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Cropper, { type Point ,type Area } from 'react-easy-crop';
-import toast from 'react-hot-toast';
 
-import {croppedImg} from '../util/croppedImg';
-
-//커스텀 편집 상태 통 데이터
+// [상태] PostImageCropModalProps의 cropResult
 export interface CropUIState{
     crop: Point;//{x,y} 위치
     zoom: number;//확대 배율
@@ -13,38 +10,38 @@ export interface CropUIState{
     croppedAreaPixels?: Area | null;//최종 자르기 픽셀 영역
 }
 
+// [상태] 편집 이후 미디어 주소 + 편집 값
 interface PostImageCropModalProps{
     imageUrl: string;//모달에서 편집할 원본 이미지 주소
     originalFileName: string;//결과물 이름
     initialCropState?: CropUIState;//원본 편집 상태(회전, 확대 등)
     closeModal: () => void;//닫기
-    cropResult: (croppedFile: File, currentCropState: CropUIState) => void;//완료 시 원본 및 수정 후 상태 모두 반환
+    cropResult: (newCropState: CropUIState) => void;//완료 시 원본 및 수정 후 상태 모두 반환
 }
 
-//사용자의 이미지 편집 모달
+// [모달] 이미지 편집
 export default function PostImageCropModal({
     imageUrl,
-    originalFileName,
     initialCropState,
     closeModal,
     cropResult
 }: PostImageCropModalProps){
+
+    //[상태 초기화]
     const [crop, setCrop] = useState<Point>(initialCropState?.crop || {x:0, y:0});//위치 상태(0,0 에서 시작)
     const [zoom, setZoom] = useState<number>(initialCropState?.zoom || 1);//확대 상태(1배에서 시작)
-    
     const [rotation, setRotation] = useState<number>(initialCropState?.rotation || 0);//회전 상태(0도에서 시작)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area|null>(initialCropState?.croppedAreaPixels || null);//수정 후 위치,회전,좌표 결과 저장
 
-    const [isProcessing, setIsProcessing] = useState(false);//수정 처리중 여부
 
     //[이미지 수정] 자르기 영역 바뀔 때마다 좌표 저장
-    const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    const onCropComplete = useCallback((croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     },[]);
 
     //[이미지 수정] 90도씩 회전
     const handleRotate90 = () => {
-        setRotation((prev: number) => (prev + 90) %360);
+        setRotation((prev: number) => (prev + 90) % 360);
     };
 
     //[초기화 버튼]
@@ -54,21 +51,18 @@ export default function PostImageCropModal({
         setRotation(0);
     };
 
-    //[저장 버튼]
+    //[편집 저장 버튼]
     const handleSave = async() => {
-        if(!croppedAreaPixels) return;
-        try{
-            setIsProcessing(true);
-            const uniqueId = crypto.randomUUID();
-            const croppedFile = await croppedImg(imageUrl, croppedAreaPixels, rotation, `crop_${uniqueId}_${originalFileName}`);
-            cropResult(croppedFile, {crop, zoom, rotation});
-        }catch(error:unknown){
-            if(error instanceof Error){
-                toast.error("이미지를 처리에 실패했습니다.");
-            }
-        }finally{
-            setIsProcessing(false);
+        //1. 사용자가 조작한 값들
+        const newCropState: CropUIState = {
+            crop,
+            zoom,
+            rotation,
+            croppedAreaPixels: croppedAreaPixels//백엔드에서 실제로 자를 때 필요한 '진짜 픽셀 좌표'
         }
+
+        //2. 부모에게 상태 전달
+        cropResult(newCropState);
     };
 
     return createPortal(
@@ -131,9 +125,8 @@ export default function PostImageCropModal({
                             type="button"
                             onClick={handleSave}
                             style={{ width: '70%' }}
-                            aria-busy={isProcessing}
                         >
-                            {isProcessing ? '처리 중' : '완료'}
+                            완료
                         </button>
                     </footer>
                 </div>
