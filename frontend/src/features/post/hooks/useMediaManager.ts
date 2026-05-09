@@ -192,11 +192,14 @@ export const useMediaManager = () => {
                 if(error instanceof Error){
                     if(error.message.includes('already exists')){
                         toast.error('이미 추가된 파일입니다.');
+                        continue;
                     }else if(error.message.includes('exceeds maximum')){
                         toast.error('최대 5개까지만 등록 가능합니다.');
+                        break;
                     }
                 }else{
                     toast.error('파일을 추가하는 중 알 수 없는 오류가 발생했습니다.');
+                    continue;
                 }
                 break;
             }
@@ -249,7 +252,7 @@ export const useMediaManager = () => {
             });
 
             return true;
-        }catch(error){
+        }catch{
             toast.error('이미지를 추가하는 데 실패했습니다.');
             return false;
         }

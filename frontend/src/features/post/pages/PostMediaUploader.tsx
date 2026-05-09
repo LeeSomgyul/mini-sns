@@ -81,6 +81,7 @@ export default function PostMediaUploader() {
                             ref={fileInputRef}
                             style={{ display: 'none' }}
                             onChange={actions.addMedia}
+                            multiple
                         />
                         <button 
                             type="button" 

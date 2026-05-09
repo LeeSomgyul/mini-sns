@@ -8,9 +8,11 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
-import com.example.backend.repository.PostMediaReposity;
+import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +26,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class PostService {
 
+    private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final PostMediaReposity postMediaReposity;
+    private final PostMediaRepository postMediaRepository;
 
 
     //게시물 등록
@@ -86,12 +89,23 @@ public class PostService {
 
             //JSON에서 정보 추출
             String mediaUrl = mediaInfo.mediaUrl();
-            String thumbnailUrl = mediaInfo.thumbnailUrl();
             PostMedia.MediaType mediaType = PostMedia.MediaType.valueOf(mediaInfo.mediaType());
+
+            //Crop 객체를 JSON 문자열로 변환
+            String cropStateJson = null;
+
+            if(mediaInfo.cropState() != null){
+                try{
+                    cropStateJson = objectMapper.writeValueAsString(mediaInfo.cropState());
+                }catch(JsonProcessingException e){
+                    throw new InvalidRequestException("크롭 데이터를 처리하는 중 오류가 발생했습니다.");
+                }
+            }
 
             //첫 번째 미디어의 썸네일을 POST 엔티티에 저장 (메인 피드 썸네일)
             if(i == 0){
-                post.updateThumbnailUrl(thumbnailUrl);
+                //등록 초기에는 썸네일 없음 (워커 서버로 작업 후 생성됨)
+                post.updateThumbnailUrl(null);
             }
 
             //PostMedia 엔티티 빌드 -> 개별 상세 화면용
@@ -99,11 +113,12 @@ public class PostService {
                     .post(post)
                     .mediaType(mediaType)
                     .url(mediaUrl)
-                    .thumbnailUrl(thumbnailUrl)
+                    .thumbnailUrl(null)
+                    .cropState(cropStateJson)
                     .sortOrder(i)
                     .build();
 
-            postMediaReposity.save(postMedia);
+            postMediaRepository.save(postMedia);
             post.getMediaList().add(postMedia);
         }
 

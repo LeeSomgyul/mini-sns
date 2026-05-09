@@ -32,8 +32,11 @@ public class PostMedia {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String url;
 
-    @Column(name = "thumbnail_url", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
+
+    @Column(name = "crop_state", columnDefinition = "jsonb")
+    private String cropState;
 
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
@@ -49,11 +52,12 @@ public class PostMedia {
 
     //---빌더---
     @Builder
-    public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, int sortOrder){
+    public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, String cropState, int sortOrder){
         this.post = post;
         this.mediaType = mediaType;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
+        this.cropState = cropState;
         this.sortOrder = sortOrder;
     }
 
