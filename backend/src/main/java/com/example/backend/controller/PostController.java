@@ -44,7 +44,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,//사용자 검증
             @RequestBody @Valid PostRequest request
     ){
-        //request: 프론트가 minio에 올린 '영상 url'과 '썸네일 url' 경로도 포함
+        //request: 프론트가 minio에 올린 데이터
         PostResponse postResponse = postService.createPost(userDetails.userId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED)

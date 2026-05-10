@@ -24,6 +24,8 @@ public class QPostMedia extends EntityPathBase<PostMedia> {
 
     public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
+    public final StringPath cropState = createString("cropState");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final EnumPath<PostMedia.MediaType> mediaType = createEnum("mediaType", PostMedia.MediaType.class);

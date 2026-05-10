@@ -7,7 +7,6 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@ta
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import toast from "react-hot-toast";
 import {isAxiosError} from 'axios';
-import { ROUTES } from "./constants/routes.ts";
 
 //탄스택쿼리 설정
 const queryClient = new QueryClient({

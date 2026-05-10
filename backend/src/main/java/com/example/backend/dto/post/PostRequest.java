@@ -22,9 +22,29 @@ public record PostRequest (
     @Builder
     public record MediaUploadRequest(
             String mediaUrl,
-            String thumbnailUrl,
-            String mediaType
-    ){}
+            String mediaType,
+            CropUIState cropState
+    ){
+        public record CropUIState(
+                Point crop,
+                double zoom,
+                double rotation,
+                Area croppedAreaPixels
+        ){
+            public record Point(
+                    double x,
+                    double y
+            ){}
+
+            public record Area(
+                    double width,
+                    double height,
+                    double x,
+                    double y
+            ){}
+        }
+    }
+
 
     public PostRequest{
         //내용 공백처리

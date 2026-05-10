@@ -1,13 +1,20 @@
-//PostMediaUploader.tsx에서 업로드되는 게시물 1개당 갖는 데이터
+//업로드되는 게시물 1개당 갖는 데이터
 export interface SelectedMediaType{
-    //수정전 데이터 (원본 파일, 원본 화면에서 보여지는 미리보기 이미지)
-    file: File;
-    previewUrl: string;
+    //[필수]
+    id: string;//Uppy의 file.id
+    type: 'IMAGE' | 'VIDEO';
+    status: 'UPLOADING' | 'SUCCESS' | 'ERROR';//업로드 진행 상태
+
+    //[프론트엔드 UI 및 편집용 데이터]
+    previewUrl: string;//화면 미리보기용 원본 URL
+    originalFile: File;//편집에서 사용될 원본 파일
+    croppedPreviewUrl?: string;//이미지 편집 후 UI에서 보여질 이미지
     
-    //수정후 데이터
-    croppedFile?: File;
-    croppedPreviewUrl?: string;
-    cropState?:{
+    //[서버 전송용 데이터]
+    originalKey?: string;//원본 파일 경로
+
+    //[수정 데이터]
+    cropState:{
         crop: {x: number, y: number};
         zoom: number;
         rotation: number;
