@@ -12,7 +12,7 @@ export const postSchema = z.object({
         .refine((list) => list && list.length <= 5, {
             message: "파일은 최대 5개까지만 등록 가능합니다.",
         })
-        .refine((list) => list.every(item => item.status === 'UPLOADING'),{
+        .refine((list) => list.every(item => item.status !== 'UPLOADING'),{
             message: "아직 업로드 중인 미디어가 있습니다. 잠시만 기다려주세요.",
         }),
         

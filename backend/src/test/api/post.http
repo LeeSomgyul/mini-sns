@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost:8080/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3Iiwibmlja25hbWUiOiLsvZTrlKnstIjrs7QiLCJpYXQiOjE3Nzg0MTI3NDUsImV4cCI6MTc3ODQxNDU0NX0.m3Phmn7w_8OqrW8ldykcIRzgEFmr3LMMCmT-bnDpG0nAbEBfDCspEE8aDdXAojGX
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3Iiwibmlja25hbWUiOiLsvZTrlKnstIjrs7QiLCJpYXQiOjE3Nzg0MTYyNDksImV4cCI6MTc3ODQxODA0OX0.N_85cHLuaQqD1XvXKWMwsrFmnOs8EwFLuci_ZDb2vCxav8QOwcnq45JnIbFAzwUC
 
 ### 1. 게시물 등록
 POST {{baseUrl}}/posts
@@ -23,13 +23,8 @@ Authorization: Bearer {{accessToken}}
                     "y": 100
                 }
             }
-        },
-        {
-            "mediaUrl": "C:/Users/rmawl/Downloads/테스트영상_4.mp4",
-            "mediaType": "VIDEO",
-            "cropState": null
         }
     ],
     "content": "미디어 업로드 최적화 테스트 중입니다. (더미 본문)",
-    "tagUserIds": [7,9]
+    "tagUserIds": [8,9]
 }
