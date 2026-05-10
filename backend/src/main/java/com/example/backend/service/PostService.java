@@ -93,7 +93,6 @@ public class PostService {
 
             //Crop 객체를 JSON 문자열로 변환
             String cropStateJson = null;
-
             if(mediaInfo.cropState() != null){
                 try{
                     cropStateJson = objectMapper.writeValueAsString(mediaInfo.cropState());

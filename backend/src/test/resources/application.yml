@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  mail:
+    host: localhost
+    port: 25
+    username: dummy-mail-user
+    password: dummy-mail-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: localhost
+          starttls:
+            enable: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  elasticsearch:
+    uris: http://localhost:9200
+jwt:
+  secret: this-is-a-dummy-secret-key-for-test-environment-12345
+kakao:
+  client-id: dummy-kakao-client-id
+  redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+file:
+  upload-dir: C:/dummy-uploads/
+fmpg:
+  path: C:/dummy-ffmpeg/bin/ffmpeg.exe
+minio:
+  endpoint: http://localhost:9000
+  accessKey: dummy-minio-access-key
+  secretKey: dummy-minio-secret-key
+  bucket: test-mini-sns
+  default-image: /minio/mini-sns-default/default_loading_image.png
+logging:
+  level:
+    org.springframework.data.elasticsearch.client.elc: TRACE
+    co.elastic.clients.transport: TRACE
+    org.elasticsearch.client.RestClient: TRACE
+    tracer: TRACE
