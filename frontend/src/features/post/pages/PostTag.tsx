@@ -1,17 +1,34 @@
 import { useTagManager } from '../hooks/useTagManager';
+import TagSearchModal from '../components/TagSearchModal';
+import { useState } from 'react';
 
 export default function PostTag() {
-    // 커스텀 훅에서 상태와 메서드 가져오기 (Props 제거됨)
+
+    // 커스텀 훅에서 상태와 메서드 가져오기
     const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
+
+    //모달창 오픈 여부
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <div>
+            {/* [모달] 태그 추가 */}
+            <TagSearchModal
+                isOpen={isModalOpen}
+                onCloseModal={() => setIsModalOpen(false)}
+                initialTags={tagUsers}
+                onComplete={(selectedUsers) => {
+                    console.log("모달에서 완료 누름! 선택된 유저들:", selectedUsers);
+                    setIsModalOpen(false);
+                }}
+            />
+
             <h4 style={{ marginBottom: '0.5rem' }}>태그</h4>
             <button 
-                type="button" // 폼 제출 방지 (필수)
+                type="button"
                 className="secondary outline" 
                 style={{ width: '100%', marginBottom: '0.7rem' }}
-                onClick={handleAddTag}
+                onClick={() => setIsModalOpen(true)}
             >
                 태그 추가
             </button>
