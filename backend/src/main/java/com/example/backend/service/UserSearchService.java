@@ -15,13 +15,14 @@ public class UserSearchService {
     private final UserSearchRepository userSearchRepository;
 
     //keyword: 사용자의 검색어 (예: '홍길동')
+    //currentUserId: 현재 로그인한 사용자 본인 id
     //Pageable: "1페이지에 10명씩 보여줘" 라는 요청 설정
-    public UserSearchResponse searchUsers(String keyword, Pageable pageable){
+    public UserSearchResponse searchUsers(String keyword, Long currentUserId,Pageable pageable){
 
         //엘라스틱서치에서 찾기
-        Page<UserDocument> documentPage = userSearchRepository.findByNicknameOrName(
+        Page<UserDocument> documentPage = userSearchRepository.searchUsersNotMe(
                 keyword.trim(),
-                keyword.trim(),
+                currentUserId,
                 pageable
         );
 

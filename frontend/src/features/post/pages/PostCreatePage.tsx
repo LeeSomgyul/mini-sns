@@ -114,11 +114,9 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
                                 </p>
                             )}
 
-                            <footer>
-                                <button type="submit" disabled={isPending}>
-                                    {isPending ? '업로드 중...' : '저장'}
-                                </button>
-                            </footer>
+                            <button type="submit" disabled={isPending}>
+                                {isPending ? '업로드 중...' : '저장'}
+                            </button>
                         </form>
                     </FormProvider>
                 </article>

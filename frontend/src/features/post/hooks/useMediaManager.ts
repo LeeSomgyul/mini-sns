@@ -29,6 +29,8 @@ export const useMediaManager = () => {
         const u = new Uppy({
             // 해당 업로더의 고유 이름
             id: 'media-uploader',
+            // 사용자가 미디어 업로드 하자마자 바로 전송 시작
+            autoProceed: true,
             // 업로드할 파일에 대한 규칙 정의
             restrictions: {
                 maxNumberOfFiles: 5,//한번에 5개까지 업로드 가능
@@ -43,6 +45,7 @@ export const useMediaManager = () => {
             //동시 업로드 3개 제한
             limit: 3,
             getUploadParameters: async (file) => {
+                console.log("1. URL 요청 시작!", file.name);
                 //미디어 타입 판별
                 const type = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
 
@@ -51,6 +54,8 @@ export const useMediaManager = () => {
                     filename: file.name,
                     fileType: type
                 });
+
+                console.log("2. 백엔드가 준 presignedUrl:", presignedUrl);
 
                 //objectKey(DB 저장용 경로)를 메타 데이터(메모리)에 저장
                 u.setFileMeta(file.id, {originalObjectKey: objectKey});

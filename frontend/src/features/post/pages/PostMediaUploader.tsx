@@ -189,7 +189,7 @@ export default function PostMediaUploader() {
                                     />                                
                                 </>
                             ) : (
-                                <span>+</span>
+                                <span></span>
                             )}
                         </div>
                     );

@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 export default function PostTag() {
 
+    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
+
     // 커스텀 훅에서 상태와 메서드 가져오기
     const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
 
@@ -45,7 +47,11 @@ export default function PostTag() {
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             {/* 임시 유저 정보 (프로필 이미지, 닉네임, 이름) */}
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#d1d5db' }}></div>
+                            <img
+                                src={user.profileImageUrl || DEFAULT_PROFILE}
+                                alt={`${user.nickname} 프로필`} 
+                                style={{ width: '32px', height: '32px', borderRadius: '50%'}}
+                            />
                             <span style={{ fontWeight: 'bold' }}>{user.nickname}</span>
                             <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>{user.name}</span>
                         </div>
