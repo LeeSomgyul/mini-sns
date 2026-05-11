@@ -117,8 +117,15 @@ export default function PostMediaUploader() {
                                 style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }}
                             />
                         ) : (
-                            <div onClick={() => setIsVideoPlaying(true)} style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
-                                <video src={currentMedia.previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div
+                                onClick={() => setIsVideoPlaying(true)}
+                                style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer', backgroundColor: '#000' }}
+                            >
+                                <video
+                                    src={currentMedia.previewUrl}
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }} 
+                                    preload="metadata"
+                                />
                                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: '24px' }}>
                                     ▶
                                 </div>
