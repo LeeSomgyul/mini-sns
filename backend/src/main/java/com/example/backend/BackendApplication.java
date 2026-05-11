@@ -33,10 +33,10 @@ public class BackendApplication {
             PasswordEncoder passwordEncoder
     ){
         return args -> {
-            String[] nicknames = {"코딩초보", "자바고수", "스프링마스터", "리액트장인", "더미테스터", "솜규링", "신규607"};
-            String[] names = {"김철수", "이영희", "지수", "김지수", "홍길동", "이솜귤", "신규테스터"};
+            String[] nicknames = {"코딩초보", "자바고수", "스프링마스터", "리액트장인", "더미테스터", "솜규링", "신규607", "완전고수", "완전초보", "자바싫어"};
+            String[] names = {"김철수", "이영희", "지수", "김지수", "홍길동", "이솜귤", "신규테스터", "황길동", "이안경", "이용달"};
 
-            for(int i=0; i<7; i++){
+            for(int i=0; i<10; i++){
                 String email = "test" + (i+1) + "@example.com";
                 String nickname = nicknames[i];
                 String name = names[i];
@@ -65,7 +65,7 @@ public class BackendApplication {
                 }
             }
 
-            System.out.println("✨ 총 7명의 테스트 유저 준비가 완료되었습니다.");
+            System.out.println("✨ 총 10명의 테스트 유저 준비가 완료되었습니다.");
 
             System.out.println("🔄 MySQL -> Elasticsearch 전체 데이터 동기화 시작...");
             userRepository.findAll().forEach(user -> {

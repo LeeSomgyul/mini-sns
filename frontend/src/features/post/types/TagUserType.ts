@@ -3,5 +3,5 @@ export interface TagUserType{
     userId: number;
     nickname: string;
     name: string;
-    profileImageUrl?: string;
+    profileImageUrl?: string | null;
 }

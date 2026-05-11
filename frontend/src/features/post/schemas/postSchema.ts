@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { SelectedMediaType } from "../types/SelectedMediaType";
 import type { TagUserType } from "../types/TagUserType";
 
-//[게시물 등록] 유효성 검사
+//[게시물 등록] 폼 유효성 검사
 export const postSchema = z.object({
     // 사용자가 등록한 미디어 목록 검사
     mediaList: z.custom<SelectedMediaType[]>()
@@ -12,7 +12,7 @@ export const postSchema = z.object({
         .refine((list) => list && list.length <= 5, {
             message: "파일은 최대 5개까지만 등록 가능합니다.",
         })
-        .refine((list) => list.every(item => item.status === 'UPLOADING'),{
+        .refine((list) => list.every(item => item.status !== 'UPLOADING'),{
             message: "아직 업로드 중인 미디어가 있습니다. 잠시만 기다려주세요.",
         }),
         
