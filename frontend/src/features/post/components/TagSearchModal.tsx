@@ -2,6 +2,11 @@ import { createPortal } from "react-dom";
 import type { TagUserType } from "../types/TagUserType";
 import { useEffect, useState } from "react";
 
+import {userSearchApi} from "../../search/api/userSearchApi";
+import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "../../../common/hook/useDebounce";
+import type { UserInfo } from "../../search/types/userSearchType";
+
 interface TagSearchModalProps{
     //모달창 오픈 여부
     isOpen: boolean;
@@ -16,12 +21,33 @@ interface TagSearchModalProps{
 //[태그 검색] 모달
 export default function TagSearchModal({isOpen, onComplete, onCloseModal, initialTags}: TagSearchModalProps){
 
+    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
+
     const [tagList, setTagList] = useState<TagUserType[]>([]);//선택한 태그 리스트
+    const [keyword, setKeyword] = useState('');//사용자가 실시간으로 검색하는 값
+    const debouncedKeyword = useDebounce(keyword, 500);//디바운스 적용 후 검색되는 값
+
+    //[🚨🚨임시 사용자 검색 api 연결🚨🚨]
+    const {data: searchResponse, isLoading} = useQuery({
+        queryKey: ['users', 'search', debouncedKeyword],
+        queryFn: ({signal}) => 
+            userSearchApi.searchUsers({
+                keyword: debouncedKeyword,
+                pageParam: 0,
+                signal
+            }),
+        //검색어가 있을 때만(true) useQuery 실행
+        enabled: !!debouncedKeyword.trim(),
+    });
+
+    //위 검색 api에서 UserInfo(userId, name, nickname, profileImageUrl)만 추출
+    const searchResults: UserInfo[] = searchResponse?.content || [];
 
     //모달 창이 열릴때마다 부모의 기존 태그 리스트를 복사해오기
     useEffect(() => {
         if(isOpen){
             setTagList([...initialTags]);
+            setKeyword('');
         }
     },[isOpen, initialTags]);
 
@@ -81,6 +107,8 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                             type="text"
                             placeholder="닉네임 또는 이름으로 검색하세요."
                             style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
                         />
                         <div style={{ fontSize: '0.8rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
                             (태그된 인원: {tagList.length} / 10)
@@ -90,9 +118,37 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
 
                 {/* 3. 검색 결과 리스트 영역 */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9fafb' }}>
-                    <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
-                        사용자를 검색해 보세요.
-                    </div>
+                    {!debouncedKeyword.trim() ? (
+                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                            사용자를 검색해 보세요.
+                        </div>
+                    ) : isLoading ? (
+                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                            검색 중...
+                        </div>
+                    ) : searchResults.length === 0 ? (
+                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                            검색 결과가 없습니다.
+                        </div>
+                    ) : (
+                        searchResults.map((user) => (
+                            <article
+                                key={user.userId}
+                                style={{ padding: '0.5rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <img
+                                        src={user.profileImageUrl || DEFAULT_PROFILE}
+                                        alt={`${user.nickname} 프로필`} 
+                                        style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                    />
+                                    <span style={{ fontWeight: 'bold' }}>{user.nickname}</span>
+                                    <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>{user.name}</span>
+                                </div>
+                                <span style={{ fontSize: '0.8rem', color: '#3b82f6' }}>선택</span>
+                            </article>
+                        ))
+                    )}
                 </div>
             </div>
         </div>,
