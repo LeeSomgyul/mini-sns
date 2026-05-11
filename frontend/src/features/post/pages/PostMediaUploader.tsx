@@ -110,7 +110,12 @@ export default function PostMediaUploader() {
                 {mediaList.length > 0 && currentMedia ? (
                     currentMedia.type === 'VIDEO' ? (
                         isVideoPlaying ? (
-                            <video src={currentMedia.previewUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <video
+                                src={currentMedia.previewUrl}
+                                controls
+                                autoPlay
+                                style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }}
+                            />
                         ) : (
                             <div onClick={() => setIsVideoPlaying(true)} style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
                                 <video src={currentMedia.previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

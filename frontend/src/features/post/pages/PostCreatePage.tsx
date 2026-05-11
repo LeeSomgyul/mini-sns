@@ -36,6 +36,9 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
     const content = watch("content");
     const tagUsers = watch("tagUsers");
 
+    // 미디어 업로드 상태 확인(minio로 업로드 중인가?)
+    const isMediaUploading = mediaList.some(media => media.status === 'UPLOADING');
+
     //작성중인 데이터가 있는지 유무
     const hasUnsavedChanges = mediaList.length > 0 || content.trim() !== '' || tagUsers.length > 0;
 
@@ -78,6 +81,13 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
         };
     }, []);
 
+    // 업로드 상태에 따른 '저장' 버튼 텍스트 변경
+    const getButtonText = () => {
+      if(isMediaUploading) return '미디어 업로드 중...';
+      if(isPending) return '게시물 저장 중...';
+      return '저장';  
+    };
+
     // 4. 최종 저장 핸들러 (유효성 검사 통과 시 실행됨)
     const onSubmit = (data: PostFormValues) => {
         mutate(data); // 데이터 통째로 mutation에 넘김
@@ -107,15 +117,21 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
                                 </div>
                             </div>
                             
-                            {/* 에러 메시지 렌더링 (mediaList 또는 content) */}
-                            {(errors.mediaList || errors.content) && (
+                            {/* 에러 메시지 렌더링 (postSchema.tsx) */}
+                            {errors.mediaList && errors.mediaList.message !== "아직 업로드 중인 미디어가 있습니다. 잠시만 기다려주세요." && (
                                 <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>
-                                    {errors.mediaList?.message || errors.content?.message}
+                                    {errors.mediaList.message}
                                 </p>
                             )}
 
-                            <button type="submit" disabled={isPending}>
-                                {isPending ? '업로드 중...' : '저장'}
+                            {errors.content && (
+                                <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>
+                                    {errors.content.message}
+                                </p>
+                            )}
+
+                            <button type="submit" disabled={isPending || isMediaUploading}>
+                                {getButtonText()}
                             </button>
                         </form>
                     </FormProvider>

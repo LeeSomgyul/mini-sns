@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { SelectedMediaType } from "../types/SelectedMediaType";
 import type { TagUserType } from "../types/TagUserType";
 
-//[게시물 등록] 유효성 검사
+//[게시물 등록] 폼 유효성 검사
 export const postSchema = z.object({
     // 사용자가 등록한 미디어 목록 검사
     mediaList: z.custom<SelectedMediaType[]>()
