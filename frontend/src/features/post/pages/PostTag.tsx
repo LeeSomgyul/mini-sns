@@ -13,15 +13,18 @@ export default function PostTag() {
     return (
         <div>
             {/* [모달] 태그 추가 */}
-            <TagSearchModal
-                isOpen={isModalOpen}
-                onCloseModal={() => setIsModalOpen(false)}
-                initialTags={tagUsers}
-                onComplete={(selectedUsers) => {
-                    console.log("모달에서 완료 누름! 선택된 유저들:", selectedUsers);
-                    setIsModalOpen(false);
-                }}
-            />
+            {isModalOpen && (
+                <TagSearchModal
+                    isOpen={isModalOpen}
+                    onCloseModal={() => setIsModalOpen(false)}
+                    initialTags={tagUsers}
+                    onComplete={(selectedUsers) => {
+                        handleAddTag(selectedUsers);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+            
 
             <h4 style={{ marginBottom: '0.5rem' }}>태그</h4>
             <button 

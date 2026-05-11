@@ -54,6 +54,9 @@ function App() {
         toastOptions={{
           style: {fontSize: '15px', color: "black", maxWidth: 'none', whiteSpace: 'nowrap'}
         }}
+        containerStyle={{
+          zIndex: 10000,
+        }}
       />
       <RouterProvider router={router}/>
     </>

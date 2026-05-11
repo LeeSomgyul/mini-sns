@@ -1,23 +1,24 @@
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { TagUserType } from '../types/TagUserType';
 
 // [테그 폼 데이터 관리]
 export const useTagManager = () => {
-    const { watch, setValue } = useFormContext<PostFormValues>();
+    const { watch, setValue, control } = useFormContext<PostFormValues>();
 
     // 현재 태그된 유저 목록 가져오기 (초기값은 빈 배열)
-    const tagUsers = watch('tagUsers') || [];
+    const tagUsers = useWatch({
+        name: 'tagUsers',
+        control,
+        defaultValue: []
+    });
 
-    // [태그 추가] 🚨🚨임시(실제 태그 추가 기능으로 수정하기)🚨🚨
-    const handleAddTag = () => {
-        const newUser: TagUserType = {
-            userId: Math.floor(Math.random() * 1000),
-            nickname: `유저${tagUsers.length + 1}`,
-            name: `이름${tagUsers.length + 1}`
-        };
-
-        setValue('tagUsers', [...tagUsers, newUser], { shouldValidate: true });
+    // [태그 추가]
+    const handleAddTag = (selectedUsers: TagUserType[]) => {
+        setValue('tagUsers', [...selectedUsers], {
+            shouldValidate: true,
+            shouldDirty: true
+        });
     };
 
     // [태그 삭제]
