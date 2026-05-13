@@ -1,7 +1,9 @@
 package com.example.backend.dto.file.Multipart;
 
+import com.example.backend.dto.file.FileType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 
 public record CreateMultipartRequest (
         @NotBlank(message = "파일명은 필수입니다.")
@@ -10,12 +12,6 @@ public record CreateMultipartRequest (
         @NotNull(message = "파일 타입은 필수입니다.")
         FileType fileType,
 
-        @NotNull(message = "컨텐츠 타입은 필수입니다.")
+        @NotBlank(message = "컨텐츠 타입은 필수입니다.")
         String contentType
-){
-    public enum FileType{
-        IMAGE,//원본 이미지
-        VIDEO,//원본 영상
-        THUMBNAIL//영상에서 추출한 썸네일 이미지
-    }
-}
+){}
