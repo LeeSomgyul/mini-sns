@@ -9,6 +9,10 @@ import type { SelectedMediaType } from '../types/SelectedMediaType';
 import type { PostFormValues } from '../schemas/postSchema';
 import type { CropUIState } from '../components/PostImageCropModal';
 import { postApi } from '../api/postApi';
+import type{
+    CreateMultipartRequest,SingPartRequest,ListPartsRequest,CompleteMultipartRequest,
+    AbortMultipartRequest, backendFileType
+} from "../types/postTypes";
 
 //[미디어가 업로드되는 순간 실행]
 //역할: 미디어 파일 받기, uppy로 넘기기, 서버와 통신
@@ -38,35 +42,97 @@ export const useMediaManager = () => {
             },
         });
 
-        //2. 원본 미디어(이미지, 영상) Presigned URL를 minio에 업로드
+        //2. [Multipart 플러그인 적용]
         u.use(AwsS3, {
-            //파일 쪼개서 업로드x (5GB 넘는 대용량 파일 업로드 시에만 ture)
-            shouldUseMultipart: false,
-            //동시 업로드 3개 제한
-            limit: 3,
-            getUploadParameters: async (file) => {
-                console.log("1. URL 요청 시작!", file.name);
-                //미디어 타입 판별
-                const type = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+            shouldUseMultipart: true, //조각 업로드 사용
+            limit: 3, //동시 업로드 3개 제한
+            
+            //1.업로드 시작: 백엔드에서 objectKey와 uploadId를 받아옴
+            createMultipartUpload: async (file) => {
 
-                //Presigned URL 발급
-                const {presignedUrl, objectKey} = await postApi.getPresignedUrl({
+                const type: backendFileType = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+
+                const request: CreateMultipartRequest = {
                     filename: file.name,
-                    fileType: type
-                });
-
-                console.log("2. 백엔드가 준 presignedUrl:", presignedUrl);
-
-                //objectKey(DB 저장용 경로)를 메타 데이터(메모리)에 저장
-                u.setFileMeta(file.id, {originalObjectKey: objectKey});
-
-                //minio 업로드
-                return{
-                    method: 'PUT',
-                    url: presignedUrl,
-                    headers: {'Content-Type': file.type},
+                    fileType: type,
+                    contentType: file.type ||'application/octet-stream'
                 };
-            }, 
+
+                const response = await postApi.createMultipartUpload(request);
+
+                //Uppy 메타 데이터에 ObjectKey 저장 (나중에 '저장'버튼 누를 때 DB 저장 시 사용)
+                u.setFileMeta(file.id, {originalObjectKey: response.objectKey});
+
+                return {
+                    uploadId: response.uploadId,
+                    key: response.objectKey,
+                };
+            },
+
+            //2.서명: 조각(partNumber)별 Presigned URL 발급
+            signPart: async (_file, partData) => {
+
+                const request: SingPartRequest = {
+                    uploadId: partData.uploadId,
+                    objectKey: partData.key,
+                    partNumber: partData.partNumber
+                };
+
+                const response = await postApi.signPart(request);
+
+                return {url: response.presignedUrl};
+            },
+
+            //3.확인: minio에 조각들이 잘 도착했나 확인 (전송은 2번과 3번 사이에서 프론트에서 함)
+            listParts: async (_file, {uploadId, key}) => {
+
+                if(!uploadId || !key){
+                    throw new Error("업로드 결합을 위한 필수 정보가 누락되었습니다.");
+                }
+
+                const request: ListPartsRequest = {
+                    uploadId: uploadId,
+                    objectKey: key
+                };
+
+                const response = await postApi.listParts(request);
+
+                return response.parts;
+            },
+
+            //4.조립: 조각들 합치기
+            completeMultipartUpload: async (_file, {uploadId, key, parts}) => {
+
+                const request: CompleteMultipartRequest = {
+                    uploadId: uploadId,
+                    objectKey: key,
+                    parts: parts.map(part => ({
+                        PartNumber: part.PartNumber as number,
+                        ETag: part.ETag as string
+                    }))
+                };
+
+                const response = await postApi.completeMultipartUpload(request);
+
+                return {location: response.location};
+            },
+
+            //5.업로드 취소
+            abortMultipartUpload: async (_file, {uploadId, key}) => {
+
+                if(!uploadId || !key){
+                    throw new Error("업로드 결합을 위한 필수 정보가 누락되었습니다.");
+                }
+                
+                const request: AbortMultipartRequest = {
+                    uploadId: uploadId,
+                    objectKey: key
+                };
+
+                const response = await postApi.abortMultipartUpload(request);
+
+                return response;
+            }
         });
 
         //3. [새로운 파일 리스트 업데이트] 화면에 미리보기 즉시 띄우기

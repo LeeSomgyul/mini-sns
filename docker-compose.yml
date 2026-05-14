@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - C:/mini_sns_storage/postgres_data:/var/lib/postgresql/data
 
   sns-redis:
     image: redis:latest
@@ -30,7 +30,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio_data:/data
+      - C:/mini_sns_storage/minio_data:/data
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3

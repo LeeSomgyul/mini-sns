@@ -52,6 +52,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     testImplementation 'com.h2database:h2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation platform('software.amazon.awssdk:bom:2.44.4')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
