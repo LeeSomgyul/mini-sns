@@ -10,11 +10,7 @@ import type { PostFormValues } from '../schemas/postSchema';
 import type { CropUIState } from '../components/PostImageCropModal';
 import { postApi } from '../api/postApi';
 import type{
-    CreateMultipartRequest, CreateMultipartResponse,
-    SingPartRequest, SingPartResponse,
-    postRequest, postResponse,
-    ListPartsRequest, ListPartsResponse,
-    CompleteMultipartRequest, CompleteMultipartResponse,
+    CreateMultipartRequest,SingPartRequest,ListPartsRequest,CompleteMultipartRequest,
     AbortMultipartRequest, backendFileType
 } from "../types/postTypes";
 
