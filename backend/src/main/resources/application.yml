@@ -33,6 +33,11 @@ spring:
       max-request-size: 500MB #한번 요청할때 총 파일의 크기
   elasticsearch:
     uris: http://localhost:9200
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 jwt:
   secret: ${JWT_SECRET}
 kakao:
