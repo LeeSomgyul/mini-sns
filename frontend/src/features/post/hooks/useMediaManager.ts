@@ -73,7 +73,7 @@ export const useMediaManager = () => {
                 };
             },
 
-            //2.조각(partNumber)별 Presigned URL 발급
+            //2.서명: 조각(partNumber)별 Presigned URL 발급
             signPart: async (_file, partData) => {
 
                 const request: SingPartRequest = {
@@ -87,7 +87,7 @@ export const useMediaManager = () => {
                 return {url: response.presignedUrl};
             },
 
-            //3.MiniO에게 Presigned URL로 조각으로 나눠진 미디어 데이터 전송
+            //3.확인: minio에 조각들이 잘 도착했나 확인 (전송은 2번과 3번 사이에서 프론트에서 함)
             listParts: async (_file, {uploadId, key}) => {
 
                 if(!uploadId || !key){
@@ -104,7 +104,7 @@ export const useMediaManager = () => {
                 return response.parts;
             },
 
-            //4.조각 하나로 조립
+            //4.조립: 조각들 합치기
             completeMultipartUpload: async (_file, {uploadId, key, parts}) => {
 
                 const request: CompleteMultipartRequest = {

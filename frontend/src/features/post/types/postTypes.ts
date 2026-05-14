@@ -16,7 +16,7 @@ export interface CreateMultipartResponse{
     objectKey: string;
 }
 
-//2.조각(partNumber)별 Presigned URL 발급
+//2.서명: 조각(partNumber)별 Presigned URL 발급
 export interface SingPartRequest{
     uploadId: string;
     objectKey: string;
@@ -27,17 +27,20 @@ export interface SingPartResponse{
     presignedUrl: string;
 }
 
-//3.어디까지 올렸는지 조회
+//3.확인: minio에 조각들이 잘 도착했나 확인 (전송은 2번과 3번 사이에서 프론트에서 함)
 export interface ListPartsRequest{
     uploadId: string;
     objectKey: string;
 }
 
 export interface ListPartsResponse{
+    //PartNumber: 각 파일(uploadId)의 몇번째 조각인지
+    //Size: 조각의 용량
+    //ETag: 조각이 잘 들어왔다는 증표(식별값)
     parts: {PartNumber: number; Size: number; ETag: string}[];
 }
 
-//4.MiniO에 최종 저장 및 조각들 순서대로 조립 완료
+//4.조립: 조각들 합치기
 export interface CompleteMultipartRequest{
     uploadId: string;
     objectKey: string;

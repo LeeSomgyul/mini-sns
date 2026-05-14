@@ -33,7 +33,8 @@ export const postApi = {
     //3.어디까지 올렸는지 조회
     listParts: async (request: ListPartsRequest) => {
         const response = await api.get<ApiResponse<ListPartsResponse>>(
-            `/api/v1/media/multipart/list-parts`, { params: request }
+            `/api/v1/media/multipart/list-parts`,
+            { params: request }
         );
         return response.data.data;
     },
@@ -49,9 +50,9 @@ export const postApi = {
 
     //5.업로드 취소
     abortMultipartUpload: async (request: AbortMultipartRequest) => {
-        const response = await api.post<ApiResponse<void>>(
+        const response = await api.delete<ApiResponse<void>>(
             '/api/v1/media/multipart/abort',
-            request
+            {params: request}
         );
         return response.data.data;
     },

@@ -3,7 +3,7 @@ package com.example.backend.dto.file.Multipart;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record SingPartRequest (
+public record SignPartRequest (
         @NotBlank(message = "uploadId는 필수입니다.")
         String uploadId,
 

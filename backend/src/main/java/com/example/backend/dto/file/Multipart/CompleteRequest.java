@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record CompleteMultipartRequest (
+public record CompleteRequest (
         @NotBlank(message = "uploadId는 필수입니다.")
         String uploadId,
 
