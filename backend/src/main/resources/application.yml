@@ -35,9 +35,6 @@ spring:
     uris: http://localhost:9200
   kafka:
     bootstrap-servers: localhost:9094
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 jwt:
   secret: ${JWT_SECRET}
 kakao:

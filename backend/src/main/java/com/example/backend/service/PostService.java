@@ -8,6 +8,8 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.infrastructure.kafka.event.MediaProcessEvent;
+import com.example.backend.infrastructure.kafka.publisher.MediaEventPublisher;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -32,6 +34,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
+    private final MediaEventPublisher mediaEventPublisher;
 
 
     //게시물 등록
@@ -148,6 +151,18 @@ public class PostService {
 
             postMediaRepository.save(postMedia);
             post.getMediaList().add(postMedia);
+
+            //비디오 타입인 경우 kafka 이벤트 발생
+            if(mediaType == PostMedia.MediaType.VIDEO){
+                MediaProcessEvent event = MediaProcessEvent.of(
+                        post.getId(),
+                        mediaUrl,
+                        mediaInfo.originalFileName()
+                );
+
+                //kafka로 전송
+                mediaEventPublisher.publishUploadComplete(event);
+            }
         }
 
         return PostResponse.of(post, authorId);

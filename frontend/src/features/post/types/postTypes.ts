@@ -69,6 +69,7 @@ export interface postRequest{
 export interface MediaUploadRequest{
     mediaUrl: string;
     mediaType: backendFileType;
+    originalFileName: string;
     cropState: CropUIState | null;
 }
 

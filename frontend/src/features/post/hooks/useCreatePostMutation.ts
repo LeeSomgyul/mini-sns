@@ -29,6 +29,7 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
                 return{
                     mediaUrl: item.originalKey || '',
                     mediaType: item.type,
+                    originalFileName: item.originalFile.name,
                     cropState: item.cropState || null
                 }
             });
