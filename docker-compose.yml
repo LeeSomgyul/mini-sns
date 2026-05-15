@@ -1,14 +1,15 @@
-version: "3.8"
 services:
   db:
     image: postgres:16
     container_name: sns-db-container
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: password123
       POSTGRES_DB: sns_db
-    ports:
-      - "5432:5432"
+    networks:
+      - sns-network
     volumes:
       - C:/mini_sns_storage/postgres_data:/var/lib/postgresql/data
 
@@ -18,6 +19,8 @@ services:
     ports:
       - "6379:6379"
     restart: always
+    networks:
+      - sns-network
 
   minio:
     image: minio/minio
@@ -28,6 +31,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    networks:
+      - sns-network
     command: server /data --console-address ":9001"
     volumes:
       - C:/mini_sns_storage/minio_data:/data
@@ -35,35 +40,70 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
     container_name: elasticsearch
-    environment:
-      - discovery.type=single-node #소규모 개발이라서 node(서버)가 나 1대
-      - xpack.security.enabled=false # 🚨🚨로컬 개발용이므로 보안(비밀번호) 잠깐 해제🚨🚨
-      - xpack.security.http.ssl.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # 512MB로 메모리 제한
     ports:
       - "9200:9200"
+    environment:
+      - discovery.type=single-node #소규모 개발이라서 node(서버)가 나 1대
+      - xpack.security.enabled=false # 🚨로컬 개발용이므로 보안(비밀번호) 잠깐 해제🚨
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # 512MB로 메모리 제한
     networks:
-      - elastic-net
+      - sns-network
     volumes:
       - es_data:/usr/share/elasticsearch/data
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.3
     container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
     networks:
-      - elastic-net
+      - sns-network
     volumes:
       - kibana_data:/usr/share/kibana/data
+
+  kafka:
+    image: apache/kafka:4.0.0
+    container_name: minisns-kafka
+    ports:
+      - "9094:9094"
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - sns-network
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: minisns-kafka-ui
+    ports:
+      - "8081:8080" 
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=sns-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - sns-network
+
 networks:
-  elastic-net:
+  sns-network:
     driver: bridge
 volumes:
   es_data:
+  postgres_data:
   kibana_data:
   minio_data:
+  kafka_data:

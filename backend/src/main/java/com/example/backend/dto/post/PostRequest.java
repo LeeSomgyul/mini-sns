@@ -23,6 +23,7 @@ public record PostRequest (
     public record MediaUploadRequest(
             String mediaUrl,
             String mediaType,
+            String originalFileName,
             CropUIState cropState
     ){
         public record CropUIState(
