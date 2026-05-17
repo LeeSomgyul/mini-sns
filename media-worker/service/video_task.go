@@ -6,11 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"media-worker/processor"
 	"media-worker/storage"
 )
 
 type VideoService struct {
-	Minio *storage.MinioService
+	Minio     *storage.MinioService
+	Processor *processor.VideoProcessor
 }
 
 func NewVideoService(s *storage.MinioService) *VideoService {
@@ -29,7 +31,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string) {
 	}
 
 	//작동 예약: 영상 작업 끝나면(1~4단계) 임시 보관 장소 제거
-	defer os.RemoveAll(tempDir)
+	//defer os.RemoveAll(tempDir)
 
 	//MiniO에서 복사된 영상이 담길 최종 경로 (폴더 + 파일명)
 	localFilePath := filepath.Join(tempDir, "original_video.mp4")
@@ -42,4 +44,25 @@ func (v *VideoService) ProcessPostVideo(videoKey string) {
 	}
 
 	fmt.Printf("✅ 다운로드 완료: %s\n", localFilePath)
+
+	//[3단계] 썸네일 추출
+	thumbPath, err := v.Processor.ExtractThumbnail(tempDir)
+	if err != nil {
+		log.Panicf("❌ 썸네일 추출 실패: %v", err)
+		return
+	}
+
+	fmt.Printf("✅ 썸네일 생성 완료 (%s)\n", thumbPath)
+
+	//[4단계] 다중 해상도 가공
+	videoPaths, err := v.Processor.ResolutionVideos(tempDir)
+	if err != nil {
+		log.Panicf("❌ 영상 가공 실패: %v", err)
+		return
+	}
+
+	fmt.Printf("✅ 영상 해상도 가공 완료\n")
+	for resolution, path := range videoPaths {
+		fmt.Printf("%sp 버전: %s\n", resolution, path)
+	}
 }
