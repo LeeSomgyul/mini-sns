@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
+	"github.com/segmentio/kafka-go"
 
 	"media-worker/messaging"
 	"media-worker/service"
@@ -98,11 +99,25 @@ func main() {
 		//작업 폴더에 새로운 작업 추가
 		wg.Add(1)
 
-		//비동기 처리
-		go func(e MediaProcessEvent) {
+		//비동기 처리 (비디오 처리하는 동안 다른 카프카 메시지 받기 가능)
+		go func(msg kafka.Message, e MediaProcessEvent) {
 			defer wg.Done()
-			videoService.ProcessPostVideo(event.VideoKey, event.PostID) //비디오 처리하는 동안 다른 카프카 메시지 받기
-		}(event)
+
+			//1. 영상 가공 처리 시도
+			err := videoService.ProcessPostVideo(event.VideoKey, event.PostID)
+
+			if err == nil {
+				commitErr := kafkaConsumer.CommitMessage(context.Background(), msg)
+
+				if commitErr != nil {
+					log.Printf("⚠️ Kafka 커밋 실패: %v\n", commitErr)
+				} else {
+					fmt.Printf("✅ [post_%d] Kafka 커밋 완료!\n", e.PostID)
+				}
+			} else {
+				log.Printf("🚨 [post_%d] 작업 실패! Kafka 커밋을 보류합니다. (재시도 대기)\n", e.PostID)
+			}
+		}(m, event)
 	}
 
 	// 5-2.남은 작업 마무리 대기

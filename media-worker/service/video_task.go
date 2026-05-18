@@ -21,14 +21,14 @@ func NewVideoService(s *storage.MinioService) *VideoService {
 }
 
 // [영상 1개를 처리하기 위한 전체 프로세스]
-func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
+func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 
 	//[1단계] 작업 공간 생성
 	//tempDir: MiniO에서 복사된 영상이 담길 폴더
 	tempDir, err := os.MkdirTemp("", "worker-*")
 	if err != nil {
 		log.Printf("❌ 임시 폴더 생성 실패: %v", err)
-		return
+		return err
 	}
 
 	//작동 예약: 영상 작업 끝나면(1~4단계) 임시 보관 장소 제거
@@ -45,7 +45,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 	)
 	if err != nil {
 		log.Printf("❌ 다운로드 실패: %v", err)
-		return
+		return err
 	}
 
 	fmt.Printf("✅ 다운로드 완료: %s\n", localFilePath)
@@ -54,7 +54,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 	thumbPath, err := v.Processor.ExtractThumbnail(tempDir)
 	if err != nil {
 		log.Panicf("❌ 썸네일 추출 실패: %v", err)
-		return
+		return err
 	}
 
 	fmt.Printf("✅ 썸네일 생성 완료 (%s)\n", thumbPath)
@@ -63,7 +63,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 	videoPaths, err := v.Processor.ResolutionVideos(tempDir)
 	if err != nil {
 		log.Printf("❌ 영상 가공 실패: %v", err)
-		return
+		return err
 	}
 
 	fmt.Printf("✅ 영상 해상도 가공 완료\n")
@@ -119,4 +119,6 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 	}
 
 	fmt.Printf("🎉 [post_%d] 처리 및 MiniO 업로드 완료!\n", postId)
+
+	return nil
 }

@@ -10,7 +10,7 @@ type KafkaConsumer struct {
 	Reader *kafka.Reader
 }
 
-// [메서드] 카프카 메시지 수진
+// [카프카 메시지 수신]
 func NewKafkaConsumer(brokers []string, topic, groupID string) (*KafkaConsumer, error) {
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
@@ -25,12 +25,17 @@ func NewKafkaConsumer(brokers []string, topic, groupID string) (*KafkaConsumer, 
 	return &KafkaConsumer{Reader: reader}, nil
 }
 
-// [메서드] 카프카가 저장하고 있는 메시지 1개 가져오기
+// [카프카가 저장하고 있는 메시지 1개 가져오기]
 func (k *KafkaConsumer) GetMessage(ctx context.Context) (kafka.Message, error) {
-	return k.Reader.ReadMessage(ctx)
+	return k.Reader.FetchMessage(ctx)
 }
 
-// [메서드] 카프카 연결 닫기
+// [영상 처리 완료 응답]
+func (k *KafkaConsumer) CommitMessage(ctx context.Context, msg kafka.Message) error {
+	return k.Reader.CommitMessages(ctx, msg)
+}
+
+// [카프카 연결 닫기]
 func (k *KafkaConsumer) Close() error {
 	return k.Reader.Close()
 }
