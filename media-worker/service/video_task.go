@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -84,8 +85,13 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 
 	processedDir := fmt.Sprintf("%s/post_%d", basePath, postId) //최종 업로드 경로 (예: posts/user_123/post_5/processed)
 
+	baseName := path.Base(videoKey) //원본 MiniO 경로의 이름만 추출 (예: 랜덤.mp4)
+	ext := path.Ext(baseName)       //확장자 (예: .mp4)
+
+	uniqueId := strings.TrimSuffix(baseName, ext) //원본 이름에서 확장자 제거 (예: 랜덤)
+
 	//5-2. 썸네일 업로드
-	thumbKey := processedDir + "/thumbnail.jpg" // 예: posts/user_123/post_5/processed/thumbnail.jpg
+	thumbKey := fmt.Sprintf("%s/%s_thumbnail.jpg", processedDir, uniqueId) // 예: posts/user_123/post_5/랜덤_thumbnail.jpg
 
 	err = v.Minio.UploadFile(
 		"mini-sns",
@@ -102,7 +108,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 
 	//5-3. 다중 해상도 영상 업로드
 	for resolution, videoPath := range videoPaths {
-		videlKey := fmt.Sprintf("%s/video_%s.mps", processedDir, resolution) // 예: posts/user_123/post_5/processed/video_720.mp4
+		videlKey := fmt.Sprintf("%s/%s_%s.mp4", processedDir, uniqueId, resolution) // 예: posts/user_123/post_5/랜덤_video_720.mp4
 
 		err := v.Minio.UploadFile(
 			"mini-sns",
