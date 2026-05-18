@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -11,7 +12,7 @@ type MinioService struct {
 	Client *minio.Client
 }
 
-// MiniO 서버와 연결
+// [MiniO 서버와 연결]
 func NewMinioService(endpoint, accessKey, secretKey string, useSSL bool) (*MinioService, error) {
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
@@ -25,7 +26,7 @@ func NewMinioService(endpoint, accessKey, secretKey string, useSSL bool) (*Minio
 	return &MinioService{Client: client}, nil
 }
 
-// 작업할 영상 파일을 MiniO에서 GoWorker의 작업 폴더로 가져오기
+// [작업할 영상 파일을 MiniO에서 GoWorker의 작업 폴더로 가져오기]
 func (m *MinioService) DownloadFile(bucketName, objectName, localFilePath string) error {
 
 	err := m.Client.FGetObject(
@@ -39,7 +40,7 @@ func (m *MinioService) DownloadFile(bucketName, objectName, localFilePath string
 	return err
 }
 
-// 결과물을 MiniO에 업로드
+// [결과물을 MiniO에 업로드]
 func (m *MinioService) UploadFile(bucketName, objectName, localFilePath, contentType string) error {
 
 	_, err := m.Client.FPutObject(
@@ -53,4 +54,20 @@ func (m *MinioService) UploadFile(bucketName, objectName, localFilePath, content
 	)
 
 	return err
+}
+
+// [MiniO에서 원본 파일 제거]
+func (m *MinioService) DeleteFile(bucketName, objectName string) error {
+	err := m.Client.RemoveObject(
+		context.Background(),
+		bucketName,
+		objectName,
+		minio.RemoveObjectOptions{},
+	)
+
+	if err != nil {
+		return fmt.Errorf("MinIO 파일 삭제 실패: %w", err)
+	}
+
+	return nil
 }

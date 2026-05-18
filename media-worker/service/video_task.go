@@ -124,7 +124,20 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 		}
 	}
 
-	fmt.Printf("🎉 [post_%d] 처리 및 MiniO 업로드 완료!\n", postId)
+	//[6단계] MiniO에서 원본 파일 삭제
+	fmt.Printf("[post_%d] 원본 파일 삭제 시도: %s\n", postId, videoKey)
 
+	err = v.Minio.DeleteFile(
+		"mini-sns",
+		videoKey,
+	)
+
+	if err != nil {
+		log.Printf("⚠️ 원본 파일 삭제 실패: %v\n", err)
+	} else {
+		fmt.Printf("✅ [post_%d] 원본 파일(%s) 삭제 성공!\n", postId, uniqueId)
+	}
+
+	fmt.Printf("🎉 [post_%d] %s 미디어 인코딩 및 파이프라인 모두 성공!\n", postId, uniqueId)
 	return nil
 }
