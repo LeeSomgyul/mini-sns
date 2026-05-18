@@ -74,6 +74,6 @@ func main() {
 		json.Unmarshal(m.Value, &event)
 
 		//비동기: 비디오 처리하는 동안 다른 카프카 메시지 받기
-		go videoService.ProcessPostVideo(event.VideoKey)
+		go videoService.ProcessPostVideo(event.VideoKey, event.PostID)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"media-worker/processor"
 	"media-worker/storage"
@@ -20,7 +21,7 @@ func NewVideoService(s *storage.MinioService) *VideoService {
 }
 
 // [영상 1개를 처리하기 위한 전체 프로세스]
-func (v *VideoService) ProcessPostVideo(videoKey string) {
+func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 
 	//[1단계] 작업 공간 생성
 	//tempDir: MiniO에서 복사된 영상이 담길 폴더
@@ -31,13 +32,17 @@ func (v *VideoService) ProcessPostVideo(videoKey string) {
 	}
 
 	//작동 예약: 영상 작업 끝나면(1~4단계) 임시 보관 장소 제거
-	//defer os.RemoveAll(tempDir)
+	defer os.RemoveAll(tempDir)
 
 	//MiniO에서 복사된 영상이 담길 최종 경로 (폴더 + 파일명)
 	localFilePath := filepath.Join(tempDir, "original_video.mp4")
 
 	//[2단계] MiniO에서 작업할 영상 파일 가져오기
-	err = v.Minio.DownloadFile("mini-sns", videoKey, localFilePath)
+	err = v.Minio.DownloadFile(
+		"mini-sns",
+		videoKey,
+		localFilePath,
+	)
 	if err != nil {
 		log.Printf("❌ 다운로드 실패: %v", err)
 		return
@@ -65,4 +70,53 @@ func (v *VideoService) ProcessPostVideo(videoKey string) {
 	for resolution, path := range videoPaths {
 		fmt.Printf("%sp 버전: %s\n", resolution, path)
 	}
+
+	//[5단계] MiniO 업로드
+	fmt.Println("🚀 MinIO 업로드 시작...")
+
+	//5-1. 기존 카프카에서 제공하는 미니오 원본 경로 뜯어보기
+	pathParts := strings.Split(videoKey, "/") // 예: posts/user_123/videos/랜덤.mp4
+	basePath := "posts/unknown_user"
+
+	if len(pathParts) >= 2 {
+		basePath = fmt.Sprintf("%s/%s", pathParts[0], pathParts[1]) //basePath: posts/user_123로 변경
+	}
+
+	processedDir := fmt.Sprintf("%s/post_%d", basePath, postId) //최종 업로드 경로 (예: posts/user_123/post_5/processed)
+
+	//5-2. 썸네일 업로드
+	thumbKey := processedDir + "/thumbnail.jpg" // 예: posts/user_123/post_5/processed/thumbnail.jpg
+
+	err = v.Minio.UploadFile(
+		"mini-sns",
+		thumbKey,
+		thumbPath,
+		"image/jpeg",
+	)
+
+	if err != nil {
+		log.Printf("❌ 썸네일 업로드 실패: %v", err)
+	} else {
+		fmt.Printf("썸네일 업로드 성공: %s\n", thumbKey)
+	}
+
+	//5-3. 다중 해상도 영상 업로드
+	for resolution, videoPath := range videoPaths {
+		videlKey := fmt.Sprintf("%s/video_%s.mps", processedDir, resolution) // 예: posts/user_123/post_5/processed/video_720.mp4
+
+		err := v.Minio.UploadFile(
+			"mini-sns",
+			videlKey,
+			videoPath,
+			"video/mp4",
+		)
+
+		if err != nil {
+			log.Panicf("❌ %s 화질 업로드 실패: %v", resolution, err)
+		} else {
+			fmt.Printf("%s 영상 MiniO 저장 완료: %s\n", resolution, videoKey)
+		}
+	}
+
+	fmt.Printf("🎉 [post_%d] 처리 및 MiniO 업로드 완료!\n", postId)
 }
