@@ -62,7 +62,7 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) {
 	//[4단계] 다중 해상도 가공
 	videoPaths, err := v.Processor.ResolutionVideos(tempDir)
 	if err != nil {
-		log.Panicf("❌ 영상 가공 실패: %v", err)
+		log.Printf("❌ 영상 가공 실패: %v", err)
 		return
 	}
 
