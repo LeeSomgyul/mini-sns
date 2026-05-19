@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -62,6 +63,31 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 	}
 
 	fmt.Printf("✅ 다운로드 완료: %s\n", localFilePath)
+
+	//[보안] 정말 영상 파일인가?
+	//1. 파일 무결성 검사
+	file, err := os.Open(localFilePath)
+	if err != nil {
+		return fmt.Errorf("보안 검사 파일 열기 실패: %v", err)
+	}
+
+	//2. 파일 맨 앞 512 바이트만 읽어오기
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	file.Close()
+	if err != nil {
+		return fmt.Errorf("보안 버퍼 읽기 실패: %v", err)
+	}
+
+	//3. 파일의 진짜 Type 판별
+	mimeType := http.DetectContentType(buffer)
+	log.Printf("🔍 업로드된 파일의 실제 타입: %s", mimeType)
+
+	//4. 비디오 Type (video/mp4, video/quicktime 등) 아니면 차단
+	if !strings.HasPrefix(mimeType, "video/") {
+		log.Printf("❌ [보안 경보] 실제 비디오 파일이 아닙니다! 감지된 타입: %s", mimeType)
+		return fmt.Errorf("허용되지 않는 위험한 파일 형식입니다")
+	}
 
 	//[3단계] 썸네일 추출
 	thumbPath, err := v.Processor.ExtractThumbnail(tempDir)
