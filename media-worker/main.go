@@ -14,18 +14,14 @@ import (
 	"github.com/segmentio/kafka-go"
 
 	"media-worker/messaging"
+	"media-worker/models"
+	"media-worker/processor"
 	"media-worker/service"
 	"media-worker/storage"
 )
 
-// [타입] 자바 -> 카프카가 전달해주는 메시지 구조
-type MediaProcessEvent struct {
-	PostID           int64  `json:"postId"`
-	VideoKey         string `json:"videoKey"`
-	OriginalFileName string `json:"originalFileName"`
-}
-
 func main() {
+	brokers := []string{"localhost:9094"}
 
 	//[1단계] env 파일 로드
 	err := godotenv.Load()
@@ -33,7 +29,8 @@ func main() {
 		log.Fatal(".env 파일을 찾을 수 없습니다.")
 	}
 
-	//[2단계] MiniO 연결 준비
+	//[2단계] 인프라 준비
+	//2-1. MiniO 연결 준비
 	minioService, err := storage.NewMinioService(
 		os.Getenv("MINIO_ENDPOINT"),
 		os.Getenv("MINIO_ACCESS_KEY"),
@@ -47,21 +44,38 @@ func main() {
 
 	fmt.Println("✅ MiniO 연결 준비 완료!")
 
-	//[3단계] Kafka 메시지 수신 준비
+	//2-2. Kafka 메시지 수신 준비
 	kafkaConsumer, err := messaging.NewKafkaConsumer(
-		[]string{"localhost:9094"},
+		brokers,
 		"media.video.process",
 		"media-worker-group",
 	)
-
 	if err != nil {
 		log.Fatalln("Kafka 메시지 수신 실패: ", err)
 	}
 
-	defer kafkaConsumer.Close() // 언젠가 GoWorker 서버 종료할때 대비해서 카프카 메시지 수신 닫기 예약
+	defer kafkaConsumer.Reader.Close() // 수신기 닫기 예약
+
+	//2-3. Kafka 메시지 발신 준비
+	kafkaProducer, err := messaging.NewKafkaProducer(
+		brokers,
+		"media.video.complete",
+	)
+	if err != nil {
+		log.Fatalln("Kafka 메시지 발신 실패: ", err)
+	}
+
+	defer kafkaProducer.Writer.Close() // 발신기 닫기 예약
+
+	//2-4. FFmpeg 준비
+	videoProcessor := processor.NewVideoProcessor()
 
 	//[4단계] 비디오 처리 과정 준비
-	videoService := service.NewVideoService(minioService)
+	videoService := service.NewVideoService(
+		minioService,
+		videoProcessor,
+		kafkaProducer,
+	)
 
 	//[5단계] 안전한 종료
 	var wg sync.WaitGroup
@@ -93,14 +107,14 @@ func main() {
 		//형식 변환: 카프카가 전달해주는 JSON 메시지 -> GO가 읽을 수 있는 형식으로 변환
 		//m.Value: JSON 형식의 데이터
 		//&event: 데이터가 담길 메모리 주소
-		var event MediaProcessEvent
+		var event models.MediaProcessEvent
 		json.Unmarshal(m.Value, &event)
 
 		//작업 폴더에 새로운 작업 추가
 		wg.Add(1)
 
 		//비동기 처리 (비디오 처리하는 동안 다른 카프카 메시지 받기 가능)
-		go func(msg kafka.Message, e MediaProcessEvent) {
+		go func(msg kafka.Message, e models.MediaProcessEvent) {
 			defer wg.Done()
 
 			//1. 영상 가공 처리 시도

@@ -23,8 +23,9 @@ func (p *VideoProcessor) ResolutionVideos(tempDir string) (map[string]string, er
 
 	//720p, 1080p 해상도로 각각 영상 제작
 	for _, resolution := range resolutions {
-		//해상도 변경된 최종 결과물
-		outputPath := filepath.Join(tempDir, fmt.Sprintf("processed_%d.mp4", resolution))
+		//쪼갠 파일
+		m3u8Path := filepath.Join(tempDir, fmt.Sprintf("stream_%d.m3u8", resolution))
+		tsPath := filepath.Join(tempDir, fmt.Sprintf("stream_%d_%%03d.ts", resolution))
 
 		//[bg]: 흐리게 만든 배경
 		//[main]: 배경 위에 올라갈 원본 영상
@@ -39,12 +40,24 @@ func (p *VideoProcessor) ResolutionVideos(tempDir string) (map[string]string, er
 		cmd := exec.Command(
 			"ffmpeg",        //프로그램 이름
 			"-i", inputPath, //작업 대상 영상
+
+			"-t", "60", //60초 이후 자르기
+
 			"-lavfi", filter, //필터 적용
 			"-c:v", "libx264", //영상 압축
 			"-crf", "23", //화질
 			"-preset", "veryfast", //압축 속도 높이기
-			"-y",       //동일한 파일명 있으면 덮어쓰기
-			outputPath, //결과물 저장 경로
+
+			"-maxrate", "5M", //초당 최대 데이터 전송량 (5Mbps)
+			"-bufsize", "10M", //maxrate가 크기 넘어가지 않도록 조절
+
+			"-f", "hls", //HLS로 출력 선언
+			"-hls_time", "3", //3초 단위로 쪼개기
+			"-hls_playlist_type", "vod", //조각 다시보기 지원(영상 뒤로가기 볼때 조각을 기억)
+			"-hls_segment_filename", tsPath, //조각 저장
+
+			"-y",     //동일한 파일명 있으면 덮어쓰기
+			m3u8Path, //최종 조각 세트 정보 저장
 		)
 
 		fmt.Printf("🎬 %dp 영상 가공 중...\n", resolution)
@@ -54,7 +67,7 @@ func (p *VideoProcessor) ResolutionVideos(tempDir string) (map[string]string, er
 			return nil, fmt.Errorf("❌ %dp 영상 처리 실패: %v", resolution, err)
 		}
 
-		videoPaths[fmt.Sprintf("%dp", resolution)] = outputPath
+		videoPaths[fmt.Sprintf("%dp", resolution)] = m3u8Path
 	}
 
 	return videoPaths, nil
