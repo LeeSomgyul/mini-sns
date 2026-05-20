@@ -48,12 +48,12 @@ public class PostMedia {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    //---enum---
+    //[enum]
     public enum MediaType{
         IMAGE, VIDEO
     }
 
-    //---빌더---
+    //[빌더]
     @Builder
     public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, String cropState, int sortOrder){
         this.post = post;
@@ -64,8 +64,19 @@ public class PostMedia {
         this.sortOrder = sortOrder;
     }
 
-    //---저장 메서드---
+    //[메서드] 썸네일 업데이트 저장
     public void updateThumbnailUrl(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    //[메서드] Go워커 가공 완료 후 실행
+    // 1.DB의 .mp4 원본 경로를 .m3u8 지도로 교체
+    // 2.Go 워커에서 생성된 썸네일 경로를 업데이트
+    public void updateReplaceVideo(String m3u8URL, String thumbnailUrl){
+        if(this.mediaType != MediaType.VIDEO){
+            throw new IllegalStateException("비디오 타입의 미디어만 인코딩 결과를 반영할 수 있습니다.");
+        }
+        this.url = m3u8URL;
         this.thumbnailUrl = thumbnailUrl;
     }
 }
