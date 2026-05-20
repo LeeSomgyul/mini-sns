@@ -34,6 +34,8 @@ public class QPostMedia extends EntityPathBase<PostMedia> {
 
     public final NumberPath<Integer> sortOrder = createNumber("sortOrder", Integer.class);
 
+    public final EnumPath<PostMedia.MediaStatus> status = createEnum("status", PostMedia.MediaStatus.class);
+
     public final StringPath thumbnailUrl = createString("thumbnailUrl");
 
     public final StringPath url = createString("url");

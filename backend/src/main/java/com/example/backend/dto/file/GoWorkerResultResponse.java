@@ -7,7 +7,6 @@ public record GoWorkerResultResponse (
         Long postId,
         String uniqueId,
         String thumbnailUrl,
-        String videoUrl720p,
-        String videoUrl1080p,
+        String masterUrl,
         String status
 ){}

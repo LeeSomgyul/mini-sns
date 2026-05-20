@@ -48,7 +48,7 @@ func main() {
 	kafkaConsumer, err := messaging.NewKafkaConsumer(
 		brokers,
 		"media.video.requested",
-		"media-worker-group",
+		"mini-sns-media-worker",
 	)
 	if err != nil {
 		log.Fatalln("Kafka 메시지 수신 실패: ", err)
