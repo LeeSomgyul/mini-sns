@@ -1,9 +1,14 @@
 package com.example.backend.config;
 
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.BeanRegistrarDslMarker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -45,5 +50,31 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate(){
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    //토픽 개설 위치 명시 (application.yml 대신)
+    @Bean
+    public KafkaAdmin kafkaAdmin(){
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return new KafkaAdmin(configs);
+    }
+
+    //[자바 -> Go 워커 메시지 저장 토픽 생성]
+    @Bean
+    public NewTopic videoRequestedTopic(){
+        return TopicBuilder.name("media.video.requested")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    //[Go워커 -> 자바 메시지 저장 토픽 생성]
+    @Bean
+    public NewTopic videoCompletedTopic(){
+        return TopicBuilder.name("media.video.completed")
+                .partitions(3)
+                .replicas(1)
+                .build();
     }
 }

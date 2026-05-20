@@ -47,7 +47,7 @@ func main() {
 	//2-2. Kafka 메시지 수신 준비
 	kafkaConsumer, err := messaging.NewKafkaConsumer(
 		brokers,
-		"media.video.process",
+		"media.video.requested",
 		"media-worker-group",
 	)
 	if err != nil {
@@ -59,7 +59,7 @@ func main() {
 	//2-3. Kafka 메시지 발신 준비
 	kafkaProducer, err := messaging.NewKafkaProducer(
 		brokers,
-		"media.video.complete",
+		"media.video.completed",
 	)
 	if err != nil {
 		log.Fatalln("Kafka 메시지 발신 실패: ", err)
