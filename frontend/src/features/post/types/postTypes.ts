@@ -9,6 +9,7 @@ export interface CreateMultipartRequest{
     filename: string;
     fileType: backendFileType;
     contentType: string;
+    fileSize: number;
 }
 
 export interface CreateMultipartResponse{

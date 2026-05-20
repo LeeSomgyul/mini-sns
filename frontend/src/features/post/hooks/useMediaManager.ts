@@ -37,6 +37,7 @@ export const useMediaManager = () => {
             autoProceed: true,
             // 업로드할 파일에 대한 규칙 정의
             restrictions: {
+                maxFileSize: 1024 * 1024 * 1024,//1GB 까지 업로드 가능
                 maxNumberOfFiles: 5,//한번에 5개까지 업로드 가능
                 allowedFileTypes: ['image/*', 'video/*']//이미지, 비디오만 가능
             },
@@ -55,7 +56,8 @@ export const useMediaManager = () => {
                 const request: CreateMultipartRequest = {
                     filename: file.name,
                     fileType: type,
-                    contentType: file.type ||'application/octet-stream'
+                    contentType: file.type ||'application/octet-stream',
+                    fileSize: file.size || 0
                 };
 
                 const response = await postApi.createMultipartUpload(request);

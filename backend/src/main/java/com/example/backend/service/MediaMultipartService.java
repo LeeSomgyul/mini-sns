@@ -31,6 +31,18 @@ public class MediaMultipartService {
 
     //1.업로드 시작: minio에게 uploadId를 받아와서 objectKey와 함께 프론트에게 전달
     public CreateMultipartResponse createUpload (Long authorId, CreateMultipartRequest request){
+
+        //[보안] 1GB 용량 초과 체크
+        long maxLimit = 1024L * 1024L * 1024L;
+        if(request.fileSize() > maxLimit){
+            throw new FileProcessException("허용된 최대 파일 크기(1GB)를 초과하였습니다.");
+        }
+
+        //[보안] 확장자 검증 (예: 비디오를 올렸는데 다른 확장자인 경우 방어)
+        if(request.fileType() == FileType.VIDEO && !request.contentType().startsWith("video/")){
+            throw new FileProcessException("올바르지 않은 미디어 형식입니다.");
+        }
+
         //파일 확장자 추출 및 검증
         String extension = extractExtension(request.filename());
         validateExtension(extension);
@@ -64,6 +76,13 @@ public class MediaMultipartService {
 
     //2.서명: 조각(partNumber)별 Presigned URL 발급
     public SignPartResponse signPart (SignPartRequest request){
+
+        //[보안] uploadId 발급 후 1GB(=5M씩 205조각) 초과 미디어 등록하는 경우 차단
+        if(request.partNumber() > 205){
+            log.warn("[보안 위반 감지] 허용된 조각 번호(205)를 초과한 요청 유입. ObjectKey: {}", request.objectKey());
+            throw new FileProcessException("올바르지 않은 업로드 요청입니다.");
+        }
+
         try{
             //어떤 파일(key)의 어떤 작업(uploadId) 중 몇 번째 조각(partNumber)인지 설정
             UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
