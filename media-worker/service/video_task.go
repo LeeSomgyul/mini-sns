@@ -139,19 +139,17 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 	fmt.Printf("✅ 미니오 HLS 업로드 성공! 경로: %s/\n", processedDir)
 
 	//[6단계] 카프카로 자바 메인서버에 최종 주소 전송 (DB 갱신)
-	//6-1. 썸네일, 해상도 변경 후 MiniO 저장 경로
+	//6-1. 썸네일, 최종 영상 모음 MiniO 저장 경로
 	finalThumbURL := fmt.Sprintf("/mini-sns/%s/thumbnail.jpg", processedDir)
-	final720pURL := fmt.Sprintf("/mini-sns/%s/stream_720.m3u8", processedDir)
-	final1080pURL := fmt.Sprintf("/mini-sns/%s/stream_1080.m3u8", processedDir)
+	finalMasterURL := fmt.Sprintf("/mini-sns/%s/master.m3u8", processedDir)
 
 	//6-2. 카프카 발신 형식에 채워넣기
 	completeEvent := models.VideoCompleteEvent{
-		PostId:        postId,
-		UniqueId:      uniqueId,
-		ThumbnailUrl:  finalThumbURL,
-		VideoUrl720p:  final720pURL,
-		VideoUrl1080p: final1080pURL,
-		Status:        "COMPLETED",
+		PostId:       postId,
+		UniqueId:     uniqueId,
+		ThumbnailUrl: finalThumbURL,
+		MasterUrl:    finalMasterURL,
+		Status:       "COMPLETED",
 	}
 
 	//6-3. 전송

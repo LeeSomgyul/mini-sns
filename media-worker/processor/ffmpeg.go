@@ -19,56 +19,70 @@ func NewVideoProcessor() *VideoProcessor {
 func (p *VideoProcessor) ResolutionVideos(tempDir string) (map[string]string, error) {
 	inputPath := filepath.Join(tempDir, "original_video.mp4") //작업 대상 원본 영상
 	videoPaths := make(map[string]string)                     //720p, 1080p 결과 ([키]값 형식)
-	resolutions := []int{720, 1080}
 
-	//720p, 1080p 해상도로 각각 영상 제작
-	for _, resolution := range resolutions {
-		//쪼갠 파일
-		m3u8Path := filepath.Join(tempDir, fmt.Sprintf("stream_%d.m3u8", resolution))
-		tsPath := filepath.Join(tempDir, fmt.Sprintf("stream_%d_%%03d.ts", resolution))
+	//쪼갠 파일
+	masterPath := filepath.Join(tempDir, "master.m3u8")
+	m3u8Path := filepath.Join(tempDir, "stream_%v.m3u8")
+	tsPath := filepath.Join(tempDir, "stream_%v_%03d.ts")
 
-		//[bg]: 흐리게 만든 배경
-		//[main]: 배경 위에 올라갈 원본 영상
-		filter := fmt.Sprintf(
-			"[0:v]scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,boxblur=20:10[bg];"+
-				"[0:v]scale=%d:%d:force_original_aspect_ratio=decrease[fg];"+
-				"[bg][fg]overlay=(W-w)/2:(H-h)/2",
-			resolution, resolution, resolution, resolution, resolution, resolution,
-		)
+	//배경 흐리게 하고 위에 영상 올리기
+	multiFilter := "[0:v]split=2[raw1][raw2]; " +
+		// 720p
+		"[raw1]split=2[bg1][fg1]; " +
+		"[bg1]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,boxblur=20:10[bg1out]; " +
+		"[fg1]scale=1280:720:force_original_aspect_ratio=decrease[fg1out]; " +
+		"[bg1out][fg1out]overlay=(W-w)/2:(H-h)/2[v1out]; " +
+		// 1080p
+		"[raw2]split=2[bg2][fg2]; " +
+		"[bg2]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=20:10[bg2out]; " +
+		"[fg2]scale=1920:1080:force_original_aspect_ratio=decrease[fg2out]; " +
+		"[bg2out][fg2out]overlay=(W-w)/2:(H-h)/2[v2out]"
 
-		//ffmpeg 실행
-		cmd := exec.Command(
-			"ffmpeg",        //프로그램 이름
-			"-i", inputPath, //작업 대상 영상
+	//ffmpeg 명령문
+	cmd := exec.Command(
+		"ffmpeg",        //프로그램 이름
+		"-i", inputPath, //작업 대상 영상
+		"-t", "60", //60초 이후 자르기
 
-			"-t", "60", //60초 이후 자르기
+		//하나의 원본 파일을 복사해서 720p, 1080p 처리하여 분리 출력
+		"-filter_complex", multiFilter,
 
-			"-lavfi", filter, //필터 적용
-			"-c:v", "libx264", //영상 압축
-			"-crf", "23", //화질
-			"-preset", "veryfast", //압축 속도 높이기
+		//720p (stream_0) 인코딩 설정
+		"-map", "[v1out]",
+		"-c:v:0", "libx264",
+		"-crf:v:0", "23",
+		"-maxrate:v:0", "2500k",
+		"-bufsize:v:0", "5000k",
 
-			"-maxrate", "5M", //초당 최대 데이터 전송량 (5Mbps)
-			"-bufsize", "10M", //maxrate가 크기 넘어가지 않도록 조절
+		//1080p (stream_1) 인코딩 설정
+		"-map", "[v2out]",
+		"-c:v:1", "libx264",
+		"-crf:v:1", "23",
+		"-maxrate:v:1", "5000k",
+		"-bufsize:v:1", "10000k",
 
-			"-f", "hls", //HLS로 출력 선언
-			"-hls_time", "3", //3초 단위로 쪼개기
-			"-hls_playlist_type", "vod", //조각 다시보기 지원(영상 뒤로가기 볼때 조각을 기억)
-			"-hls_segment_filename", tsPath, //조각 저장
+		"-preset", "veryfast",
+		"-f", "hls",
+		"-hls_time", "3", //3초 단위로 쪼개기
+		"-hls_playlist_type", "vod", //조각 다시보기 지원(영상 뒤로가기 볼때 조각을 기억)
 
-			"-y",     //동일한 파일명 있으면 덮어쓰기
-			m3u8Path, //최종 조각 세트 정보 저장
-		)
+		"-var_stream_map", "v:0 v:1", //720p와 1080p를 분리
+		"-master_pl_name", "master.m3u8", //둘을 묶는 master.m3u8 제작
 
-		fmt.Printf("🎬 %dp 영상 가공 중...\n", resolution)
+		"-hls_segment_filename", tsPath, //조각 저장
+		"-y",     //동일한 파일명 있으면 덮어쓰기
+		m3u8Path, //최종 조각 세트 정보 저장
+	)
 
-		err := cmd.Run()
-		if err != nil {
-			return nil, fmt.Errorf("❌ %dp 영상 처리 실패: %v", resolution, err)
-		}
+	fmt.Println("🎬 720p & 1080p 멀티 비트레이트 통합 영상 가공 중...")
 
-		videoPaths[fmt.Sprintf("%dp", resolution)] = m3u8Path
+	//FFmpeg 실행
+	err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("❌ 720p & 1080p 멀티 비트레이트 영상 처리 실패: %v", err)
 	}
+
+	videoPaths["master"] = masterPath
 
 	return videoPaths, nil
 }
