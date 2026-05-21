@@ -3,6 +3,9 @@ package storage
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -38,6 +41,56 @@ func (m *MinioService) DownloadFile(bucketName, objectName, localFilePath string
 	)
 
 	return err
+}
+
+// [임시 폴더(tempDir)에서 HLS 관련 파일만 MiniO에 저장하기 쉽게 변경]
+func (m *MinioService) UploadHLSFolder(bucketName, baseObjectDir, tempDir string) error {
+	//1. tempDir 안에 있는 모든 파일 스캔
+	files, err := os.ReadDir(tempDir)
+	if err != nil {
+		return fmt.Errorf("임시 폴더를 읽을 수 없습니다.: %v", err)
+	}
+
+	//2. 스캔한 파일을 하나씩 꺼내서 분류
+	for _, file := range files {
+
+		//2-1. 폴더라면 건너 뜀 (쪼개진 HLS 파일만 필요)
+		if file.IsDir() {
+			continue
+		}
+
+		//2-2. 파일 찾기(썸네일, 720p, 1080p)
+		fileName := file.Name()
+		localFilePath := filepath.Join(tempDir, fileName)
+
+		//2-3. 새롭게 MiniO에 저장할 경로 + 파일명 (예: posts/user_123/post_5/랜덤UUID/stream_720.m3u8)
+		objectName := fmt.Sprintf("%s/%s", baseObjectDir, fileName)
+
+		//2-4. 확장자 추출
+		ext := strings.ToLower(filepath.Ext(fileName))
+		var contentType string
+
+		//2-5. 파일 타입 명시 (나중에 브라우저에게 알려줘야함)
+		switch ext {
+		case ".m3u8":
+			contentType = "application/x-mpegURL"
+		case ".ts":
+			contentType = "video/MP2T"
+		case ".jpg", ".jpeg":
+			contentType = "image/jpeg"
+		case ".mp4":
+			continue //임시 원본 파일은 제거할거라서 업로드 제외
+		default:
+			contentType = "application/octet-stream"
+		}
+
+		err := m.UploadFile(bucketName, objectName, localFilePath, contentType)
+		if err != nil {
+			return fmt.Errorf("❌ 업로드 실패 (%s): %v", fileName, err)
+		}
+	}
+
+	return nil
 }
 
 // [결과물을 MiniO에 업로드]

@@ -8,8 +8,8 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
-import com.example.backend.infrastructure.kafka.event.MediaProcessEvent;
-import com.example.backend.infrastructure.kafka.publisher.MediaEventPublisher;
+import com.example.backend.infrastructure.kafka.MediaProcessEvent;
+import com.example.backend.infrastructure.kafka.MediaEventPublisher;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -37,7 +37,7 @@ public class PostService {
     private final MediaEventPublisher mediaEventPublisher;
 
 
-    //게시물 등록
+    //[게시물 등록]
     public PostResponse createPost(
             Long authorId,
             PostRequest request
@@ -121,6 +121,7 @@ public class PostService {
 
             //JSON에서 정보 추출
             String mediaUrl = mediaInfo.mediaUrl();
+            String uniqueId = extractUniqueId(mediaUrl);
             PostMedia.MediaType mediaType = PostMedia.MediaType.valueOf(mediaInfo.mediaType());
 
             //Crop 객체를 JSON 문자열로 변환
@@ -144,6 +145,7 @@ public class PostService {
                     .post(post)
                     .mediaType(mediaType)
                     .url(mediaUrl)
+                    .uniqueId(uniqueId)
                     .thumbnailUrl(null)
                     .cropState(cropStateJson)
                     .sortOrder(i)
@@ -166,5 +168,22 @@ public class PostService {
         }
 
         return PostResponse.of(post, authorId);
+    }
+
+    //[자식 메서드] url에서 uuid 부분 추출 (=uniqueId 만들기)
+    private String extractUniqueId(String url){
+        if(url == null || !url.contains("/")){
+            return url;
+        }
+
+        // 1. 마지막 슬래시(/) 뒤의 파일명만 추출 (예: "295d1c01-f524-4148-adc4-c788e902fa31.mp4")
+        String fileName = url.substring(url.lastIndexOf("/") + 1);
+
+        // 2. 확장자(.mp4) 제거 (예: "295d1c01-f524-4148-adc4-c788e902fa31")
+        if(fileName.contains(".")){
+            fileName = fileName.substring(0, fileName.lastIndexOf("."));
+        }
+
+        return fileName;
     }
 }

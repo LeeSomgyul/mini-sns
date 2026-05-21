@@ -25,11 +25,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 500MB
-      max-request-size: 500MB
   elasticsearch:
     uris: http://localhost:9200
 jwt:
