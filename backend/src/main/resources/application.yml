@@ -46,7 +46,10 @@ minio:
   default-image: /minio/mini-sns-default/default_loading_image.png
 logging:
   level:
-    org.springframework.data.elasticsearch.client.elc: TRACE
-    co.elastic.clients.transport: TRACE
-    org.elasticsearch.client.RestClient: TRACE
-    tracer: TRACE
+    root: info
+#    org.springframework.kafka: DEBUG
+#    org.apache.kafka: DEBUG
+#    org.springframework.data.elasticsearch.client.elc: TRACE
+#    co.elastic.clients.transport: TRACE
+#    org.elasticsearch.client.RestClient: TRACE
+#    tracer: TRACE
