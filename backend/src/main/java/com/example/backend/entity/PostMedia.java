@@ -38,6 +38,9 @@ public class PostMedia {
     @Column(nullable = false)
     private MediaStatus status;
 
+    @Column(name = "unique_id", length = 255)
+    private String uniqueId;
+
     @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
@@ -65,14 +68,20 @@ public class PostMedia {
 
     //[빌더]
     @Builder
-    public PostMedia(Post post, MediaType mediaType, String url, String thumbnailUrl, String cropState, int sortOrder){
+    public PostMedia(Post post, MediaType mediaType, String url, String uniqueId, String thumbnailUrl, String cropState, int sortOrder){
         this.post = post;
         this.mediaType = mediaType;
         this.url = url;
-        this.status = MediaStatus.PROCESSING;
+        this.uniqueId = uniqueId;
         this.thumbnailUrl = thumbnailUrl;
         this.cropState = cropState;
         this.sortOrder = sortOrder;
+
+        if(mediaType == MediaType.IMAGE){
+            this.status = MediaStatus.COMPLETED;
+        }else{
+            this.status = MediaStatus.PROCESSING;
+        }
     }
 
     //[메서드] 썸네일 업데이트 저장

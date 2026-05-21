@@ -38,6 +38,8 @@ public class QPostMedia extends EntityPathBase<PostMedia> {
 
     public final StringPath thumbnailUrl = createString("thumbnailUrl");
 
+    public final StringPath uniqueId = createString("uniqueId");
+
     public final StringPath url = createString("url");
 
     public QPostMedia(String variable) {
