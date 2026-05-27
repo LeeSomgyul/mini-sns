@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class feedWarmUpComponent {
+public class FeedWarmUpComponent {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final PostRepository postRepository;
