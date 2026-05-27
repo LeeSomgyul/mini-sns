@@ -1,4 +1,4 @@
-package com.example.backend.infrastructure.kafka;
+package com.example.backend.infrastructure.kafka.Media;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class MediaEventPublisher {
             if(ex == null){
                 log.info("✅ Kafka 메시지 발행 성공 - Topic: {}, PostId: {}", REQUEST_TOPIC, event.postId());
             }else{
-                log.error("❌ Kafka 메시지 발행 실패 - PostId: {}", event.postId());
+                log.error("❌ Kafka 메시지 발행 실패 - Topic: {}, PostId: {}", REQUEST_TOPIC, event.postId());
             }
         });
     }

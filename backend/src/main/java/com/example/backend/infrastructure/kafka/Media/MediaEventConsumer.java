@@ -1,11 +1,10 @@
-package com.example.backend.infrastructure.kafka;
+package com.example.backend.infrastructure.kafka.Media;
 
 import com.example.backend.dto.file.GoWorkerResultResponse;
 import com.example.backend.service.MediaEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 public class MediaEventConsumer {
 
     private final MediaEventService mediaEventService;
-    private final KafkaListenerEndpointRegistry registry;
 
     //[Go워커 -> 자바 메시지 수신 및 DB 변경]
     @KafkaListener(

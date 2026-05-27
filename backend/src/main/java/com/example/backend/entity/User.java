@@ -43,6 +43,9 @@ public class User {
     @Column(name = "device_token", columnDefinition = "TEXT")
     private String deviceToken;
 
+    @Column(name = "is_celebrity", nullable = false)
+    private boolean isCelebrity = false;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
