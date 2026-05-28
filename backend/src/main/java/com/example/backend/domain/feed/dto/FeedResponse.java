@@ -40,7 +40,7 @@ public record FeedResponse (
                     AuthorDto.from(post.getAuthor()),
                     post.getContent(),
                     mediaDtos,
-                    post.getCommnetCount(),
+                    post.getCommentCount(),
                     post.getLikeCount(),
                     isLiked,
                     isAuthor,

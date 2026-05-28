@@ -24,7 +24,7 @@ public class QPost extends EntityPathBase<Post> {
 
     public final com.example.backend.domain.user.entity.QUser author;
 
-    public final NumberPath<Integer> commnetCount = createNumber("commnetCount", Integer.class);
+    public final NumberPath<Integer> commentCount = createNumber("commentCount", Integer.class);
 
     public final StringPath content = createString("content");
 
