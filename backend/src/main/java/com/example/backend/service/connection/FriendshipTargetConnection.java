@@ -22,7 +22,6 @@ public class FriendshipTargetConnection implements FeedTargetConnection{
     public List<Long> feedPushTargetIds(Long authorId) {
         return userRepository.findAll().stream()
                 .map(User::getId)
-                .filter(id -> !id.equals(authorId))
                 .toList();
     }
 

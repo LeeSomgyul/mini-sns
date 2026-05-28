@@ -1,0 +1,19 @@
+### 변수 설정 
+@baseUrl = http://localhost:8080/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyMCIsIm5pY2tuYW1lIjoi7L2U65Sp7LSI67O0IiwiaWF0IjoxNzc5OTI3MDgwLCJleHAiOjE3Nzk5Mjg4ODB9.OLq3MXf95_1FEZ-6B2sNPo5bnMNqEERcJ6N4YwJ-PZGtfKzuBGlcbtbFYpjsleyq
+
+### 1.메인 피드 조회 (첫 페이지 호출)
+GET {{baseUrl}}/feed?size=20
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2.페이지 무한 스크롤 조회
+GET {{baseUrl}}/feed?cursorId=4992&size=20
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 3.예외 테스트: 잘못된 size 검증
+# size를 0 이하(-5)로 보냈을 때 에러가 나지 않고 20개로 보정되어 조회되는지 확인
+GET {{baseUrl}}/feed?size=-5
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
