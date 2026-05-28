@@ -1,9 +1,10 @@
 package com.example.backend.infrastructure.kafka;
 
-import com.example.backend.dto.file.GoWorkerResultResponse;
-import com.example.backend.entity.Post;
-import com.example.backend.entity.PostMedia;
-import com.example.backend.repository.PostMediaRepository;
+import com.example.backend.domain.post.dto.file.GoWorkerResultResponse;
+import com.example.backend.domain.post.entity.Post;
+import com.example.backend.domain.post.entity.PostMedia;
+import com.example.backend.infrastructure.kafka.Media.MediaEventConsumer;
+import com.example.backend.domain.post.repository.PostMediaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ public class MediaEventConsumerTest {
     private PostMediaRepository postMediaRepository;
 
     @InjectMocks
-    private  MediaEventConsumer mediaEventConsumer;
+    private MediaEventConsumer mediaEventConsumer;
 
     @Test
     @DisplayName("✅ Go 워커로부터 COMPLETED 응답을 받으면 DB의 비디오 주소와 상태가 완벽하게 변경된다")
