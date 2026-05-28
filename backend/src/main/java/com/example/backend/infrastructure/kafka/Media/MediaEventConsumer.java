@@ -1,7 +1,7 @@
 package com.example.backend.infrastructure.kafka.Media;
 
-import com.example.backend.dto.file.GoWorkerResultResponse;
-import com.example.backend.service.MediaEventService;
+import com.example.backend.domain.post.dto.file.GoWorkerResultResponse;
+import com.example.backend.domain.post.service.MediaEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

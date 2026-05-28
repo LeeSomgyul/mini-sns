@@ -1,10 +1,10 @@
 package com.example.backend.infrastructure.kafka;
 
-import com.example.backend.dto.file.GoWorkerResultResponse;
-import com.example.backend.entity.Post;
-import com.example.backend.entity.PostMedia;
+import com.example.backend.domain.post.dto.file.GoWorkerResultResponse;
+import com.example.backend.domain.post.entity.Post;
+import com.example.backend.domain.post.entity.PostMedia;
 import com.example.backend.infrastructure.kafka.Media.MediaEventConsumer;
-import com.example.backend.repository.PostMediaRepository;
+import com.example.backend.domain.post.repository.PostMediaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

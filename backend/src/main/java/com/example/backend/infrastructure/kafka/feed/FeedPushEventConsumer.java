@@ -1,6 +1,6 @@
 package com.example.backend.infrastructure.kafka.feed;
 
-import com.example.backend.service.connection.FeedTargetConnection;
+import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.StringRedisConnection;
