@@ -45,7 +45,7 @@ public class PostMedia {
     private String thumbnailUrl;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "crop_state", columnDefinition = "jsonb")
+    @Column(name = "crop_state")
     private String cropState;
 
     @Column(name = "sort_order", nullable = false)

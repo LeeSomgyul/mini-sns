@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:test_minisns_db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -27,6 +27,8 @@ spring:
         format_sql: true
   elasticsearch:
     uris: http://localhost:9200
+  kafka:
+    bootstrap-servers: localhost:9094
 jwt:
   secret: this-is-a-dummy-secret-key-for-test-environment-12345
 kakao:

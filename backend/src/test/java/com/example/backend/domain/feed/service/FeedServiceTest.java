@@ -25,6 +25,13 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+//[단위 테스트] 피드 인메모리 병합 정렬 & 슬라이싱 테스트
+/*
+* <테스트 목적>
+* - Redis 캐시에서 가져온 일반 친구 게시물(Push)과 DB에서 가져온 인플루언서 게시물(Pull)이 섞여 있을 때,
+*   DB 및 Redis 의존성 없이 인메모리(자바 코드) 상에서 게시물의 `id` 내림차순(최신순) 정렬되는지 확인.
+* - 무한 스크롤 슬라이싱 연산이 잘 동작하는지 알고리즘 검증
+*/
 
 @ExtendWith(MockitoExtension.class)
 class FeedServiceTest {
