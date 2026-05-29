@@ -55,6 +55,8 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.44.4')
     implementation 'software.amazon.awssdk:s3'
     implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
 tasks.named('test') {

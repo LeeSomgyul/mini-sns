@@ -11,4 +11,8 @@ import lombok.Builder;
 public record FeedPushEvent(
         Long postId,
         Long authorId
-){}
+){
+    public static FeedPushEvent of(Long postId, Long authorId){
+        return new FeedPushEvent(postId, authorId);
+    }
+}
