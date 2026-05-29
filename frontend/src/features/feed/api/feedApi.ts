@@ -1,7 +1,7 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from '../../../common/types/commonType';
-import type { FeedParams } from "../types/FeedParamsType";
-import type { FeedResponse } from "../types/FeedResponseType";
+import type { FeedParams } from "../types/feedParamsType";
+import type { FeedResponse } from "../types/feedResponseType";
 
 export const feedApi = {
     //1. 피드 조회
