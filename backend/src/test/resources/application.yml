@@ -28,7 +28,7 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
   kafka:
-    bootstrap-servers: localhost:9094
+    bootstrap-servers: ${spring.embedded.kafka.brokers} #테스트용 랜덤 가상 포트 번호
 jwt:
   secret: this-is-a-dummy-secret-key-for-test-environment-12345
 kakao:

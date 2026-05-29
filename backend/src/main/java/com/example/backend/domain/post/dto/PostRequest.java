@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 public record PostRequest (
 
         List<MediaUploadRequest> mediaList,
@@ -19,6 +20,7 @@ public record PostRequest (
 
 
 ){
+
     @Builder
     public record MediaUploadRequest(
             String mediaUrl,
@@ -47,10 +49,11 @@ public record PostRequest (
     }
 
 
-    public PostRequest{
+    public PostRequest(List<MediaUploadRequest> mediaList, String content, List<Long> tagUserIds){
+        this.mediaList = mediaList;
         //내용 공백처리
-        content = content != null ? content.trim() : "";
+        this.content = content != null ? content.trim() : "";
         //태그 순서 중복되면 지우기, 태그 없으면 빈 리스드로 바꾸기
-        tagUserIds = tagUserIds != null ? tagUserIds.stream().distinct().toList() : List.of();
+        this.tagUserIds = tagUserIds != null ? tagUserIds.stream().distinct().toList() : List.of();
     }
 }
