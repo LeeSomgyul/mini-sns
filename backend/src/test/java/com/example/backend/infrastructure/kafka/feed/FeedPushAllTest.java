@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 //[비동기 파이프라인 전체 테스트]
 /*
 * <테스트 목적>
-* - Publisher => Event => Kafka => Consumer => Redis 전 과정 흐름 테스트
+* - 게시물 등록 => Publisher => Event => Kafka => Consumer => Redis에 postId 저장 전 과정 흐름 테스트
 */
 
 @SpringBootTest
