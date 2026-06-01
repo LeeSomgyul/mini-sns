@@ -12,9 +12,11 @@ export const FeedTopLoading = ({count = 3}: {count?: number}) => {
 
 //[컴포넌트] 무한 스크롤 하단 로딩중일때 문구
 export const FeedBottomLoading = () => {
-    <div style={{ textAlign: 'center', padding: '1rem' }}>
-        <p aria-busy="true">다음 게시물을 가져오는 중...</p>
-    </div>
+    return(
+        <div style={{ textAlign: 'center', padding: '1rem' }}>
+            <p aria-busy="true">다음 게시물을 가져오는 중...</p>
+        </div>
+    );
 };
 
 //[FeedTopLoading 로딩 UI] 게시물 1개에서 헤더, 미디어, 텍스트 영역 나눠서 스켈레톤 보여주기
