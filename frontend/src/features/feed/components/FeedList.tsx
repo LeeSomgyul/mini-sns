@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useFeedInfiniteQuery } from "../hooks/useFeedInfiniteQuery";
-import { FeedTopLoading } from "./FeedLoading";
+import { FeedBottomLoading, FeedTopLoading } from "./FeedLoading";
 import { FeedError } from "./FeedError";
 import { FeedEmpty } from "./FeedEmpty";
+import { FeedCard } from "./FeedCard";
 
 //[메인 컨테이너] FeedCard를 리스트로 출력 및 무한 스크롤
 export const FeedList = () => {
@@ -71,7 +72,14 @@ export const FeedList = () => {
             </div>
 
             {/* 조립된 FeedCard 배치 */}
-            {}
+            {allPosts.map((post) => (
+                <FeedCard key={post.postId} post={post}/>
+            ))}
+
+            {/* 무한 스크롤 바닥 센서 */}
+            <div ref={observerRef} style={{ height: '50px', marginBottom: '2rem' }}>
+                {isFetchingNextPage && <FeedBottomLoading/>}
+            </div>
         </section>
     );
 };

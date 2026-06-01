@@ -19,6 +19,11 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
 
     // <응답타입, 에러타입, 입력데이터타입>
     return useMutation<postResponse, AxiosError<{message: string}>, PostFormValues>({
+
+        //전역 에러 알림 막기
+        meta:{
+            disableGlobalError: true
+        },
         mutationFn: async (data: PostFormValues) => {
 
             // 1. 엔터 압축 (엔터 3번 이상 -> 2번으로)
