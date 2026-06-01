@@ -68,14 +68,16 @@ public record FeedResponse (
                 String mediaUrl,
                 String type,
                 String thumbnailUrl,
-                int sortOrder
+                int sortOrder,
+                String status
         ){
             public static MediaDto from (PostMedia postMedia){
                 return new MediaDto(
                     postMedia.getUrl(),
                     postMedia.getMediaType().name(),
                     postMedia.getThumbnailUrl(),
-                    postMedia.getSortOrder()
+                    postMedia.getSortOrder(),
+                    postMedia.getStatus().name()
                 );
             }
         }

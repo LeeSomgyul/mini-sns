@@ -1,4 +1,5 @@
 type backendMediaType = 'IMAGE' | 'VIDEO';
+type backendProcessType = 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 export interface FeedResponse{
     posts: PostDto[];
@@ -29,5 +30,6 @@ export interface MediaDto{
     type: backendMediaType;
     thumbnailUrl: string | null;
     sortOrder: number;
+    status: backendProcessType;
 }
 
