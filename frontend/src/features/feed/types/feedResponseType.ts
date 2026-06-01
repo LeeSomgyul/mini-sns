@@ -27,6 +27,7 @@ export interface AuthorDto{
 export interface MediaDto{
     mediaUrl: string;
     type: backendMediaType;
+    thumbnailUrl: string | null;
     sortOrder: number;
 }
 

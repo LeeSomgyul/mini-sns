@@ -1,5 +1,5 @@
 //[컴포넌트] 게시물 로딩중일때 화면
-//@params count: 로딩 스켈레톤 개수 (FeedCardSkeleton를 3개 보여주기)
+//@param count: 로딩 스켈레톤 개수 (FeedCardSkeleton를 3개 보여주기)
 export const FeedTopLoading = ({count = 3}: {count?: number}) => {
     return(
         <>
