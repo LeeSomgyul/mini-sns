@@ -71,11 +71,37 @@ public record FeedResponse (
                 int sortOrder,
                 String status
         ){
-            public static MediaDto from (PostMedia postMedia){
+            public static MediaDto from (PostMedia postMedia, String baseStorageUrl){
+                //[DB에 저장된 "/post..."형식 url을 전체 경로 형식으로 변형]
+                String dbPath = postMedia.getUrl();
+                String dbThumbPath = postMedia.getThumbnailUrl();
+
+                // 1.미디어 url 변경
+                String finalMediaUrl = null;
+                if(dbPath != null){
+                    // 만약 경로 앞부분에 버킷명이 들어있다면 제거
+                    if(dbPath.startsWith("/mini-sns/")){
+                        dbPath = dbPath.replace("/mini-sns/", "");
+                    }
+
+                    finalMediaUrl = baseStorageUrl + "/" + dbPath;
+                }
+
+                // 2.썸네일 url 변경
+                String finalThumbmailUrl = null;
+                if(dbThumbPath != null){
+                    if(dbThumbPath.startsWith("/mini-sns/")){
+                        dbThumbPath = dbThumbPath.replace("/mini-sns/", "");
+                    }
+
+                    finalThumbmailUrl = baseStorageUrl + "/" + dbThumbPath;
+                }
+
+                // 3. 변형된 url로 프론트 응답
                 return new MediaDto(
-                    postMedia.getUrl(),
+                    finalMediaUrl,
                     postMedia.getMediaType().name(),
-                    postMedia.getThumbnailUrl(),
+                    finalThumbmailUrl,
                     postMedia.getSortOrder(),
                     postMedia.getStatus().name()
                 );
