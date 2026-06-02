@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from 'react-dom';
 import { useBlocker } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -93,9 +94,9 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
         mutate(data); // 데이터 통째로 mutation에 넘김
     };
 
-    return (
+    return createPortal(
         <div>
-            <dialog open>
+            <dialog open style={{ zIndex: 9999 }}>
                 <article style={{ width: '90vw', maxWidth: '1000px' }}>
                     <header>
                         <button aria-label="Close" className="close" onClick={closeModal}></button>
@@ -137,6 +138,7 @@ export const PostCreateModal = ({ closeModal }: PostCreateModalProps) => {
                     </FormProvider>
                 </article>
             </dialog>
-        </div>
+        </div>,
+        document.body
     );
 }

@@ -39,7 +39,10 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
         //백엔드 Go워커에서 미디어가 비동기 처리중이라면...
         if(isProcessing){
             intervalRef.current = window.setInterval(() => {
-                queryClient.invalidateQueries({queryKey: ["feeds", 10]});
+                queryClient.invalidateQueries({
+                    queryKey: ["feeds"],
+                    exact: false
+                });
             },3000);
         }
 
