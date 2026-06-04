@@ -21,11 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FeedService {
 
-    @Value("${minio.endpoint}")
-    private String minioEndpoint;
+    @Value("${minio.endpoint}") private String minioEndpoint;
+    @Value("${minio.bucket}") private String minioBucket;
+    @Value("${imgproxy.endpoint}") private String imgproxyEndpoint;
+    @Value("${imgproxy.prefix}") private String imgproxyPrefix;
+    @Value("${imgproxy.storage-protocol}") private String imgproxyStorageProtocol;
 
-    @Value("${minio.bucket}")
-    private String minioBucket;
 
     private final FeedWarmUpComponent feedWarmUpComponent;
     private final StringRedisTemplate stringRedisTemplate;
@@ -106,7 +107,13 @@ public class FeedService {
     private FeedResponse.PostDto convertToPostDto(Post post, Long currentUserId, String baseStorageUrl){
         //PostDto의 MediaDto 반환
         List<FeedResponse.PostDto.MediaDto> mediaDtos = post.getMediaList().stream()
-                .map(media -> FeedResponse.PostDto.MediaDto.from(media, baseStorageUrl))
+                .map(media -> FeedResponse.PostDto.MediaDto.from(
+                        media,
+                        baseStorageUrl,
+                        imgproxyEndpoint,
+                        imgproxyPrefix,
+                        imgproxyStorageProtocol
+                ))
                 .toList();
 
         boolean isLiked = false;//🚨좋아요 기능 구현 이후 연동 필요🚨

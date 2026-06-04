@@ -44,6 +44,10 @@ minio:
   secretKey: ${MINIO_SECRET_KEY}
   bucket: mini-sns
   default-image: /minio/mini-sns-default/default_loading_image.png
+imgproxy:
+  endpoint: http://localhost
+  prefix: /insecure
+  storage-protocol: local:///
 logging:
   level:
     root: info

@@ -27,6 +27,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
     const isMulti = mediaList.length>1;
     const isProcessing = currentMedia.status === 'PROCESSING';
 
+
     //다른 사진으로 넘어가면, 에러 화면을 정상 화면으로 초기화
     useEffect(() => {
         setHasError(false);
@@ -97,12 +98,9 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                     />
                 ) : (
                     !hasError ? (
-                        <img
-                            src={`${currentMedia.mediaUrl}?retry=${retryKey}`}
-                            alt="게시물 미디어"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={() => setHasError(true)}
-                        />
+                        <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                            
+                        </div>
                     ) : (
                         //이미지 로드 실패 시
                         <div style={{ position: 'relative', width: '100%', height: '100%' }}>

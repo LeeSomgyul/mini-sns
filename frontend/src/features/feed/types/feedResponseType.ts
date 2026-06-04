@@ -31,5 +31,6 @@ export interface MediaDto{
     thumbnailUrl: string | null;
     sortOrder: number;
     status: backendProcessType;
+    cropState: string | null;
 }
 
