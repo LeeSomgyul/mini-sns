@@ -29,18 +29,19 @@ func (p *VideoProcessor) ResolutionVideos(tempDir string) (map[string]string, er
 	multiFilter := "[0:v]split=2[raw1][raw2]; " +
 		// 720p
 		"[raw1]split=2[bg1][fg1]; " +
-		"[bg1]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,boxblur=20:10[bg1out]; " +
-		"[fg1]scale=1280:720:force_original_aspect_ratio=decrease[fg1out]; " +
+		"[bg1]scale=720:720:force_original_aspect_ratio=increase,crop=720:720,boxblur=20:10[bg1out]; " +
+		"[fg1]scale=720:720:force_original_aspect_ratio=decrease[fg1out]; " +
 		"[bg1out][fg1out]overlay=(W-w)/2:(H-h)/2[v1out]; " +
 		// 1080p
 		"[raw2]split=2[bg2][fg2]; " +
-		"[bg2]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=20:10[bg2out]; " +
-		"[fg2]scale=1920:1080:force_original_aspect_ratio=decrease[fg2out]; " +
+		"[bg2]scale=1080:1080:force_original_aspect_ratio=increase,crop=1080:1080,boxblur=20:10[bg2out]; " +
+		"[fg2]scale=1080:1080:force_original_aspect_ratio=decrease[fg2out]; " +
 		"[bg2out][fg2out]overlay=(W-w)/2:(H-h)/2[v2out]"
 
 	//ffmpeg 명령문
 	cmd := exec.Command(
 		"ffmpeg",        //프로그램 이름
+		"-autorotate",   //영상 회전 정보 자동 적용
 		"-i", inputPath, //작업 대상 영상
 		"-t", "60", //60초 이후 자르기
 
