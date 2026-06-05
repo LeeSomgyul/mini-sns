@@ -167,9 +167,9 @@ public record FeedResponse (
                     int height = ((Number) pixels.get("height")).intValue();
 
                     // imgproxy에 전송하기 위한 명령어 조립 (전용 문법 사용)
-                    // http://localhost/insecure/crop:가로:세로:X좌표:Y좌표/rotate:회전각도/plain/local:///파일명
+                    // http://localhost/insecure/crop:가로:세로:기준점:X좌표:Y좌표/rotate:회전각도/plain/local:///파일명
                     return imgproxyEndpoint + imgproxyPrefix
-                            + "/crop:" + width + ":" + height + ":" + x + ":" + y
+                            + "/crop:" + width + ":" + height + ":nowe:" + x + ":" + y
                             + "/rotate:" + rotation
                             + "/plain/" + imgproxyStorageProtocol + dbPath;
                 }catch(Exception e){

@@ -99,7 +99,12 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                 ) : (
                     !hasError ? (
                         <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-                            
+                            <img
+                                src={`${currentMedia.mediaUrl}?retry=${retryKey}`}
+                                alt="게시물 미디어"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={() => setHasError(true)}
+                            />
                         </div>
                     ) : (
                         //이미지 로드 실패 시

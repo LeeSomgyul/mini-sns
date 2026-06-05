@@ -10,7 +10,11 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
         const token = useAuthStore.getState().accessToken;
 
-        if(token && config.headers){
+        // [이미지 처리 관련 Nginx & imgproxy]
+        // 주소에 'insecure'가 포함되어 있다면 Authorization 헤더에 토큰 보내지 않는다.
+        const isImgproxyRequest = config.url && config.url.includes('/insecure');
+
+        if(token && config.headers && !isImgproxyRequest){
             config.headers.Authorization = `Bearer ${token}`;
         }
 

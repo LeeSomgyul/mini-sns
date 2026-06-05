@@ -47,7 +47,7 @@ minio:
 imgproxy:
   endpoint: http://localhost
   prefix: /insecure
-  storage-protocol: local:///
+  storage-protocol: s3://mini-sns/
 logging:
   level:
     root: info
