@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { NavItemType, ModalType } from "../../types/navItemType";
 import { ROUTES } from "../../constants/routes";
 import SettingsModal from "./SettingsModal";
-import {PostCreateModal} from "../../features/post/pages/PostCreatePage";
+import {PostCreateModal} from "../../features/post/pages/PostCreateModal";
 
 
 const Navigation = () => {
@@ -16,7 +16,7 @@ const Navigation = () => {
     const userId = "userId"; //🚨🚨실제 사용자 id 넣기🚨🚨
 
     const NAV_ITEMS: NavItemType[] = [
-        {id: 'feed', path: ROUTES.FEED, label: '메인 피드', type: 'link'},
+        {id: 'feed', path: ROUTES.FEED, label: '홈', type: 'link'},
         {id: 'write', path: null, label: '피드 작성', type: 'modal'},
         {id: 'profile', path: ROUTES.PROFILE(userId), label: '프로필', type: 'link'},
         {id: 'settings', path: null, label: '설정', type: 'modal'}

@@ -13,6 +13,8 @@ import com.example.backend.infrastructure.kafka.Media.MediaEventPublisher;
 import com.example.backend.domain.post.repository.PostMediaRepository;
 import com.example.backend.domain.post.repository.PostRepository;
 import com.example.backend.domain.user.repository.UserRepository;
+import com.example.backend.infrastructure.kafka.feed.FeedPushEvent;
+import com.example.backend.infrastructure.kafka.feed.FeedPushEventPublisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
     private final MediaEventPublisher mediaEventPublisher;
+
+    private final FeedPushEventPublisher feedPushEventPublisher;
 
 
     //[게시물 등록]
@@ -114,7 +118,7 @@ public class PostService {
                             .build());
         }
 
-        //미디어 파일 검증 및 업로드
+        //[미디어 파일 검증 및 업로드]
         for(int i=0; i<mediaList.size(); i++){
             //프론트에서 보내준 개별 미디어 정보 꺼내기
             PostRequest.MediaUploadRequest mediaInfo = mediaList.get(i);
@@ -166,6 +170,14 @@ public class PostService {
                 mediaEventPublisher.publishUploadComplete(event);
             }
         }
+
+        //[Kafka] FeedPushEvent 전송
+        FeedPushEvent feedPushEvent = FeedPushEvent.of(
+                post.getId(),
+                authorId
+        );
+
+        feedPushEventPublisher.publishPushEvent(feedPushEvent);
 
         return PostResponse.of(post, authorId);
     }

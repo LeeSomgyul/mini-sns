@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
-import { LoginPage, JoinPage, FeedPage, ProfilePage } from "./pages/index";
+import { LoginPage, JoinPage, HomePage, ProfilePage } from "./pages/index";
 import ProtectedRoute from "./common/components/ProtectedRoute";
 import PublicRoute from "./common/components/PublicRoute";
 import Layout from "./Layout";
@@ -25,7 +25,7 @@ const router = createBrowserRouter([
     children: [
       {path: ROUTES.FEED, element: <Layout/>,
         children: [
-          {index: true, element: <FeedPage/>},
+          {index: true, element: <HomePage/>},
           {path: ROUTES.PROFILE('userId'), element: <ProfilePage/>}//🚨🚨userId 작업하기🚨🚨
         ],
       },

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
- import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { postApi } from "../api/postApi";
 import type { PostFormValues } from "../schemas/postSchema";
 import type { postResponse} from "../types/postTypes";
@@ -14,11 +14,11 @@ interface UseCreatePostProps {
 // 리엑트 훅 폼에 모인 uppy가 등록한 파일 정보 + 크롭 데이터를 백엔드로 전달
 export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
     
-    // 게시물 등록 성공 후 목록 새로고침
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient();// 게시물 등록 성공 후 목록 새로고침
 
     // <응답타입, 에러타입, 입력데이터타입>
     return useMutation<postResponse, AxiosError<{message: string}>, PostFormValues>({
+        meta:{disableGlobalError: true},//전역 에러 알림 막기
         mutationFn: async (data: PostFormValues) => {
 
             // 1. 엔터 압축 (엔터 3번 이상 -> 2번으로)
@@ -44,10 +44,18 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
             // DB 저장 API 호출
             return await postApi.createPost(postRequest);
         },
-        onSuccess: () => {
-            toast.success('게시물이 등록되었습니다!');
-            queryClient.invalidateQueries({queryKey: ['posts']});
+        onSuccess: async () => {
             closeModal();
+            toast.success('게시물이 등록되었습니다!');
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            //방금 등록한 게시물 불러오기 
+            await queryClient.invalidateQueries({
+                queryKey: ["feeds"],
+                exact: false,
+                refetchType: 'all'
+            });
         },
         onError: (error) => {
             console.error("업로드 실패: ", error);

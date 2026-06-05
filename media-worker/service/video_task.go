@@ -79,8 +79,8 @@ func (v *VideoService) ProcessPostVideo(videoKey string, postId int64) error {
 
 	//[영상 처리 성공] Kafka -> 자바 메시지 전송 (DB 갱신)
 	// 썸네일, 최종 영상 모음 MiniO 저장 경로
-	finalThumbURL := fmt.Sprintf("/mini-sns/%s/thumbnail.jpg", processedDir)
-	finalMasterURL := fmt.Sprintf("/mini-sns/%s/master.m3u8", processedDir)
+	finalThumbURL := fmt.Sprintf("%s/thumbnail.jpg", processedDir)
+	finalMasterURL := fmt.Sprintf("%s/master.m3u8", processedDir)
 
 	// 카프카 발신 형식에 채워넣기
 	completeEvent := models.VideoCompleteEvent{

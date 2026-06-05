@@ -2,10 +2,12 @@ package com.example.backend.domain.feed.service;
 
 import com.example.backend.domain.feed.dto.FeedResponse;
 import com.example.backend.domain.post.entity.Post;
+import com.example.backend.domain.post.entity.PostMedia;
 import com.example.backend.domain.post.repository.PostRepository;
 import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FeedService {
+
+    @Value("${minio.endpoint}") private String minioEndpoint;
+    @Value("${minio.bucket}") private String minioBucket;
+    @Value("${imgproxy.endpoint}") private String imgproxyEndpoint;
+    @Value("${imgproxy.prefix}") private String imgproxyPrefix;
+    @Value("${imgproxy.storage-protocol}") private String imgproxyStorageProtocol;
+
 
     private final FeedWarmUpComponent feedWarmUpComponent;
     private final StringRedisTemplate stringRedisTemplate;
@@ -84,19 +93,29 @@ public class FeedService {
         /* 다음 스크롤 요청 시 마지막 기준점(postId) 갱신 */
         Long nextCurosr = slicedPosts.isEmpty() ? null : slicedPosts.get(slicedPosts.size() - 1).getId();
 
+        /* 프론트에 전송할 미디어 전체 경로 */
+        String baseStorageUrl = minioEndpoint + "/" + minioBucket;
+
         //7.FeedResponse 반환
         List<FeedResponse.PostDto> postDtos = slicedPosts.stream()
-                .map(post -> convertToPostDto(post, currentUserId))
+                .map(post -> convertToPostDto(post, currentUserId, baseStorageUrl))
                 .toList();
 
         return FeedResponse.of(postDtos, nextCurosr, hasNextPage);
     }
 
     //[보조 메서드] FeedResponse의 List<PostDto> posts 반환
-    private FeedResponse.PostDto convertToPostDto(Post post, Long currentUserId){
+    private FeedResponse.PostDto convertToPostDto(Post post, Long currentUserId, String baseStorageUrl){
         //PostDto의 MediaDto 반환
         List<FeedResponse.PostDto.MediaDto> mediaDtos = post.getMediaList().stream()
-                .map(FeedResponse.PostDto.MediaDto::from)
+                .sorted(Comparator.comparing(PostMedia::getSortOrder))
+                .map(media -> FeedResponse.PostDto.MediaDto.from(
+                        media,
+                        baseStorageUrl,
+                        imgproxyEndpoint,
+                        imgproxyPrefix,
+                        imgproxyStorageProtocol
+                ))
                 .toList();
 
         boolean isLiked = false;//🚨좋아요 기능 구현 이후 연동 필요🚨

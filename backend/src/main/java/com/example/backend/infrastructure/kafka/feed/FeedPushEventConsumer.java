@@ -47,16 +47,19 @@ public class FeedPushEventConsumer {
         * - 해결책: 파이프라이닝을 사용하여 1,000개의 명령어를 하나의 패킷으로 묶어 레디스에 단 1번의 네트워크 통신으로 전송
         */
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            StringRedisConnection stringRedisConnection = (StringRedisConnection) connection;
 
             for(Long targetId : targetIds){
                 String key = REDIS_FEED_KEY_PREFIX + targetId;
 
+                //Redis가 이해하는 String -> byte[] 형식으로 변환
+                byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(key);
+                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(postIdStr);
+
                 //사용자의 레디스 리스트 왼쪽에 최신 postId 삽입
-                stringRedisConnection.lPush(key, postIdStr);
+                connection.listCommands().lPush(rawKey, rawValue);
 
                 //리스트 범위를 500개로 제한하고 오래된 글은 제거(500개 뒤의 오래된 글은 DB에서 직접 가져오기)
-                stringRedisConnection.lTrim(key, 0, MAX_TIMELINE_SIZE);
+                connection.listCommands().lTrim(rawKey, 0, MAX_TIMELINE_SIZE);
             }
             return null;
         });

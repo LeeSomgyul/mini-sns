@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost:8080/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyMCIsIm5pY2tuYW1lIjoi7L2U65Sp7LSI67O0IiwiaWF0IjoxNzc5OTMyMTA0LCJleHAiOjE3Nzk5MzM5MDR9.Vzl5wm1_LAfyWpycwphGQ46smECdPo2RoKz7iZtjBeKCESSRln896lluurQePC9k
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyMCIsIm5pY2tuYW1lIjoi7L2U65Sp7LSI67O0IiwiaWF0IjoxNzc5OTMzNjU1LCJleHAiOjE3Nzk5MzU0NTV9.Dpiq0W6sgW7Hgmk5K23VMSkguPN2tKuA4SZg5lIaK-PJaCOWYZ9PYH_enUXL7tFh
 ### 1.메인 피드 조회 (첫 페이지 호출)
 GET {{baseUrl}}/feed?size=20
 Content-Type: application/json
