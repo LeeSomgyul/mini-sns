@@ -2,6 +2,7 @@ package com.example.backend.domain.feed.service;
 
 import com.example.backend.domain.feed.dto.FeedResponse;
 import com.example.backend.domain.post.entity.Post;
+import com.example.backend.domain.post.entity.PostMedia;
 import com.example.backend.domain.post.repository.PostRepository;
 import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +108,7 @@ public class FeedService {
     private FeedResponse.PostDto convertToPostDto(Post post, Long currentUserId, String baseStorageUrl){
         //PostDto의 MediaDto 반환
         List<FeedResponse.PostDto.MediaDto> mediaDtos = post.getMediaList().stream()
+                .sorted(Comparator.comparing(PostMedia::getSortOrder))
                 .map(media -> FeedResponse.PostDto.MediaDto.from(
                         media,
                         baseStorageUrl,
