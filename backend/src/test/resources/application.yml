@@ -33,7 +33,7 @@ jwt:
   secret: this-is-a-dummy-secret-key-for-test-environment-12345
 kakao:
   client-id: dummy-kakao-client-id
-  redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+  redirect-uri: http://localhost/login/oauth2/code/kakao
 file:
   upload-dir: C:/dummy-uploads/
 fmpg:

@@ -122,7 +122,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - C:/mini_sns_storage/nginx_cache:/var/cache/nginx
+      - C:/mini_sns_storage/nginx_cache:/var/cache/nginx #윈도우의 C:/mini_sns_storage/nginx_cache와 리눅스의 /var/cache/nginx 연결
     depends_on:
       - imgproxy
     networks:

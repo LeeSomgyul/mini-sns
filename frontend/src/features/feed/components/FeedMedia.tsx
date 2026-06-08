@@ -102,6 +102,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                             <img
                                 src={`${currentMedia.mediaUrl}?retry=${retryKey}`}
                                 alt="게시물 미디어"
+                                crossOrigin="anonymous"
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={() => setHasError(true)}
                             />
