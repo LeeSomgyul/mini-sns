@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("v1/notifications")
+@RequestMapping("/v1/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
