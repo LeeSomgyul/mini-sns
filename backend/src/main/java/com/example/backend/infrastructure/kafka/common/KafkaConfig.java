@@ -106,21 +106,33 @@ public class KafkaConfig {
         return new KafkaAdmin(configs);
     }
 
-    //토픽 생성: 자바 -> Go 워커 메시지 저장
+    //[토픽 생성] Media 자바 -> Go 워커 메시지 저장
     @Bean
     public NewTopic videoRequestedTopic(){
-        return TopicBuilder.name("media.video.requested")
+        return TopicBuilder.name(KafkaTopics.MEDIA_REQUEST_TOPIC)
                 .partitions(3)
                 .replicas(1)
                 .build();
     }
 
-    //토픽 생성: Go워커 -> 자바 메시지 저장
+    //[토픽 생성] Media Go워커 -> 자바 메시지 저장
     @Bean
     public NewTopic videoCompletedTopic(){
-        return TopicBuilder.name("media.video.completed")
+        return TopicBuilder.name(KafkaTopics.MEDIA_COMPLETED_TOPIC)
                 .partitions(3)
                 .replicas(1)
                 .build();
     }
+
+    //[토픽 생성] Feed 게시글 등록 완료 메시지 저장
+    @Bean
+    public NewTopic feedPostTopic(){
+        return TopicBuilder.name(KafkaTopics.FEED_POST_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    //[토픽 생성] Notification 게시글 등록 완료 메시지 저장
+
 }
