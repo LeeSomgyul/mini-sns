@@ -1,5 +1,6 @@
 package com.example.backend.domain.notification.service;
 
+import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 // [서버 증설로 인해 Redis로 바꿀 때를 대비하여 인터페이스 구현]
@@ -11,5 +12,5 @@ public interface NotificationService {
 
     // 2.새 게시물 작성 시 대상자들을 찾아 알림 넣기
     // - 카프카 리스너가 알림 들어오면 해당 메서드 실행
-    void broadcastNewPostEvent(Long actorId, Object data);
+    void sendToClient(Long userId, NotificationFeedEvent event);
 }

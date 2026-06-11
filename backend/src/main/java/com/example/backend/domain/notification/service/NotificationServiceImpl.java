@@ -2,6 +2,7 @@ package com.example.backend.domain.notification.service;
 
 import com.example.backend.domain.notification.repository.SseRepository;
 import com.example.backend.domain.notification.service.connection.NotificationTargetConnection;
+import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,14 +18,15 @@ import java.util.UUID;
 public class NotificationServiceImpl implements NotificationService{
 
     private final SseRepository sseRepository;
+    private final SseEmitterFactory sseEmitterFactory;
     private final NotificationTargetConnection notificationTargetConnection;
 
     // SSE 연결 타임아웃 설정 (30분 간격으로 자동 연결 끊김)
     private static final Long DEFAULT_TIMEOUT = 30L * 60 * 1000;
 
     // 실시간 알림 이벤트 명
-    private static final String EVENT_CONNECT = "connect";
-    private static final String EVENT_NEW_POST = "newPost";
+    private static final String EVENT_CONNECT = "CONNECT";
+    private static final String EVENT_NEW_POST = "NEW_POST";
 
 
     // 1.실시간 연결 통로 개설
@@ -32,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService{
     @Override
     public SseEmitter subscribe(Long userId) {
         // 1-1. 로그인한 사용자 정보 저장
-        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
+        SseEmitter sseEmitter = sseEmitterFactory.create(DEFAULT_TIMEOUT);
         sseRepository.save(userId, sseEmitter);
 
         // 1-2. 메모리 누수 차단 장치(로그아웃, 타임아웃, 에러 상황)
@@ -40,48 +42,46 @@ public class NotificationServiceImpl implements NotificationService{
         sseEmitter.onTimeout(() -> sseRepository.deleteById(userId));
         sseEmitter.onError((e) -> sseRepository.deleteById(userId));
 
-        // 1-3. 더미 데이터 발송
+        // 1-3. Kafka 더미 이벤트 메시지 발송
         // - userId: 데이터 전송 대상 사용자
         // - eventName: 연결 완료 메시지
         // - data: 더미 데이터
-        sendToClient(userId, EVENT_CONNECT, "SSE 연결 완료! [userId=" + userId + "]");
+        try{
+            sseEmitter.send(SseEmitter.event()
+                    .id(UUID.randomUUID().toString())
+                    .name(EVENT_CONNECT)
+                    .data("SSE 연결 성공! [userId=" + userId + "]")
+            );
+        }catch(IOException e){
+            sseRepository.deleteById(userId);
+        }
 
         return sseEmitter;
     }
 
     // 2.새 게시물 작성 시 대상자들을 찾아 알림 넣기
-    // - 카프카 리스너가 알림 들어오면 해당 메서드 실행
+    // - 카프카 consumer가 알림 들어오면 해당 메서드 실행
     @Override
-    public void broadcastNewPostEvent(Long actorId, Object data) {
-        // 2-1. 알림 대상자 id 목록 추출 (🚨현재는 전체 사용자, 나중엔 친구 목록🚨)
-        List<Long> targetUserIds = notificationTargetConnection.findTargetUserIds(actorId);
-
-        // 2-2. 연결되어있는 SSE 중 대상자들에게만 실시간 알림 전송
-        // - userId: 데이터 전송 대상 사용자
-        // - eventName: 새로운 게시물 알림 메시지
-        // - data: postId
-        for(Long targetUserId : targetUserIds){
-            sendToClient(targetUserId, EVENT_NEW_POST, data);
-        }
-    }
-
-    // [보조 메서드] 프론트로 데이터 전송
-    // - userId: 데이터 전송 대상 사용자
-    // - eventName: 전송할 이벤트 이름
-    // - data: 실행 시 전달할 데이터
-    private void sendToClient(Long userId, String eventName, Object data){
+    public void sendToClient(Long userId, NotificationFeedEvent event) {
         SseEmitter sseEmitter = sseRepository.get(userId);
 
+        // 사용자가 연결이 된 경우 (로그인 하여 게시물로 들어와서 SSE 연결된 상태)
         if(sseEmitter != null){
             try{
+                // - userId: 데이터 전송 대상 사용자
+                // - eventName: 전송할 이벤트 이름
+                // - data: 실행 시 전달할 데이터
                 sseEmitter.send(SseEmitter.event()
                         .id(UUID.randomUUID().toString())
-                        .name(eventName)
-                        .data(data));
+                        .name(EVENT_NEW_POST)
+                        .data(event.targerPostId())
+                );
+
+                log.info("[SSE 성공] 유저 {} 에게 새 글 알림 완료 (PostId: {})", userId, event.targerPostId());
             }catch(IOException e){
-                // 사용자 연결이 종료된 경우 (로그아웃, 타임아웃, 에러 등)
+                // SSE 연결되어 있지만, 전송하는 순간 네트워크 끊김
                 sseRepository.deleteById(userId);
-                log.error("SSE 전송 실패로 연결을 강제 제거합니다. userId: {}", userId);
+                log.error("[SSE 실패] 연결 끊김으로 Emitter를 제거합니다. userId: {}", userId);
             }
         }
     }

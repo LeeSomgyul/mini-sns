@@ -1,5 +1,6 @@
 package com.example.backend.domain.post.service;
 
+import com.example.backend.domain.notification.service.connection.NotificationTargetConnection;
 import com.example.backend.domain.post.dto.PostRequest;
 import com.example.backend.domain.post.dto.PostResponse;
 import com.example.backend.domain.post.entity.Post;
@@ -13,6 +14,8 @@ import com.example.backend.infrastructure.kafka.Media.MediaEventPublisher;
 import com.example.backend.domain.post.repository.PostMediaRepository;
 import com.example.backend.domain.post.repository.PostRepository;
 import com.example.backend.domain.user.repository.UserRepository;
+import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
+import com.example.backend.infrastructure.kafka.Notification.NotificationFeedPublisher;
 import com.example.backend.infrastructure.kafka.feed.FeedPushEvent;
 import com.example.backend.infrastructure.kafka.feed.FeedPushEventPublisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,9 +39,11 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
-    private final MediaEventPublisher mediaEventPublisher;
+    private final NotificationTargetConnection notificationTargetConnection;
 
+    private final MediaEventPublisher mediaEventPublisher;
     private final FeedPushEventPublisher feedPushEventPublisher;
+    private final NotificationFeedPublisher notificationFeedPublisher;
 
 
     //[게시물 등록]
@@ -158,27 +163,38 @@ public class PostService {
             postMediaRepository.save(postMedia);
             post.getMediaList().add(postMedia);
 
-            //비디오 타입인 경우 kafka 이벤트 발생
             if(mediaType == PostMedia.MediaType.VIDEO){
+                //[Media kafka publisher] event 메시지 전송
                 MediaProcessEvent event = MediaProcessEvent.of(
                         post.getId(),
                         mediaUrl,
                         mediaInfo.originalFileName()
                 );
-
-                //kafka로 전송
                 mediaEventPublisher.publishUploadComplete(event);
             }
         }
 
-        //[Kafka] FeedPushEvent 전송
+        //[Feed Kafka publisher] FeedPushEvent 전송
         FeedPushEvent feedPushEvent = FeedPushEvent.of(
                 post.getId(),
                 authorId
         );
-
         feedPushEventPublisher.publishPushEvent(feedPushEvent);
 
+        //[Notifation feed Kafka publisher] NotificationEvent 전송
+        // 1. 알림 받아야 하는 대상 id 목록
+        List<Long> targetUserIds = notificationTargetConnection.findTargetUserIds(authorId);
+
+        // 2. 이벤트 메시지 발송
+        for(Long targetUserId : targetUserIds){
+            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.of(
+                    "NEW_POST",
+                    targetUserId,
+                    authorId,
+                    post.getId()
+            );
+            notificationFeedPublisher.publish(notificationFeedEvent);
+        }
         return PostResponse.of(post, authorId);
     }
 

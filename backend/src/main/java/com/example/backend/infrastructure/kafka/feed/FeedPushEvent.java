@@ -13,6 +13,7 @@ public record FeedPushEvent(
         Long authorId
 ){
     public static FeedPushEvent of(Long postId, Long authorId){
+
         return new FeedPushEvent(postId, authorId);
     }
 }

@@ -44,6 +44,10 @@ minio:
   secretKey: dummy-minio-secret-key
   bucket: test-mini-sns
   default-image: /minio/mini-sns-default/default_loading_image.png
+imgproxy:
+  endpoint: http://localhost
+  prefix: /insecure
+  storage-protocol: s3://mini-sns/
 logging:
   level:
     org.springframework.data.elasticsearch.client.elc: TRACE

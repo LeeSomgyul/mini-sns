@@ -11,4 +11,7 @@ public final class KafkaTopics {
 
     // 2.Feed 팔로워 Redis 타임라인 저장 토픽
     public static final String FEED_POST_TOPIC = "feed.post.created";
+
+    //3. Notification 실시간 SSE 친구 피드 알림 토픽
+    public static final String NOTIFICATION_FEED_TOPIC = "notification.feed.created";
 }
