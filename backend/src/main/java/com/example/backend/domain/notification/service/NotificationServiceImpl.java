@@ -38,9 +38,18 @@ public class NotificationServiceImpl implements NotificationService{
         sseRepository.save(userId, sseEmitter);
 
         // 1-2. 메모리 누수 차단 장치(로그아웃, 타임아웃, 에러 상황)
-        sseEmitter.onCompletion(() -> sseRepository.deleteById(userId));
-        sseEmitter.onTimeout(() -> sseRepository.deleteById(userId));
-        sseEmitter.onError((e) -> sseRepository.deleteById(userId));
+        sseEmitter.onCompletion(() -> {
+            log.info("SSE onCompletion 호출됨: userId={}", userId);
+            sseRepository.deleteById(userId);
+        });
+        sseEmitter.onTimeout(() -> {
+            log.info("SSE onTimeout 호출됨: userId={}", userId);
+            sseRepository.deleteById(userId);
+        });
+        sseEmitter.onError((e) -> {
+            log.error("SSE onError 발생: userId={}, error={}", userId, e.getMessage());
+            sseRepository.deleteById(userId);
+        });
 
         // 1-3. Kafka 더미 이벤트 메시지 발송
         // - userId: 데이터 전송 대상 사용자
@@ -67,6 +76,7 @@ public class NotificationServiceImpl implements NotificationService{
 
         // 사용자가 연결이 된 경우 (로그인 하여 게시물로 들어와서 SSE 연결된 상태)
         if(sseEmitter != null){
+            //본인은 '새요청' 알림 x
             try{
                 // - userId: 데이터 전송 대상 사용자
                 // - eventName: 전송할 이벤트 이름

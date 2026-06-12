@@ -13,4 +13,6 @@ public interface NotificationService {
     // 2.새 게시물 작성 시 대상자들을 찾아 알림 넣기
     // - 카프카 리스너가 알림 들어오면 해당 메서드 실행
     void sendToClient(Long userId, NotificationFeedEvent event);
+
+   
 }

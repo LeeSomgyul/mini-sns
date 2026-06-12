@@ -39,12 +39,6 @@ export const FeedList = () => {
         return () => observer.disconnect();
     },[hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    //새 소식 불러오기 버튼
-    const handleRefresh = () => {
-        window.scrollTo({top:0, behavior:'smooth'});
-        refetch();
-    };
-
     // [FeedLoading + FeedError + FeedEmpty 조립]
     // 1.최초 로딩 시 (스켈레톤 3개 노출)
     if(isLoading) return <FeedTopLoading count={3}/>;
@@ -60,17 +54,6 @@ export const FeedList = () => {
 
     return(
         <section style={{ position: 'relative', maxWidth: '600px', margin: '0 auto', paddingTop: '3rem' }}>
-            {/* 상단 '새 소식' 버튼 */}
-            <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
-                <button
-                    onClick={handleRefresh}
-                    className="outline"
-                    style={{ borderRadius: '20px', padding: '0.4rem 1.2rem', backgroundColor: 'var(--pico-background-color)', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-                >
-                    🔃 새 소식
-                </button>
-            </div>
-
             {/* 조립된 FeedCard 배치 */}
             {allPosts.map((post) => (
                 <FeedCard key={post.postId} post={post}/>
