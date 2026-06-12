@@ -14,5 +14,8 @@ public interface NotificationService {
     // - 카프카 리스너가 알림 들어오면 해당 메서드 실행
     void sendToClient(Long userId, NotificationFeedEvent event);
 
-   
+    // 3. 백엔드 서버 -> Nginx 핑 전송
+    // - proxy_send_timeout: 600s로 인해서 10분동안 서버 -> Nginx로 아무런 흐름이 없으면 연결 종료됨
+    // - 그럼 다른 작업들(sse 등)에 에러가 생기기 때문에 1분마다 주기적으로 인프라 방어용 핑 전송
+    void sendNginxPing();
 }

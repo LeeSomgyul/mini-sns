@@ -5,6 +5,7 @@ import com.example.backend.domain.notification.service.connection.NotificationTa
 import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -27,6 +28,7 @@ public class NotificationServiceImpl implements NotificationService{
     // 실시간 알림 이벤트 명
     private static final String EVENT_CONNECT = "CONNECT";
     private static final String EVENT_NEW_POST = "NEW_POST";
+    private static final String EVENT_NGINX_PING = "NGINX_PING";
 
 
     // 1.실시간 연결 통로 개설
@@ -94,5 +96,27 @@ public class NotificationServiceImpl implements NotificationService{
                 log.error("[SSE 실패] 연결 끊김으로 Emitter를 제거합니다. userId: {}", userId);
             }
         }
+    }
+
+    // 3. 백엔드 서버 -> Nginx 핑 전송
+    // - proxy_send_timeout: 600s로 인해서 10분동안 서버 -> Nginx로 아무런 흐름이 없으면 연결 종료됨
+    // - 그럼 다른 작업들(sse 등)에 에러가 생기기 때문에 1분(60000ms)마다 주기적으로 인프라 방어용 핑 전송
+    @Override
+    @Scheduled(fixedRate = 60000)
+    public void sendNginxPing() {
+        // 현재 서버 메모리에 연결되어 있는 SSE 가져오기
+        sseRepository.findAll().forEach((userId, sseEmitter) -> {
+            try{
+                // 1분마다 공백 신호를 지속 전송하여 Nginx 연결 해제 방어
+                sseEmitter.send(SseEmitter.event()
+                        .id(UUID.randomUUID().toString())
+                        .name(EVENT_NGINX_PING)
+                        .data("ping")
+                );
+            }catch (IOException e){
+                log.warn("[SSE 핑 실패] 유저 {} 연결 끊김 감지, 메모리 누수 방지 세션 제거", userId);
+                sseRepository.deleteById(userId);
+            }
+        });
     }
 }
