@@ -27,8 +27,18 @@ export const useNewFeedNotification = (): useNewFeedNotificationProps => {
             setIsNewFeedAvailable(true);
         });
 
+        // Nginx 재연결 응답
+        eventSource.addEventListener('NGINX_PING', (event: MessageEvent) => {
+            console.log('[SSE] Nginx 재연결 응답:', event.data);
+        });
+
+        // 오류 메시지 콘솔에서 숨기기 
         eventSource.onerror = (error) => {
-            console.error('[SSE] 연결 오류 발생:', error);
+            if(eventSource.readyState === EventSource.CONNECTING){
+                console.log('[SSE] 세션 만료로 인한 자동 재연결 시도 중...');
+            }else{
+                console.error('[SSE] 연결 오류 발생:', error);
+            }            
         };
 
         // SSE 연결 종료
