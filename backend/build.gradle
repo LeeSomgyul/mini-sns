@@ -20,10 +20,10 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
-}
 
+// ==========================================================
+// [1번] 기존 부모 코드를 위한 기능
+// ==========================================================
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -59,9 +59,6 @@ dependencies {
     testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
 
 //QueryDSL
 def generated = "src/main/generated"
@@ -77,3 +74,36 @@ sourceSets {
 clean {
     delete file(generated)
 }
+
+
+// ==========================================================
+// [2번] 자식 모듈들을 위한 공통 상속 블록
+// ==========================================================
+allprojects {
+    repositories { mavenCentral() }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    // test 시 JUnit 사용
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+bootJar { enabled = false }
+jar { enabled = true }

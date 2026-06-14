@@ -1,1 +1,5 @@
 rootProject.name = 'backend'
+
+include 'core-security-module'
+include 'user-module'
+include 'post-module'
