@@ -33,7 +33,7 @@ jwt:
   secret: this-is-a-dummy-secret-key-for-test-environment-12345
 kakao:
   client-id: dummy-kakao-client-id
-  redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+  redirect-uri: http://localhost/login/oauth2/code/kakao
 file:
   upload-dir: C:/dummy-uploads/
 fmpg:
@@ -44,6 +44,10 @@ minio:
   secretKey: dummy-minio-secret-key
   bucket: test-mini-sns
   default-image: /minio/mini-sns-default/default_loading_image.png
+imgproxy:
+  endpoint: http://localhost
+  prefix: /insecure
+  storage-protocol: s3://mini-sns/
 logging:
   level:
     org.springframework.data.elasticsearch.client.elc: TRACE

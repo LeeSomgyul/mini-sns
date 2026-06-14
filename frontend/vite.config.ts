@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+     host: true, // 도커에서 들어오는 요청 허용
+   }
 })

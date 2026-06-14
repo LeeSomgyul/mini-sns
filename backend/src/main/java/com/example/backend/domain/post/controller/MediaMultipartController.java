@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/media/multipart")
+@RequestMapping("/v1/media/multipart")
 public class MediaMultipartController {
 
     public final MediaMultipartService mediaMultipartService;

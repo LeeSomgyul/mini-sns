@@ -28,8 +28,7 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    //[자바 -> Go워커]
-    // 1.자바에서 메시지를 전송하기 위한 설정
+    // 1-1.자바에서 메시지를 전송하기 위한 설정
     @Bean
     public ProducerFactory<String, Object> producerFactory(){
         Map<String, Object> configProps = new HashMap<>();
@@ -52,14 +51,13 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(configProps, stringSerializer, jsonSerializer);
     }
 
-    // 2.자바에서 메시지를 전송할 수 있도록 하는 장치 연결
+    // 1-2.자바에서 메시지를 전송할 수 있도록 하는 장치 연결
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate(){
         return new KafkaTemplate<>(producerFactory());
     }
 
-    //[Go워커 -> 자바]
-    // 1.자바에서 메시지를 받기 위한 설정
+    // 2-1.자바에서 메시지를 받기 위한 설정
     @Bean
     public ConsumerFactory<String, Object> consumerFactory(){
         Map<String, Object> configProps = new HashMap<>();
@@ -80,7 +78,7 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
-    // 2. 자바에서 메시지를 받을 수 있도록 하는 장치 연결 (@KafkaListener 찾아서 받은 결과 메시지 전달)
+    // 2-2. 자바에서 메시지를 받을 수 있도록 하는 장치 연결 (@KafkaListener 찾아서 받은 결과 메시지 전달)
     @Bean(name = "kafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, byte[]> kafkaListenerContainerFactory(){
         //[전달 할 값들]
@@ -106,21 +104,41 @@ public class KafkaConfig {
         return new KafkaAdmin(configs);
     }
 
-    //토픽 생성: 자바 -> Go 워커 메시지 저장
+    //[토픽 생성] Media 자바 -> Go 워커 메시지 저장
     @Bean
     public NewTopic videoRequestedTopic(){
-        return TopicBuilder.name("media.video.requested")
+        return TopicBuilder.name(KafkaTopics.MEDIA_REQUEST_TOPIC)
                 .partitions(3)
                 .replicas(1)
                 .build();
     }
 
-    //토픽 생성: Go워커 -> 자바 메시지 저장
+    //[토픽 생성] Media Go워커 -> 자바 메시지 저장
     @Bean
     public NewTopic videoCompletedTopic(){
-        return TopicBuilder.name("media.video.completed")
+        return TopicBuilder.name(KafkaTopics.MEDIA_COMPLETED_TOPIC)
                 .partitions(3)
                 .replicas(1)
+                .build();
+    }
+
+    //[토픽 생성] Feed 게시글 등록 완료 메시지 저장
+    @Bean
+    public NewTopic feedPostTopic(){
+        return TopicBuilder.name(KafkaTopics.FEED_POST_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    //[토픽 생성] Notification 게시글 등록 완료 메시지 저장
+    @Bean
+    public NewTopic notificationFeedTopic(){
+        return TopicBuilder.name(KafkaTopics.NOTIFICATION_FEED_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .config("retention.ms", "1800000")//메시지를 30분만 보관
+                .config("segment.ms", "1800000")
                 .build();
     }
 }
