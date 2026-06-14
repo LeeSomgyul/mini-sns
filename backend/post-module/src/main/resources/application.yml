@@ -1,0 +1,17 @@
+server:
+  port: 8082  # Post API 서버는 8082 포트로 독립 가동
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/post_db
+    username: postgres
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
