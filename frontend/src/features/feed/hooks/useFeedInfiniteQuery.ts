@@ -4,7 +4,7 @@ import { feedApi } from "../api/feedApi";
 
 //[무한스크롤]
 //🚨Error 반환은 구체적으로 수정하기🚨
-export const useFeedInfiniteQuery = (size: number = 5) => {
+export const useFeedInfiniteQuery = (size: number = 20) => {
     return useInfiniteQuery<FeedResponse, Error>({
         // 1.key 단위로 데이터 캐싱
         queryKey: ["feeds", size],
