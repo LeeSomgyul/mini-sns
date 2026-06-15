@@ -8,6 +8,10 @@ dependencies {
     // - core-common-module는 @SpringBootApplication가 없어서 혼자 실행할 수 없는 라이브러리 역할임.
     // - 때문에 부모 build.gradle에서 받아오지 못하기 때문에 따로 선언해야 함.
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+
+    // 날짜
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // 롬복
     compileOnly 'org.projectlombok:lombok'
