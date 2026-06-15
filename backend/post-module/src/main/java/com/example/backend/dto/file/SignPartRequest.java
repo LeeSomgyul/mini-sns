@@ -1,4 +1,4 @@
-package com.example.backend.domain.post.dto.file;
+package com.example.backend.dto.file;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

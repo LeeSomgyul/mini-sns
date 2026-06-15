@@ -1,6 +1,6 @@
-package com.example.backend.domain.post.repository;
+package com.example.backend.repository;
 
-import com.example.backend.domain.post.entity.PostMedia;
+import com.example.backend.entity.PostMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

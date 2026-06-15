@@ -1,11 +1,12 @@
-package com.example.backend.domain.post.dto;
+package com.example.backend.dto;
 
-import com.example.backend.domain.post.entity.Post;
-import com.example.backend.domain.post.entity.PostMedia;
-import com.example.backend.domain.post.entity.PostTag;
+import com.example.backend.entity.Post;
+import com.example.backend.entity.PostMedia;
+import com.example.backend.entity.PostTag;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Map;
 
 @Builder
 public record PostResponse (
@@ -40,10 +41,10 @@ public record PostResponse (
             Long userId,
             String nickname
     ){
-        public static TagUserResponse from (PostTag postTag){
+        public static TagUserResponse of(PostTag postTag, String nickname){
             return new TagUserResponse(
-                    postTag.getUser().getId(),
-                    postTag.getUser().getNickname()
+                    postTag.getUserId(),
+                    nickname
             );
         }
     }
@@ -55,7 +56,13 @@ public record PostResponse (
                 post.getThumbnailUrl(),
                 post.getMediaList().stream().map(MediaResponse::from).toList(),
                 post.getContent(),
-                post.getTags().stream().map(TagUserResponse::from).toList()
+                post.getTags().stream()
+                        .map(tag -> {
+                            // 💡 아직 닉네임을 모르니, 임시로 "사용자_숫자ID"로 프론트에 던져줍니다.
+                            String tempNickname = "사용자_" + tag.getUserId();
+                            return TagUserResponse.of(tag, tempNickname);
+                        })
+                        .toList()
         );
     }
 }

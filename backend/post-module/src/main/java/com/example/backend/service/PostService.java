@@ -1,23 +1,13 @@
-package com.example.backend.domain.post.service;
+package com.example.backend.service;
 
-import com.example.backend.domain.notification.service.connection.NotificationTargetConnection;
-import com.example.backend.domain.post.dto.PostRequest;
-import com.example.backend.domain.post.dto.PostResponse;
-import com.example.backend.domain.post.entity.Post;
-import com.example.backend.domain.post.entity.PostMedia;
-import com.example.backend.domain.post.entity.PostTag;
-import com.example.backend.domain.user.entity.User;
-import com.example.backend.common.exception.InvalidRequestException;
-import com.example.backend.common.exception.InvalidTokenException;
-import com.example.backend.infrastructure.kafka.Media.MediaProcessEvent;
-import com.example.backend.infrastructure.kafka.Media.MediaEventPublisher;
-import com.example.backend.domain.post.repository.PostMediaRepository;
-import com.example.backend.domain.post.repository.PostRepository;
-import com.example.backend.domain.user.repository.UserRepository;
-import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
-import com.example.backend.infrastructure.kafka.Notification.NotificationFeedPublisher;
-import com.example.backend.infrastructure.kafka.feed.FeedPushEvent;
-import com.example.backend.infrastructure.kafka.feed.FeedPushEventPublisher;
+
+import com.example.backend.dto.PostRequest;
+import com.example.backend.dto.PostResponse;
+import com.example.backend.entity.Post;
+import com.example.backend.entity.PostMedia;
+import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.repository.PostMediaRepository;
+import com.example.backend.repository.PostRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,25 +16,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PostService {
 
+//🔥카프카 작업 후 전달 받을 예정
+//    private final UserRepository userRepository;
+//    private final NotificationTargetConnection notificationTargetConnection;
+//    private final MediaEventPublisher mediaEventPublisher;
+//    private final FeedPushEventPublisher feedPushEventPublisher;
+//    private final NotificationFeedPublisher notificationFeedPublisher;
+
+
     private final ObjectMapper objectMapper;
-    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
-    private final NotificationTargetConnection notificationTargetConnection;
-
-    private final MediaEventPublisher mediaEventPublisher;
-    private final FeedPushEventPublisher feedPushEventPublisher;
-    private final NotificationFeedPublisher notificationFeedPublisher;
-
 
     //[게시물 등록]
     public PostResponse createPost(
@@ -72,9 +61,10 @@ public class PostService {
             throw new InvalidRequestException("본문은 500자를 초과할 수 없습니다.");
         }
 
-        //401 에러: 유저 검증
-        User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new InvalidTokenException("시간이 만료되어 다시 로그인해주세요."));
+//🔥카프카 작업 후 수정 예정
+//        //401 에러: 유저 검증
+//        User author = userRepository.findById(authorId)
+//                .orElseThrow(() -> new InvalidTokenException("시간이 만료되어 다시 로그인해주세요."));
 
         //400 에러: 자기 자신을 태그했는지 검증
         if(request.tagUserIds() != null && request.tagUserIds().contains(authorId)){
@@ -86,11 +76,12 @@ public class PostService {
             throw new InvalidRequestException("태그는 최대 10명까지만 가능합니다.");
         }
 
-        //400 에러: 태그된 유저 검증
-        List<User> foundUsers = userRepository.findAllById(request.tagUserIds());
-        if(foundUsers.size() != request.tagUserIds().size()){
-            throw new InvalidRequestException("존재하지 않는 유저가 태그에 포함되어 있습니다.");
-        }
+//🔥카프카 작업 후 수정 예정
+//        //400 에러: 태그된 유저 검증
+//        List<User> foundUsers = userRepository.findAllById(request.tagUserIds());
+//        if(foundUsers.size() != request.tagUserIds().size()){
+//            throw new InvalidRequestException("존재하지 않는 유저가 태그에 포함되어 있습니다.");
+//        }
 
         //400 에러: 중복 태그 방지 (중복된 태그가 있으면 먼저 제거한 뒤 저장됨. 메시지는 임시)
         Set<Long> uniqueTags = new HashSet<>(request.tagUserIds());
@@ -98,30 +89,31 @@ public class PostService {
             throw new InvalidRequestException("중복된 태그가 포함되어 있습니다.");
         }
 
-
-        //태그된 사용자들을 꺼내기 쉽게 키(User::getId), 값(u) 형태로 저장
-        Map<Long, User> userMap = foundUsers.stream()
-                .collect(Collectors.toMap(User::getId, u->u));
+//🔥카프카 작업 후 수정 예정
+//        //태그된 사용자들을 꺼내기 쉽게 키(User::getId), 값(u) 형태로 저장
+//        Map<Long, User> userMap = foundUsers.stream()
+//                .collect(Collectors.toMap(User::getId, u->u));
 
         //Post 엔티티 저장 (작성자, 글작성 부분만 일단 저장)
         Post post = Post.builder()
-                .author(author)
+                .authorId(authorId)
                 .content(request.content())
                 .build();
         postRepository.save(post);
 
-        //태그 정보 저장(사용자가 선택한 순서대로)
-        for(int i=0; i<request.tagUserIds().size(); i++){
-            Long targetUserId = request.tagUserIds().get(i);//사용자가 선택한 태그인원의 userId
-            User taggedUser = userMap.get(targetUserId);//그 userId에 해당하는 User 객체를 저장
-
-            //PostTag 엔티티 저장
-            post.addTag(PostTag.builder()
-                            .post(post)
-                            .user(taggedUser)
-                            .tagOrder(i)
-                            .build());
-        }
+//🔥카프카 작업 후 수정 예정
+//        //태그 정보 저장(사용자가 선택한 순서대로)
+//        for(int i=0; i<request.tagUserIds().size(); i++){
+//            Long targetUserId = request.tagUserIds().get(i);//사용자가 선택한 태그인원의 userId
+//            User taggedUser = userMap.get(targetUserId);//그 userId에 해당하는 User 객체를 저장
+//
+//            //PostTag 엔티티 저장
+//            post.addTag(PostTag.builder()
+//                            .post(post)
+//                            .user(taggedUser)
+//                            .tagOrder(i)
+//                            .build());
+//        }
 
         //[미디어 파일 검증 및 업로드]
         for(int i=0; i<mediaList.size(); i++){
@@ -164,37 +156,40 @@ public class PostService {
             post.getMediaList().add(postMedia);
 
             if(mediaType == PostMedia.MediaType.VIDEO){
-                //[Media kafka publisher] event 메시지 전송
-                MediaProcessEvent event = MediaProcessEvent.of(
-                        post.getId(),
-                        mediaUrl,
-                        mediaInfo.originalFileName()
-                );
-                mediaEventPublisher.publishUploadComplete(event);
+//🔥카프카 작업 후 수정 예정
+//                //[Media kafka publisher] event 메시지 전송
+//                MediaProcessEvent event = MediaProcessEvent.of(
+//                        post.getId(),
+//                        mediaUrl,
+//                        mediaInfo.originalFileName()
+//                );
+//                mediaEventPublisher.publishUploadComplete(event);
             }
         }
 
-        //[Feed Kafka publisher] FeedPushEvent 전송
-        FeedPushEvent feedPushEvent = FeedPushEvent.of(
-                post.getId(),
-                authorId
-        );
-        feedPushEventPublisher.publishPushEvent(feedPushEvent);
+//🔥카프카 작업 후 수정 예정
+//        //[Feed Kafka publisher] FeedPushEvent 전송
+//        FeedPushEvent feedPushEvent = FeedPushEvent.of(
+//                post.getId(),
+//                authorId
+//        );
+//        feedPushEventPublisher.publishPushEvent(feedPushEvent);
+//
+//        //[Notifation feed Kafka publisher] NotificationEvent 전송
+//        // 1. 알림 받아야 하는 대상 id 목록
+//        List<Long> targetUserIds = notificationTargetConnection.findTargetUserIds(authorId);
+//
+//        // 2. 이벤트 메시지 발송
+//        for(Long targetUserId : targetUserIds){
+//            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.of(
+//                    "NEW_POST",
+//                    targetUserId,
+//                    authorId,
+//                    post.getId()
+//            );
+//            notificationFeedPublisher.publish(notificationFeedEvent);
+//        }
 
-        //[Notifation feed Kafka publisher] NotificationEvent 전송
-        // 1. 알림 받아야 하는 대상 id 목록
-        List<Long> targetUserIds = notificationTargetConnection.findTargetUserIds(authorId);
-
-        // 2. 이벤트 메시지 발송
-        for(Long targetUserId : targetUserIds){
-            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.of(
-                    "NEW_POST",
-                    targetUserId,
-                    authorId,
-                    post.getId()
-            );
-            notificationFeedPublisher.publish(notificationFeedEvent);
-        }
         return PostResponse.of(post, authorId);
     }
 

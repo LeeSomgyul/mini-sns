@@ -1,6 +1,5 @@
-package com.example.backend.domain.post.entity;
+package com.example.backend.entity;
 
-import com.example.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -30,9 +29,13 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "author_id", nullable = false)
+//    private User author;
+
+    //🔥카프카 작업 예정
+    @Column(name = "author_id", nullable = false)
+    private Long authorId;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -74,8 +77,8 @@ public class Post {
 
     //---빌더---
     @Builder
-    public Post(User author, String content){
-        this.author = author;
+    public Post(Long authorId, String content){
+        this.authorId = authorId;
         this.content = content;
     }
 

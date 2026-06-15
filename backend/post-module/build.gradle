@@ -1,3 +1,36 @@
 dependencies {
+    // 모듈 공통 라이브러리
     implementation project(':core-security-module')
+    implementation project(':core-common-module')
+
+    // 스트링부트 기본 웹 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 데이터베이스 (JPA & PostgreSQL)
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.querydsl:querydsl-core:5.0.0'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // 인증 및 보안
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+
+    // 롬복
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // MiniO
+    implementation platform('software.amazon.awssdk:bom:2.44.4')
+    implementation 'software.amazon.awssdk:s3'
+
+    // 카프카
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // 테스트 환경
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'com.h2database:h2'
 }

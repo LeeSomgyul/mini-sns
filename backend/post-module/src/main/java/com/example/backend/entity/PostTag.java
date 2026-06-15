@@ -1,6 +1,5 @@
-package com.example.backend.domain.post.entity;
+package com.example.backend.entity;
 
-import com.example.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,9 +25,13 @@ public class PostTag {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tagged_user_id", nullable = false)
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "tagged_user_id", nullable = false)
+//    private User user;
+
+    //🔥카프카 작업 예정
+    @Column(name = "tagged_user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "tag_order", nullable = false)
     private int tagOrder = 0;
@@ -39,9 +42,9 @@ public class PostTag {
 
     //---빌더---
     @Builder
-    public PostTag(Post post, User user, int tagOrder){
+    public PostTag(Post post, Long userId, int tagOrder){
         this.post = post;
-        this.user = user;
+        this.userId = userId;
         this.tagOrder = tagOrder;
     }
 

@@ -1,10 +1,10 @@
-package com.example.backend.domain.post.controller;
+package com.example.backend.controller;
 
-import com.example.backend.common.dto.ApiResponse;
-import com.example.backend.domain.post.dto.PostRequest;
-import com.example.backend.domain.post.dto.PostResponse;
-import com.example.backend.common.security.CustomUserDetails;
-import com.example.backend.domain.post.service.PostService;
+import com.example.backend.dto.ApiResponse;
+import com.example.backend.dto.PostRequest;
+import com.example.backend.dto.PostResponse;
+import com.example.backend.jwt.JwtUser;
+import com.example.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,11 +25,11 @@ public class PostController {
     //프론트가 minio에 파일 업로드 완료 후, 해당 경로 및 게시물에 대한 데이터를 DB에 저장
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<PostResponse>> createPost (
-            @AuthenticationPrincipal CustomUserDetails userDetails,//사용자 검증
+            @AuthenticationPrincipal JwtUser jwtUser,//사용자 검증
             @RequestBody @Valid PostRequest request
     ){
         //request: 프론트가 minio에 올린 데이터
-        PostResponse postResponse = postService.createPost(userDetails.userId(), request);
+        PostResponse postResponse = postService.createPost(jwtUser.userId(), request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

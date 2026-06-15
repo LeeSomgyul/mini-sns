@@ -1,9 +1,9 @@
-package com.example.backend.domain.post.controller;
+package com.example.backend.controller;
 
-import com.example.backend.common.dto.ApiResponse;
-import com.example.backend.domain.post.dto.file.*;
-import com.example.backend.common.security.CustomUserDetails;
-import com.example.backend.domain.post.service.MediaMultipartService;
+import com.example.backend.dto.ApiResponse;
+import com.example.backend.dto.file.*;
+import com.example.backend.jwt.JwtUser;
+import com.example.backend.service.MediaMultipartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +21,10 @@ public class MediaMultipartController {
     //1.업로드 시작: minio에게 uploadId를 받아와서 objectKey와 함께 프론트에게 전달
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<CreateMultipartResponse>> createUpload (
-            @AuthenticationPrincipal CustomUserDetails user,//업로드하는 사용자
+            @AuthenticationPrincipal JwtUser jwtUser,//업로드하는 사용자
             @Valid @RequestBody CreateMultipartRequest request
     ){
-        Long authorId = user.userId();
+        Long authorId = jwtUser.userId();
 
         CreateMultipartResponse response = mediaMultipartService.createUpload(authorId, request);
 

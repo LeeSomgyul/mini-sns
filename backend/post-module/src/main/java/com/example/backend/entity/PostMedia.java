@@ -1,4 +1,4 @@
-package com.example.backend.domain.post.entity;
+package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

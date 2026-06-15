@@ -1,4 +1,4 @@
-package com.example.backend.domain.post.dto.file;
+package com.example.backend.dto.file;
 
 public enum FileType{
     IMAGE,//원본 이미지

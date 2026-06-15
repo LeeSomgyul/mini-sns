@@ -1,4 +1,4 @@
-package com.example.backend.domain.post.dto.file;
+package com.example.backend.dto.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

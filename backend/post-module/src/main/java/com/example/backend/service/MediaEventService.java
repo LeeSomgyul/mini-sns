@@ -1,9 +1,9 @@
-package com.example.backend.domain.post.service;
+package com.example.backend.service;
 
-import com.example.backend.domain.post.dto.file.GoWorkerResultResponse;
-import com.example.backend.domain.post.entity.PostMedia;
-import com.example.backend.common.exception.InvalidRequestException;
-import com.example.backend.domain.post.repository.PostMediaRepository;
+import com.example.backend.dto.file.GoWorkerResultResponse;
+import com.example.backend.entity.PostMedia;
+import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.repository.PostMediaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

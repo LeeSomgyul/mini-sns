@@ -1,8 +1,8 @@
-package com.example.backend.domain.post.service;
+package com.example.backend.service;
 
-import com.example.backend.domain.post.dto.file.*;
-import com.example.backend.common.exception.FileProcessException;
-import com.example.backend.common.exception.InvalidRequestException;
+import com.example.backend.dto.file.*;
+import com.example.backend.exception.FileProcessException;
+import com.example.backend.exception.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import com.example.backend.domain.post.dto.file.FileType;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedUploadPartRequest;
 import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
 
