@@ -1,5 +1,5 @@
 ### 변수설정
-@baseUrl = http://localhost:8081/api/v1
+@baseUrl = http://localhost/api/v1
 
 ### 회원가입
 POST {{baseUrl}}/auth/join

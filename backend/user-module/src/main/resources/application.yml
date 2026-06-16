@@ -1,5 +1,7 @@
 server:
   port: 8081  # User API 서버는 8081 포트로 독립 가동
+  servlet:
+    context-path: /api
 
 spring:
   datasource:
@@ -42,11 +44,4 @@ kakao:
 # user-module에서 보안 검사 안하는 허용 경로
 api:
   security:
-    permit-urls:
-      - "/api/v1/auth/login"
-      - "/api/v1/auth/join"
-      - "/api/v1/auth/email/send"
-      - "/api/v1/auth/email/verify"
-      - "/api/v1/auth/reissue"
-      - "/api/v1/auth/kakao"
-      - "/api/v1/users/nickname/exists"
+    permit-urls: "/v1/auth/login,/v1/auth/join,/v1/auth/email/send,/v1/auth/email/verify,/v1/auth/reissue,/v1/auth/kakao,/v1/users/nickname/exists"

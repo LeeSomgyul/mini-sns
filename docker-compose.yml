@@ -128,6 +128,8 @@ services:
       - imgproxy
     networks:
       - sns-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   sns-network:
