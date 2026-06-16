@@ -10,6 +10,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-json'
 
+
     // 카프카
     implementation 'org.springframework.kafka:spring-kafka'
 

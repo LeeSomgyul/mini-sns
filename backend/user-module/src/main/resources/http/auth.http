@@ -2,6 +2,7 @@
 @baseUrl = http://localhost/api/v1
 @email = test@example.com
 @nickname = 김솜규링
+@password = Password123!
 @emailVerifyCode = 555625
 
 ### 1. 닉네임 중복 체크
@@ -31,7 +32,7 @@ Content-Type: application/json
 
 {
     "email": "{{email}}",
-    "password": "Password123!",
+    "password": "{{password}}",
     "nickname": "{{nickname}}",
     "name": "이솜귤",
     "phoneNumber": "01012345678",

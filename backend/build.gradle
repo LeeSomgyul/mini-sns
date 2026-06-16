@@ -60,22 +60,6 @@ dependencies {
 }
 
 
-//QueryDSL
-def generated = "src/main/generated"
-
-tasks.withType(JavaCompile).configureEach {
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
-}
-
-sourceSets {
-    main.java.srcDirs += [ generated ]
-}
-
-clean {
-    delete file(generated)
-}
-
-
 // ==========================================================
 // [2번] 자식 모듈들을 위한 공통 상속 블록
 // ==========================================================
@@ -96,9 +80,16 @@ subprojects {
 
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
         implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+        // QueryDSL 라이브러리
+        implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+        annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+        annotationProcessor "jakarta.persistence:jakarta.persistence-api"
     }
 
     // test 시 JUnit 사용
