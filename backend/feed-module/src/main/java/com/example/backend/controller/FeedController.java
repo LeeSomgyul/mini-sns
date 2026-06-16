@@ -1,4 +1,4 @@
-package com.example.backend.domain.feed.controller;
+package com.example.backend.controller;
 
 import com.example.backend.common.dto.ApiResponse;
 import com.example.backend.domain.feed.dto.FeedResponse;

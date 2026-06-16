@@ -1,4 +1,4 @@
-package com.example.backend.domain.feed.dto;
+package com.example.backend.dto;
 
 import com.example.backend.domain.post.entity.Post;
 import com.example.backend.domain.post.entity.PostMedia;

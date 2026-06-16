@@ -1,0 +1,4 @@
+server:
+  port: 8084  # Feed API 서버는 8084 포트로 독립 가동
+  servlet:
+    context-path: /api

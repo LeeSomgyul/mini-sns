@@ -1,4 +1,4 @@
-package com.example.backend.domain.feed.service.connection;
+package com.example.backend.connection;
 
 import java.util.List;
 

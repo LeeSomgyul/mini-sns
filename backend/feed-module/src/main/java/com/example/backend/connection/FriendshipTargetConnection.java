@@ -1,4 +1,4 @@
-package com.example.backend.domain.feed.service.connection;
+package com.example.backend.connection;
 
 import com.example.backend.domain.user.entity.User;
 import com.example.backend.domain.user.repository.UserRepository;

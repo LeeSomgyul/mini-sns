@@ -1,4 +1,4 @@
-package com.example.backend.domain.feed.service;
+package com.example.backend.component;
 
 import com.example.backend.domain.post.entity.Post;
 import com.example.backend.domain.post.repository.PostRepository;
