@@ -7,6 +7,7 @@ import com.example.backend.dto.response.TokenResponse;
 import com.example.backend.entity.SocialAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.kafka.UserUpdatedPublisher;
 import com.example.backend.repository.SocialAccountRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.jwt.JwtTokenProvider;
@@ -42,6 +43,7 @@ public class KakaoAuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final UserUpdatedPublisher userUpdatedPublisher;
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
 
@@ -75,6 +77,14 @@ public class KakaoAuthService {
                     .providerUserId(kakaoUserId)
                     .build();
             socialAccountRepository.save(socialAccount);
+
+            // post 모듈에게 카프카 이벤트 발행
+            userUpdatedPublisher.publisherUserUpdated(
+                    user.getId(),
+                    user.getNickname(),
+                    null,
+                    user.getStatus()
+            );
         }
 
         //우리 서비스 전용 access, refresh 토큰 발급

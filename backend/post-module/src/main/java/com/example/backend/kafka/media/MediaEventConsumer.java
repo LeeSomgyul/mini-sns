@@ -1,8 +1,9 @@
-package com.example.backend.infrastructure.kafka.Media;
+package com.example.backend.kafka.media;
 
-import com.example.backend.domain.post.dto.file.GoWorkerResultResponse;
-import com.example.backend.domain.post.service.MediaEventService;
-import com.example.backend.infrastructure.kafka.common.KafkaTopics;
+
+import com.example.backend.config.kafka.KafkaTopics;
+import com.example.backend.dto.file.GoWorkerResultResponse;
+import com.example.backend.service.MediaEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,7 +23,7 @@ public class MediaEventConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void postMediaDBChange(GoWorkerResultResponse response){
-        log.info("📥 Go 워커로부터 인코딩 결과 수신 완료: PostID={}", response.postId());
+        log.info("[Go 워커로부터 인코딩 결과 수신 완료] PostID={}", response.postId());
         mediaEventService.processMediaResult(response);
     }
 }

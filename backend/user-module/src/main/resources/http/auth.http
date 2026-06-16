@@ -1,0 +1,15 @@
+### 변수설정
+@baseUrl = http://localhost:8081/api/v1
+
+### 회원가입
+POST {{baseUrl}}/auth/join
+Content-Type: application/json
+
+{
+    "email": "developer@example.com",
+    "password": "Password123!",
+    "nickname": "코딩하는고양이",
+    "name": "홍길동",
+    "phoneNumber": "01012345678",
+    "verificationToken": "abc123xyz789token"
+}

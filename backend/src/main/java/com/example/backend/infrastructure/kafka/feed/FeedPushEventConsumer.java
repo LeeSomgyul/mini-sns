@@ -4,7 +4,6 @@ import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
 import com.example.backend.infrastructure.kafka.common.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;

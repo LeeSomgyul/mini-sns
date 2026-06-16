@@ -1,6 +1,7 @@
-package com.example.backend.infrastructure.kafka.Media;
+package com.example.backend.kafka.media;
 
-import com.example.backend.infrastructure.kafka.common.KafkaTopics;
+
+import com.example.backend.config.kafka.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,9 +19,9 @@ public class MediaEventPublisher {
 
         kafkaTemplate.send(KafkaTopics.MEDIA_REQUEST_TOPIC, event).whenComplete((result, ex) -> {
             if(ex == null){
-                log.info("✅ Kafka 메시지 발행 성공 - Topic: {}, PostId: {}", KafkaTopics.MEDIA_REQUEST_TOPIC, event.postId());
+                log.info("[Kafka 메시지 발행 성공] - Topic: {}, PostId: {}", KafkaTopics.MEDIA_REQUEST_TOPIC, event.postId());
             }else{
-                log.error("❌ Kafka 메시지 발행 실패 - Topic: {}, PostId: {}", KafkaTopics.MEDIA_REQUEST_TOPIC, event.postId());
+                log.error("[Kafka 메시지 발행 실패] - Topic: {}, PostId: {}", KafkaTopics.MEDIA_REQUEST_TOPIC, event.postId());
             }
         });
     }

@@ -7,7 +7,6 @@ spring:
     username: minisns_admin
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +15,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         show_sql: true
         format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
 
 minio:
   endpoint: http://localhost:9000

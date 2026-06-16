@@ -9,6 +9,7 @@ import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.jwt.JwtTokenProvider;
+import com.example.backend.kafka.UserUpdatedPublisher;
 import com.example.backend.repository.LocalAccountRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final UserUpdatedPublisher userUpdatedPublisher;
 
     private static final String REDIS_TOKEN_PREFIX = "email:verify:token:";//인증 완료 토큰 저장 헤더
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
@@ -74,34 +76,34 @@ public class AuthService {
         return TokenResponse.of(user, accessToken, refreshToken);
     }
 
-    //회원가입
+    // [회원가입]
     @Transactional
     public ApiResponse<JoinResponse> join(JoinRequest request){
 
-        //1.이메일 중복 검증
+        // 1. 이메일 중복 검증
         if(localAccountRepository.existsByEmail(request.email())){
             throw new DuplicateResourceException("이미 가입된 이메일입니다.");
         }
 
-        //2.닉네임 중복 검증
+        // 2. 닉네임 중복 검증
         if(userRepository.existsByNickname(request.nickname())){
             throw new DuplicateResourceException("이미 사용 중인 닉네임입니다.");
         }
 
-        //3.이메일 인증번호 검증(Redis 저장)
+        // 3. 이메일 인증번호 검증(Redis 저장)
         String redisKey = REDIS_TOKEN_PREFIX + request.email();
         String savedValue = redisTemplate.opsForValue().get(redisKey);//인증 뒤 받은 토큰
 
-        //4.인증번호가 존재하지 않거나, 저장된 값과 사용자의 값이 다른 경우
+        // 4. 인증번호가 존재하지 않거나, 저장된 값과 사용자의 값이 다른 경우
         if(savedValue == null || !savedValue.equals(request.verificationToken())){
             throw new IllegalArgumentException("이메일 인증을 다시 진행해주세요.");
         }
 
-        //5.이름이 공백이라면 '익명' 처리
+        // 5. 이름이 공백이라면 '익명' 처리
         String finalName = (request.name() == null || request.name().trim().isEmpty())
                 ? "익명" : request.name().trim();
 
-        //6.사용자의 기본정보 User에 저장
+        // 6. 사용자의 기본정보 User에 저장
         User user = User.builder()
                 .name(finalName)
                 .nickname(request.nickname().trim())
@@ -109,7 +111,7 @@ public class AuthService {
                 .build();
         userRepository.save(user);//DB 저장
 
-        //7.사용자의 비밀번호 정보 LocalAccount에 저장
+        // 7. 사용자의 비밀번호 정보 LocalAccount에 저장
         LocalAccount localAccount = LocalAccount.builder()
                 .user(user)
                 .email(request.email())
@@ -121,10 +123,18 @@ public class AuthService {
 //        //엘라스틱서치에 검색용 데이터 저장
 //        userSearchRepository.save(UserDocument.from(user));
 
-        //8.사용 완료한 인증번호 Redis에서 삭제
+        // 8. 사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);
 
-        //9.JoinResponse 응답
+        // 9. post 모듈에게 카프카 이벤트 발행
+        userUpdatedPublisher.publisherUserUpdated(
+                user.getId(),
+                user.getNickname(),
+                null,
+                user.getStatus()
+        );
+
+        // 10. JoinResponse 응답
         return ApiResponse.success("회원가입이 완료되었습니다.", JoinResponse.of(user, localAccount));
     }
 

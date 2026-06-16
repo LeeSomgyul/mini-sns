@@ -28,6 +28,8 @@ dependencies {
 
     // 카프카
     implementation 'org.springframework.kafka:spring-kafka'
+
+    // 날짜 포맷 변경
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // 테스트 환경

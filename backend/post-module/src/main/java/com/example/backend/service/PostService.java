@@ -6,6 +6,8 @@ import com.example.backend.dto.PostResponse;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
 import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.kafka.media.MediaEventPublisher;
+import com.example.backend.kafka.media.MediaProcessEvent;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,11 +28,10 @@ public class PostService {
 //🔥카프카 작업 후 전달 받을 예정
 //    private final UserRepository userRepository;
 //    private final NotificationTargetConnection notificationTargetConnection;
-//    private final MediaEventPublisher mediaEventPublisher;
 //    private final FeedPushEventPublisher feedPushEventPublisher;
 //    private final NotificationFeedPublisher notificationFeedPublisher;
 
-
+    private final MediaEventPublisher mediaEventPublisher;
     private final ObjectMapper objectMapper;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
@@ -156,14 +157,13 @@ public class PostService {
             post.getMediaList().add(postMedia);
 
             if(mediaType == PostMedia.MediaType.VIDEO){
-//🔥카프카 작업 후 수정 예정
-//                //[Media kafka publisher] event 메시지 전송
-//                MediaProcessEvent event = MediaProcessEvent.of(
-//                        post.getId(),
-//                        mediaUrl,
-//                        mediaInfo.originalFileName()
-//                );
-//                mediaEventPublisher.publishUploadComplete(event);
+                //[Media kafka publisher] event 메시지 전송
+                MediaProcessEvent event = MediaProcessEvent.of(
+                        post.getId(),
+                        mediaUrl,
+                        mediaInfo.originalFileName()
+                );
+                mediaEventPublisher.publishUploadComplete(event);
             }
         }
 

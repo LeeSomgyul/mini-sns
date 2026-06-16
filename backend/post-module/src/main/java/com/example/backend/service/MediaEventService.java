@@ -19,7 +19,7 @@ public class MediaEventService {
     // Go 워커 작업 후 -> 자바가 받은 데이터로 DB 업데이트
     @Transactional
     public void processMediaResult(GoWorkerResultResponse response){
-        log.info("💾 DB 업데이트 로직 시작: PostID={}", response.postId());
+        log.info("[DB 업데이트 로직 시작] PostID={}", response.postId());
 
         //COMPLETED 응답 받기 실패
         if(!"COMPLETED".equals(response.status())){
@@ -35,6 +35,6 @@ public class MediaEventService {
                 .orElseThrow(() -> new InvalidRequestException("비디오 정보를 찾을 수 없습니다."));
 
         videoMedia.updateReplaceVideo(response.masterUrl(), response.thumbnailUrl());
-        log.info("✅ DB 업데이트 완료: PostID={}", response.postId());
+        log.info("[DB 업데이트 완료] PostID={}", response.postId());
     }
 }

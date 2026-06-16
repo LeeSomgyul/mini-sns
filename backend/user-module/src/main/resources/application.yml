@@ -21,7 +21,8 @@ spring:
             trust: smtp.naver.com
           starttls:
             enable: true
-
+  kafka:
+    bootstrap-servers: localhost:9094
   jpa:
     hibernate:
       ddl-auto: update
@@ -42,10 +43,10 @@ kakao:
 api:
   security:
     permit-urls:
-      - "/v1/auth/login"
-      - "/v1/auth/join"
-      - "/v1/auth/email/send"
-      - "/v1/auth/email/verify"
-      - "/v1/auth/reissue"
-      - "/v1/auth/kakao"
-      - "/v1/users/nickname/exists"
+      - "/api/v1/auth/login"
+      - "/api/v1/auth/join"
+      - "/api/v1/auth/email/send"
+      - "/api/v1/auth/email/verify"
+      - "/api/v1/auth/reissue"
+      - "/api/v1/auth/kakao"
+      - "/api/v1/users/nickname/exists"

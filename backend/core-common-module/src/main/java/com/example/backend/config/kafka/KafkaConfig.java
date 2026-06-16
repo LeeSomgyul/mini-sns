@@ -1,7 +1,6 @@
-package com.example.backend.infrastructure.kafka.common;
+package com.example.backend.config.kafka;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -78,7 +76,8 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
-    // 2-2. 자바에서 메시지를 받을 수 있도록 하는 장치 연결 (@KafkaListener 찾아서 받은 결과 메시지 전달)
+    // 2-2. 자바에서 메시지를 받을 수 있도록 하는 장치 연결
+    // - @KafkaListener containerFactory = "" 에서 찾아서 받은 결과 메시지 전달
     @Bean(name = "kafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, byte[]> kafkaListenerContainerFactory(){
         //[전달 할 값들]
@@ -104,41 +103,26 @@ public class KafkaConfig {
         return new KafkaAdmin(configs);
     }
 
-    //[토픽 생성] Media 자바 -> Go 워커 메시지 저장
-    @Bean
-    public NewTopic videoRequestedTopic(){
-        return TopicBuilder.name(KafkaTopics.MEDIA_REQUEST_TOPIC)
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
 
-    //[토픽 생성] Media Go워커 -> 자바 메시지 저장
-    @Bean
-    public NewTopic videoCompletedTopic(){
-        return TopicBuilder.name(KafkaTopics.MEDIA_COMPLETED_TOPIC)
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
+//🔥feed 모듈 정리 후 이동
+//    //[토픽 생성] Feed 게시글 등록 완료 메시지 저장
+//    @Bean
+//    public NewTopic feedPostTopic(){
+//        return TopicBuilder.name(KafkaTopics.FEED_POST_TOPIC)
+//                .partitions(3)
+//                .replicas(1)
+//                .build();
+//    }
 
-    //[토픽 생성] Feed 게시글 등록 완료 메시지 저장
-    @Bean
-    public NewTopic feedPostTopic(){
-        return TopicBuilder.name(KafkaTopics.FEED_POST_TOPIC)
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
-
-    //[토픽 생성] Notification 게시글 등록 완료 메시지 저장
-    @Bean
-    public NewTopic notificationFeedTopic(){
-        return TopicBuilder.name(KafkaTopics.NOTIFICATION_FEED_TOPIC)
-                .partitions(3)
-                .replicas(1)
-                .config("retention.ms", "1800000")//메시지를 30분만 보관
-                .config("segment.ms", "1800000")
-                .build();
-    }
+//🔥notification 모듈 정리 후 이동
+//    //[토픽 생성] Notification 게시글 등록 완료 메시지 저장
+//    @Bean
+//    public NewTopic notificationFeedTopic(){
+//        return TopicBuilder.name(KafkaTopics.NOTIFICATION_FEED_TOPIC)
+//                .partitions(3)
+//                .replicas(1)
+//                .config("retention.ms", "1800000")//메시지를 30분만 보관
+//                .config("segment.ms", "1800000")
+//                .build();
+//    }
 }

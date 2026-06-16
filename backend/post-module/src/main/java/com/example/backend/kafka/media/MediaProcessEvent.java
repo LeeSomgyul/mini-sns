@@ -1,4 +1,4 @@
-package com.example.backend.infrastructure.kafka.Media;
+package com.example.backend.kafka.media;
 
 import lombok.Builder;
 
