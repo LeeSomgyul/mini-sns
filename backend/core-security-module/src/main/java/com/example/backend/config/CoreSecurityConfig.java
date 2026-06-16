@@ -6,6 +6,7 @@ import com.example.backend.jwt.JwtFilter;
 import com.example.backend.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,8 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 //[역할] 종합 보안 설정 뼈대
 // - 내부 자세한 값은 각 자식 모듈의 application.yml에서 끌어와서 적용한다.
-@RequiredArgsConstructor
 @Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(ApiSecurityProperties.class)
 public class CoreSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -27,8 +29,7 @@ public class CoreSecurityConfig {
     private final CustomForbiddenHandler customForbiddenHandler;
 
     // 자식 모듈의 application.yml에서 허용 목록을 읽어온다.
-    @Value("${api.security.permit-urls:}")
-    private String[] permitUrls;
+    private final ApiSecurityProperties apiSecurityProperties;
 
     //일반 비밀번호와 해시된 비밀번호 비교 메서드
     @Bean
@@ -55,7 +56,7 @@ public class CoreSecurityConfig {
                 // 3.URL 주소별로 어떤 주소를 입장 허용해 줄지 판단
                 .authorizeHttpRequests(auth -> auth
                         // 각 모듈의 application.yml에 적어둔 경로는 아무 조건 없이 허용
-                        .requestMatchers(permitUrls).permitAll()
+                        .requestMatchers(apiSecurityProperties.permitUrls().toArray(String[]::new)).permitAll()
                         // 그 외는 로그인(인증) 통해서 확인 후 허용
                         .anyRequest().authenticated()
                 )

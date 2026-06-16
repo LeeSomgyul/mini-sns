@@ -44,4 +44,11 @@ kakao:
 # user-module에서 보안 검사 안하는 허용 경로
 api:
   security:
-    permit-urls: "/v1/auth/login,/v1/auth/join,/v1/auth/email/send,/v1/auth/email/verify,/v1/auth/reissue,/v1/auth/kakao,/v1/users/nickname/exists"
+    permit-urls:
+      - "/v1/auth/login"
+      - "/v1/auth/join"
+      - "/v1/auth/email/send"
+      - "/v1/auth/email/verify"
+      - "/v1/auth/reissue"
+      - "/v1/auth/kakao"
+      - "/v1/users/nickname/exists"
