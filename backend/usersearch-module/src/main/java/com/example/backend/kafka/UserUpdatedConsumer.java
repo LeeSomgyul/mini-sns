@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserUpdatedConsumer {
 
-    private UserSearchRepository userSearchRepository;
+    private final UserSearchRepository userSearchRepository;
 
     @KafkaListener(
             topics = KafkaTopics.USER_ACCOUNT_UPDATED_TOPIC,
