@@ -16,4 +16,5 @@ dependencies {
     // 인증 및 보안
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+
 }
