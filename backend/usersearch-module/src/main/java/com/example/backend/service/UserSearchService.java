@@ -1,8 +1,9 @@
-package com.example.backend.domain.search.service;
+package com.example.backend.service;
 
-import com.example.backend.domain.search.document.UserDocument;
-import com.example.backend.domain.search.dto.UserSearchResponse;
-import com.example.backend.domain.search.repository.UserSearchRepository;
+
+import com.example.backend.document.UserDocument;
+import com.example.backend.dto.UserSearchResponse;
+import com.example.backend.repository.UserSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class UserSearchService {
     //keyword: 사용자의 검색어 (예: '홍길동')
     //currentUserId: 현재 로그인한 사용자 본인 id
     //Pageable: "1페이지에 10명씩 보여줘" 라는 요청 설정
-    public UserSearchResponse searchUsers(String keyword, Long currentUserId,Pageable pageable){
+    public UserSearchResponse searchUsers(String keyword, Long currentUserId, Pageable pageable){
 
         //엘라스틱서치에서 찾기
         Page<UserDocument> documentPage = userSearchRepository.searchUsersNotMe(

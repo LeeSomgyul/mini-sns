@@ -1,6 +1,6 @@
-package com.example.backend.domain.search.document;
+package com.example.backend.document;
 
-import com.example.backend.domain.user.entity.User;
+import com.example.backend.kafka.UserUpdatedEvent;
 import org.springframework.data.annotation.Id;
 import lombok.Builder;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -18,13 +18,13 @@ public record UserDocument (
 ){
 
     //Service에서 return 덩어리 생성
-    public static UserDocument from (User user){
-        return new UserDocument(
-          user.getId(),
-          user.getNickname(),
-          user.getName(),
-          user.getProfileImageUrl()
-        );
+    public static UserDocument from (UserUpdatedEvent event){
+        return UserDocument.builder()
+                .id(event.userId())
+                .nickname(event.nickname())
+                .name(event.name())
+                .profileImageUrl(event.profileImageUrl())
+                .build();
     }
 
 }

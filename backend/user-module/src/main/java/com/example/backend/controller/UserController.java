@@ -1,18 +1,13 @@
 package com.example.backend.controller;
 
-//import com.example.backend.domain.search.dto.UserSearchResponse;
-//import com.example.backend.common.security.CustomUserDetails;
-//import com.example.backend.domain.search.service.UserSearchService;
+
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.response.NicknameCheckResponse;
 import com.example.backend.service.UserService;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-//    private final UserSearchService userSearchService;
 
     //닉네임 중복 체크
     @GetMapping("/nickname/exists")
@@ -62,20 +56,4 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-
-    //🔥사용자 검색 모듈로 이동 예정
-    //사용자 검색
-//    @GetMapping("/search")
-//    public ResponseEntity<ApiResponse<UserSearchResponse>> searchUsers(
-//            @RequestParam(name = "keyword") String keyword,
-//            //security에서 현재 로그인한 사용자 정보 가져오기
-//            @AuthenticationPrincipal CustomUserDetails userDetails,
-//            @RequestParam(name = "page", defaultValue = "0") int page,
-//            @RequestParam(name = "size", defaultValue = "20") int size
-//    ){
-//        Pageable pageable = PageRequest.of(page, size);
-//        UserSearchResponse searchData = userSearchService.searchUsers(keyword, userDetails.userId(), pageable);
-//        ApiResponse<UserSearchResponse> response = ApiResponse.success("사용자 검색 완료", searchData);
-//        return ResponseEntity.ok(response);
-//    }
 }

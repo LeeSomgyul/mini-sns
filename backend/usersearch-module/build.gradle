@@ -1,0 +1,19 @@
+dependencies {
+    // 모듈 공통 라이브러리
+    implementation project(':core-security-module')
+    implementation project(':core-common-module')
+
+    // 롬복
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 엘라스틱서치
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // 카프카
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // 인증 및 보안
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+}

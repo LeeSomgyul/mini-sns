@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import com.example.backend.config.kafka.UserUpdatedEvent;
 
 @Slf4j
 @Component
@@ -15,8 +14,14 @@ public class UserUpdatedPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     // [회원가입, 프로필 변경, 회원 탈퇴]
-    public void publisherUserUpdated(Long userId, String nickname, String profileImageUrl, String status){
-        com.example.backend.config.kafka.UserUpdatedEvent userUpdatedEvent = new UserUpdatedEvent(userId, nickname, profileImageUrl, status);
+    public void publisherUserUpdated(
+            Long userId,
+            String name,
+            String nickname,
+            String profileImageUrl,
+            String status
+    ){
+        UserUpdatedEvent userUpdatedEvent = new UserUpdatedEvent(userId, name, nickname, profileImageUrl, status);
 
         kafkaTemplate.send(
                 KafkaTopics.USER_ACCOUNT_UPDATED_TOPIC,

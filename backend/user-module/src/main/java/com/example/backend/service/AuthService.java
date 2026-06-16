@@ -126,9 +126,11 @@ public class AuthService {
         // 8. 사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);
 
-        // 9. post 모듈에게 카프카 이벤트 발행
+        // 9. 모듈들에게 카프카 이벤트 발행
+        // - 대상 모듈: post, usersearch
         userUpdatedPublisher.publisherUserUpdated(
                 user.getId(),
+                user.getName(),
                 user.getNickname(),
                 null,
                 user.getStatus()

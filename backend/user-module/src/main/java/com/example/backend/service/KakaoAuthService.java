@@ -78,9 +78,11 @@ public class KakaoAuthService {
                     .build();
             socialAccountRepository.save(socialAccount);
 
-            // post 모듈에게 카프카 이벤트 발행
+            // 모듈들에게 카프카 이벤트 발행
+            // - 대상 모듈: post, usersearch
             userUpdatedPublisher.publisherUserUpdated(
                     user.getId(),
+                    user.getName(),
                     user.getNickname(),
                     null,
                     user.getStatus()

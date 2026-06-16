@@ -1,0 +1,10 @@
+server:
+  port: 8083  # UserSearch API 서버는 8083 포트로 독립 가동
+  servlet:
+    context-path: /api
+
+spring:
+  elasticsearch:
+    uris: http://localhost:9200
+  kafka:
+    bootstrap-servers: localhost:9094

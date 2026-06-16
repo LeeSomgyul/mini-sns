@@ -1,8 +1,8 @@
-package com.example.backend.domain.search.repository;
+package com.example.backend.repository;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import com.example.backend.domain.search.document.UserDocument;
+import com.example.backend.document.UserDocument;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//[엘라스틱서치] 구현체
+//[엘라스틱서치] 기본 인터페이스 + 커스텀 인터페이스 한번에 사용할 수 있도록 합체
 @Repository
 @RequiredArgsConstructor
 public class UserSearchRepositoryImpl implements UserSearchRepositoryCustom{

@@ -1,6 +1,6 @@
-package com.example.backend.domain.search.dto;
+package com.example.backend.dto;
 
-import com.example.backend.domain.search.document.UserDocument;
+import com.example.backend.document.UserDocument;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 
