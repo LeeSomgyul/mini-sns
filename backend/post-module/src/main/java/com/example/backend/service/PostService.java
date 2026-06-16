@@ -5,11 +5,15 @@ import com.example.backend.dto.PostRequest;
 import com.example.backend.dto.PostResponse;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
+import com.example.backend.entity.PostTag;
+import com.example.backend.entity.UserCache;
 import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.kafka.media.MediaEventPublisher;
 import com.example.backend.kafka.media.MediaProcessEvent;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
+import com.example.backend.repository.UserCacheRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,11 +32,11 @@ import java.util.Set;
 public class PostService {
 
 //🔥카프카 작업 후 전달 받을 예정
-//    private final UserRepository userRepository;
 //    private final NotificationTargetConnection notificationTargetConnection;
 //    private final FeedPushEventPublisher feedPushEventPublisher;
 //    private final NotificationFeedPublisher notificationFeedPublisher;
 
+    private final UserCacheRepository userCacheRepository;
     private final MediaEventPublisher mediaEventPublisher;
     private final ObjectMapper objectMapper;
     private final PostRepository postRepository;
@@ -62,10 +68,9 @@ public class PostService {
             throw new InvalidRequestException("본문은 500자를 초과할 수 없습니다.");
         }
 
-//🔥카프카 작업 후 수정 예정
-//        //401 에러: 유저 검증
-//        User author = userRepository.findById(authorId)
-//                .orElseThrow(() -> new InvalidTokenException("시간이 만료되어 다시 로그인해주세요."));
+        //401 에러: 유저 검증
+        UserCache author = userCacheRepository.findById(authorId)
+                .orElseThrow(() -> new InvalidTokenException("시간이 만료되어 다시 로그인해주세요."));
 
         //400 에러: 자기 자신을 태그했는지 검증
         if(request.tagUserIds() != null && request.tagUserIds().contains(authorId)){
@@ -77,12 +82,11 @@ public class PostService {
             throw new InvalidRequestException("태그는 최대 10명까지만 가능합니다.");
         }
 
-//🔥카프카 작업 후 수정 예정
-//        //400 에러: 태그된 유저 검증
-//        List<User> foundUsers = userRepository.findAllById(request.tagUserIds());
-//        if(foundUsers.size() != request.tagUserIds().size()){
-//            throw new InvalidRequestException("존재하지 않는 유저가 태그에 포함되어 있습니다.");
-//        }
+        //400 에러: 태그된 유저 검증
+        List<UserCache> foundUsers = userCacheRepository.findAllById(request.tagUserIds());
+        if(foundUsers.size() != request.tagUserIds().size()){
+            throw new InvalidRequestException("존재하지 않는 유저가 태그에 포함되어 있습니다.");
+        }
 
         //400 에러: 중복 태그 방지 (중복된 태그가 있으면 먼저 제거한 뒤 저장됨. 메시지는 임시)
         Set<Long> uniqueTags = new HashSet<>(request.tagUserIds());
@@ -90,10 +94,9 @@ public class PostService {
             throw new InvalidRequestException("중복된 태그가 포함되어 있습니다.");
         }
 
-//🔥카프카 작업 후 수정 예정
-//        //태그된 사용자들을 꺼내기 쉽게 키(User::getId), 값(u) 형태로 저장
-//        Map<Long, User> userMap = foundUsers.stream()
-//                .collect(Collectors.toMap(User::getId, u->u));
+        //태그된 사용자들을 꺼내기 쉽게 키(UserCache::getUserId), 값(u) 형태로 저장
+        Map<Long, UserCache> userMap = foundUsers.stream()
+                .collect(Collectors.toMap(UserCache::getUserId, u->u));
 
         //Post 엔티티 저장 (작성자, 글작성 부분만 일단 저장)
         Post post = Post.builder()
@@ -102,19 +105,18 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
-//🔥카프카 작업 후 수정 예정
-//        //태그 정보 저장(사용자가 선택한 순서대로)
-//        for(int i=0; i<request.tagUserIds().size(); i++){
-//            Long targetUserId = request.tagUserIds().get(i);//사용자가 선택한 태그인원의 userId
-//            User taggedUser = userMap.get(targetUserId);//그 userId에 해당하는 User 객체를 저장
-//
-//            //PostTag 엔티티 저장
-//            post.addTag(PostTag.builder()
-//                            .post(post)
-//                            .user(taggedUser)
-//                            .tagOrder(i)
-//                            .build());
-//        }
+        //태그 정보 저장(사용자가 선택한 순서대로)
+        for(int i=0; i<request.tagUserIds().size(); i++){
+            Long targetUserId = request.tagUserIds().get(i);//사용자가 선택한 태그인원의 userId
+            UserCache taggedUser = userMap.get(targetUserId);//그 userId에 해당하는 User 객체를 저장
+
+            //PostTag 엔티티 저장
+            post.addTag(PostTag.builder()
+                            .post(post)
+                            .userId(taggedUser.getUserId())
+                            .tagOrder(i)
+                            .build());
+        }
 
         //[미디어 파일 검증 및 업로드]
         for(int i=0; i<mediaList.size(); i++){

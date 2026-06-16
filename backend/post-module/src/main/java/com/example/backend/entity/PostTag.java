@@ -25,11 +25,6 @@ public class PostTag {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "tagged_user_id", nullable = false)
-//    private User user;
-
-    //🔥카프카 작업 예정
     @Column(name = "tagged_user_id", nullable = false)
     private Long userId;
 
