@@ -13,7 +13,7 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
     // 내가 팔로우하는 작성자들의 최근 게시글 ID 리스트를 Pageable 크기만큼 가져옵니다.
     @Query("""
         SELECT f.postId 
-        FROM FeedPostIndex f 
+        FROM FeedPostIndexCache f 
         WHERE f.authorId IN :authorIds 
         ORDER BY f.createdAt DESC
     """)
@@ -25,7 +25,7 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
     // 내가 팔로우하는 인플루언서의 postId 가져오기
     @Query("""
         SELECT f.postId 
-        FROM FeedPostIndex f 
+        FROM FeedPostIndexCache f 
         WHERE f.authorId IN :authorIds 
           AND (:cursorId IS NULL OR f.postId < :cursorId)
         ORDER BY f.postId DESC

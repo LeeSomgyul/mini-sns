@@ -2,3 +2,32 @@ server:
   port: 8084  # Feed API 서버는 8084 포트로 독립 가동
   servlet:
     context-path: /api
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/feed_db
+    username: minisns_admin
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+        format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
+
+minio:
+  endpoint: http://localhost:9000
+  accessKey: ${MINIO_ACCESS_KEY}
+  secretKey: ${MINIO_SECRET_KEY}
+  bucket: mini-sns
+  default-image: /minio/mini-sns-default/default_loading_image.png
+
+imgproxy:
+  endpoint: http://localhost
+  prefix: /insecure
+  storage-protocol: s3://mini-sns/
