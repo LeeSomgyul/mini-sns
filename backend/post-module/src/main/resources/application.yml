@@ -1,5 +1,7 @@
 server:
   port: 8082  # Post API 서버는 8082 포트로 독립 가동
+  servlet:
+    context-path: /api
 
 spring:
   datasource:

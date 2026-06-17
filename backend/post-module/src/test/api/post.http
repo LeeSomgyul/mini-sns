@@ -1,0 +1,50 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLquYDshpzqt5zrp4EiLCJpYXQiOjE3ODE3MDU0NTQsImV4cCI6MTc4MTcwNzI1NH0.c_mhrmUi75Vzo8ovp5jUiURYX0vJeaN5uEW648bzcNWnd0m9cn9IqQV5P769X2oN
+
+### 1. 게시물 등록
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "mediaList": [
+    {
+      "mediaUrl": "posts/20260617_unique_image_name.jpg",
+      "mediaType": "IMAGE",
+      "originalFileName": "dog_profile.jpg",
+      "cropState": {
+        "crop": {
+          "x": 0.0,
+          "y": 15.5
+        },
+        "zoom": 1.2,
+        "rotation": 90.0,
+        "croppedAreaPixels": {
+          "width": 500.0,
+          "height": 500.0,
+          "x": 10.0,
+          "y": 10.0
+        }
+      }
+    },
+    {
+      "mediaUrl": "posts/20260617_unique_video_name.mp4",
+      "mediaType": "VIDEO",
+      "originalFileName": "travel_clip.mp4",
+      "cropState": null
+    }
+  ],
+  "content": "오늘 친구들이랑 여행 다녀온 브이로그와 사진 업로드합니다!",
+  "tagUserIds": []
+}
+
+### 2. post 모듈 -> feed 모듈로 데이터 요청 내부 API 
+### - 내부 요청이기 때문에 Nginx 우회해야 테스트 가능 (포트번호 그대로 기입)
+POST http://localhost:8082/api/v1/internal/posts/bulk?currentUserId=1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+[
+  1
+]

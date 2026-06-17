@@ -1,0 +1,9 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLquYDshpzqt5zrp4EiLCJpYXQiOjE3ODE3MDU0NTQsImV4cCI6MTc4MTcwNzI1NH0.c_mhrmUi75Vzo8ovp5jUiURYX0vJeaN5uEW648bzcNWnd0m9cn9IqQV5P769X2oN
+
+
+### 1. post 모듈이 요청한 데이터 전달 내부 api
+GET {{baseUrl}}/feed?cursorId=1&size=10
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

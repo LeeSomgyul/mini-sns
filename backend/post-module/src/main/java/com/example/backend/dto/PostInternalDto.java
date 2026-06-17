@@ -48,8 +48,8 @@ public record PostInternalDto(
         List<Media> mediaDto = post.getMediaList().stream()
                 .map(m -> new Media(
                         m.getUrl(),
-                        m.getThumbnailUrl(),
                         m.getMediaType().name(),
+                        m.getThumbnailUrl(),
                         m.getSortOrder(),
                         m.getStatus().name(),
                         m.getCropState()
