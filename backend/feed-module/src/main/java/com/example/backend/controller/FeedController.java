@@ -1,9 +1,9 @@
 package com.example.backend.controller;
 
-import com.example.backend.common.dto.ApiResponse;
-import com.example.backend.domain.feed.dto.FeedResponse;
-import com.example.backend.common.security.CustomUserDetails;
-import com.example.backend.domain.feed.service.FeedService;
+import com.example.backend.dto.ApiResponse;
+import com.example.backend.dto.FeedResponse;
+import com.example.backend.jwt.JwtUser;
+import com.example.backend.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,12 +27,12 @@ public class FeedController {
     */
     @GetMapping
     public ResponseEntity<ApiResponse<FeedResponse>> getFeedTimeline(
-            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @AuthenticationPrincipal JwtUser jwtUser,
             @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "size", defaultValue = "20")int size
 
     ){
-        Long currentUserId = loginUser.userId();
+        Long currentUserId = jwtUser.userId();
 
         int validatedSize = size;
         if(size <= 0 || size > 100){

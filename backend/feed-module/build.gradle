@@ -4,6 +4,7 @@ dependencies {
     implementation project(':core-common-module')
 
     // 스트링부트 기본 웹 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // 레디스
@@ -15,4 +16,17 @@ dependencies {
 
     // 카프카
     implementation 'org.springframework.kafka:spring-kafka'
+
+    // JPA & PostgreSQL
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // 인증 및 보안
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+
+    // 서버 간의 통신을 위한 라이브러리
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0'
 }

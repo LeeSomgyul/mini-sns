@@ -1,8 +1,5 @@
 package com.example.backend.dto;
 
-import com.example.backend.domain.post.entity.Post;
-import com.example.backend.domain.post.entity.PostMedia;
-import com.example.backend.domain.user.entity.User;
 import lombok.Builder;
 import tools.jackson.databind.ObjectMapper;
 
@@ -10,19 +7,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+// [외부 통신용] feed 모듈 -> 프론트엔드 출력 용도
 @Builder
 public record FeedResponse (
         List<PostDto> posts,
         Long nextCursor,
         boolean hasNextPage
 ){
-    public static FeedResponse of(List<PostDto> posts, Long nextCursor, boolean hasNextPage){
-        return new FeedResponse(
-              posts,
-              nextCursor,
-              hasNextPage
-        );
-    }
 
     @Builder
     public record PostDto(
@@ -36,18 +27,22 @@ public record FeedResponse (
             boolean isAuthor,
             LocalDateTime createdAt
     ){
-        public static PostDto from (Post post, boolean isLiked, boolean isAuthor, List<MediaDto> mediaDtos){
-            return new PostDto(
-                    post.getId(),
-                    AuthorDto.from(post.getAuthor()),
-                    post.getContent(),
-                    mediaDtos,
-                    post.getCommentCount(),
-                    post.getLikeCount(),
-                    isLiked,
-                    isAuthor,
-                    post.getCreatedAt()
-            );
+
+        public static PostDto from(
+                PostInternalDto postInternalDto,
+                AuthorDto authorDto,
+                List<MediaDto> mediaDtos
+        ){
+            return PostDto.builder()
+                    .postId(postInternalDto.postId())
+                    .author(authorDto)
+                    .content(postInternalDto.content())
+                    .media(mediaDtos)
+                    .commentCount(postInternalDto.commentCount())
+                    .likeCount(postInternalDto.likeCount())
+                    .isLiked(postInternalDto.isLiked())
+                    .isAuthor(postInternalDto.isAuthor())
+                    .build();
         }
 
         @Builder
@@ -56,13 +51,6 @@ public record FeedResponse (
                 String nickname,
                 String profileImageUrl
         ){
-            public static AuthorDto from (User user){
-                return new AuthorDto(
-                    user.getId(),
-                    user.getNickname(),
-                    user.getProfileImageUrl()
-                );
-            }
         }
 
         @Builder
@@ -76,16 +64,19 @@ public record FeedResponse (
         ){
             public static final ObjectMapper objectMapper = new ObjectMapper();
 
-            public static MediaDto from (
-                    PostMedia postMedia,
+            public static MediaDto create (
+                    String dbPath,
+                    String dbThumbPath,
+                    String mediaType,
+                    String cropState,
+                    int sortOrder,
+                    String status,
                     String baseStorageUrl,
                     String imgproxyEndpoint,
                     String imgproxyPrefix,
                     String imgproxyStorageProtocol
             ){
                 //[DB에 저장된 "/post..."형식 url을 전체 경로 형식으로 변형]
-                String dbPath = postMedia.getUrl();
-                String dbThumbPath = postMedia.getThumbnailUrl();
 
                 if(dbPath != null && dbPath.startsWith("/mini-sns/")){
                     dbPath = dbPath.replace("/mini-sns/", "");
@@ -98,13 +89,13 @@ public record FeedResponse (
                 // 1.미디어 url 변경
                 String finalMediaUrl;
                 // 1-1. 비디오일 경우는 imgproxy 미작동
-                if("VIDEO".equalsIgnoreCase(postMedia.getMediaType().name())){
+                if("VIDEO".equalsIgnoreCase(mediaType)){
                     finalMediaUrl = (dbPath != null) ? baseStorageUrl + "/" + dbPath : null;
                 }else{
                     // 1-2.이미지일 경우에만 imgproxy 작동
                     finalMediaUrl = convertToImgproxyFormat(
                             dbPath,
-                            postMedia.getCropState(),
+                            cropState,
                             imgproxyEndpoint,
                             imgproxyPrefix,
                             imgproxyStorageProtocol
@@ -117,11 +108,11 @@ public record FeedResponse (
                 // 4. 변형된 url로 프론트 응답
                 return new MediaDto(
                     finalMediaUrl,
-                    postMedia.getMediaType().name(),
+                    mediaType,
                     finalThumbmailUrl,
-                    postMedia.getSortOrder(),
-                    postMedia.getStatus().name(),
-                    postMedia.getCropState()
+                    sortOrder,
+                    status,
+                    cropState
                 );
             }
 

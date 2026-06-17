@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
-import com.example.backend.domain.feed.dto.FeedResponse;
-import com.example.backend.domain.post.entity.Post;
-import com.example.backend.domain.post.entity.PostMedia;
-import com.example.backend.domain.post.repository.PostRepository;
-import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
+
+import com.example.backend.client.PostInternalClient;
+import com.example.backend.component.FeedWarmUpComponent;
+import com.example.backend.connection.FeedTargetConnection;
+import com.example.backend.dto.FeedResponse;
+import com.example.backend.dto.PostInternalDto;
+import com.example.backend.repository.FeedPostIndexCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,12 +30,13 @@ public class FeedService {
     @Value("${imgproxy.prefix}") private String imgproxyPrefix;
     @Value("${imgproxy.storage-protocol}") private String imgproxyStorageProtocol;
 
-
     private final FeedWarmUpComponent feedWarmUpComponent;
     private final StringRedisTemplate stringRedisTemplate;
-    private final PostRepository postRepository;
     private final FeedTargetConnection feedTargetConnection;
+    private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
+    private final PostInternalClient postInternalClient;
 
+    // [REDIS KEY]
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
     /*
@@ -43,74 +46,92 @@ public class FeedService {
     * */
     @Transactional(readOnly = true)
     public FeedResponse getFeedTimeline(Long currentUserId, Long cursorId, int size){
-        //1.오랫동안 접속 안 한 사용자라서 Redis 비어있으면 실시간 복구
+        // 1.오랫동안 접속 안 한 사용자라서 Redis 비어있으면 실시간 복구
         feedWarmUpComponent.warmupIfEmpty(currentUserId);
 
-        //2.내 Redis에서 일반 친구들의 모든 postId 가져오기
+        // 2-1. 사용자들 만의 피드 주소 키 가져오기
         String redisKey = REDIS_FEED_KEY_PREFIX + currentUserId;
+        // 2-2. Redis에 쌓여있는 500개의 postId 전체를 순서대로 가져오기
         List<String> rawPostIds = stringRedisTemplate.opsForList().range(redisKey,0,-1);
+        // 2-3. 최적화: 500개를 다 가져오는게 아니라, 조금씩 잘라서 가져오기
+        List<Long> normalPostIds = (rawPostIds != null)?
+                rawPostIds.stream()
+                    .map(Long::parseLong)
+                    .filter(id -> cursorId == null || id < cursorId)
+                    .limit(size + 1)
+                    .toList()
+                :List.of();
 
-        /*String 타입으로 가져온 postId를 Long 타입으로 변경*/
-        List<Long> normalPostIds = (rawPostIds != null) ?
-                rawPostIds.stream().map(Long::parseLong).toList() : List.of();
-
-        //3.Redis의 postId를 기반으로 DB에서 실제 게시물 데이터 가져오기
-        List<Post> normalPosts = List.of();
-        if(!normalPostIds.isEmpty()){
-            normalPosts = postRepository.findAllById(normalPostIds).stream()
-                    .filter(p -> (cursorId == null || p.getId() < cursorId))
-                    .toList();
+        // 3-1. 내가 팔로우하는 인플루언서의 userId 가져오기
+        List<Long> pullTargetIds = feedTargetConnection.feedPullTargetIds(currentUserId);
+        // 3-2. 인플루언서 중에서, 내가 마지막으로 본 글 다음부터 11개만 가져오기
+        List<Long> celebrityPostIds = List.of();
+        if (!pullTargetIds.isEmpty()) {
+            celebrityPostIds = feedPostIndexCacheRepository.findCelebrityPostIdsWithCursor(
+                    pullTargetIds,
+                    cursorId,
+                    PageRequest.of(0, size + 1)
+            );
         }
 
-        //4.내가 팔로우하는 인플루언서의 게시물을 DB에서 가져오기
-        List<Long> pullTargetIds = feedTargetConnection.feedPullTargetIds(currentUserId);
+        // 4-1.일반 친구들 + 인플루언서 병합
+        List<Long> mergedIds = new ArrayList<>();
+        mergedIds.addAll(normalPostIds);
+        mergedIds.addAll(celebrityPostIds);
 
-        /* 다음 페이지 유무(hasNextPage) 판별을 위해 요청한 size보다 +1개 더 가져오기 */
-        List<Post> celebrityPosts = postRepository.findCelebrityPosts(
-                pullTargetIds,
-                cursorId,
-                PageRequest.of(0, size+1)
-        );
-
-        //5.일반 친구들 + 인플루언서 병합
-        List<Post> mergedList = new ArrayList<>();
-        mergedList.addAll(normalPosts);
-        mergedList.addAll(celebrityPosts);
-
-        /* 중복 게시물 제거 및 postId 내림차순(최신순) 정렬 */
-        List<Post> sortedFeed = mergedList.stream()
+        // 4-2. 병합된 리스트 내림차순(최신순) 정렬
+        List<Long> sortedFeed = mergedIds.stream()
                 .distinct()
-                .sorted(Comparator.comparing(Post::getId).reversed())
+                .sorted(Comparator.reverseOrder())
                 .toList();
 
-        //6.[무한 스크롤] 페이지 나누기 및 다음 페이지 존재 여부 판별
-        /* 일반 + 인플루언서 리스트 숫자 > 요청한 숫자 라면 뒤에 게시물에 더 있는거임.(위에서 +1해서 가져왔음)*/
+        // 5.[무한 스크롤] 페이지 나누기 및 다음 페이지 존재 여부 판별
+        // 5-1. 일반 + 인플루언서 리스트 숫자 > 요청한 숫자 라면 뒤에 게시물에 더 있는거임.(위에서 +1해서 가져왔음)*/
         boolean hasNextPage = sortedFeed.size() > size;
 
-        /* 요청한 size 만큼만 잘라서 최종 리스트 구성 */
-        List<Post> slicedPosts = hasNextPage ? sortedFeed.subList(0, size) : sortedFeed;
+        // 5-2. 요청한 size 만큼만 잘라서 최종 리스트 구성
+        List<Long> slicedPostIds = hasNextPage ? sortedFeed.subList(0, size) : sortedFeed;
 
-        /* 다음 스크롤 요청 시 마지막 기준점(postId) 갱신 */
-        Long nextCurosr = slicedPosts.isEmpty() ? null : slicedPosts.get(slicedPosts.size() - 1).getId();
+        // 5-3. 다음 스크롤 요청 시 마지막 기준점(postId) 갱신
+        Long nextCurosr = slicedPostIds.isEmpty() ? null : slicedPostIds.get(slicedPostIds.size() - 1);
+
+        if(slicedPostIds.isEmpty()){
+            return FeedResponse.builder()
+                    .posts(List.of())
+                    .nextCursor(nextCurosr)
+                    .hasNextPage(hasNextPage)
+                    .build();
+        }
+
+        // 5-4. post 모듈에게 데이터 요청 후 가져온 데이터
+        List<PostInternalDto> realPosts = postInternalClient.getPostsBulk(slicedPostIds, currentUserId);
 
         /* 프론트에 전송할 미디어 전체 경로 */
         String baseStorageUrl = minioEndpoint + "/" + minioBucket;
 
         //7.FeedResponse 반환
-        List<FeedResponse.PostDto> postDtos = slicedPosts.stream()
-                .map(post -> convertToPostDto(post, currentUserId, baseStorageUrl))
+        List<FeedResponse.PostDto> postDtos = realPosts.stream()
+                .map(postInternalDto -> convertToPostDto(postInternalDto, baseStorageUrl))
                 .toList();
 
-        return FeedResponse.of(postDtos, nextCurosr, hasNextPage);
+        return FeedResponse.builder()
+                .posts(postDtos)
+                .nextCursor(nextCurosr)
+                .hasNextPage(hasNextPage)
+                .build();
     }
 
-    //[보조 메서드] FeedResponse의 List<PostDto> posts 반환
-    private FeedResponse.PostDto convertToPostDto(Post post, Long currentUserId, String baseStorageUrl){
-        //PostDto의 MediaDto 반환
-        List<FeedResponse.PostDto.MediaDto> mediaDtos = post.getMediaList().stream()
-                .sorted(Comparator.comparing(PostMedia::getSortOrder))
-                .map(media -> FeedResponse.PostDto.MediaDto.from(
-                        media,
+    //[보조 메서드] PostInternalDto를 받아 조립
+    private FeedResponse.PostDto convertToPostDto(PostInternalDto postInternalDto, String baseStorageUrl){
+        // 1. 미디어 조립
+        List<FeedResponse.PostDto.MediaDto> mediaDtos = postInternalDto.media().stream()
+                .map(media -> FeedResponse.PostDto.MediaDto.create(
+                       media.mediaUrl(),
+                        media.thumbnailUrl(),
+                        media.type(),
+                        media.cropState(),
+                        media.sortOrder(),
+                        media.status(),
                         baseStorageUrl,
                         imgproxyEndpoint,
                         imgproxyPrefix,
@@ -118,9 +139,13 @@ public class FeedService {
                 ))
                 .toList();
 
-        boolean isLiked = false;//🚨좋아요 기능 구현 이후 연동 필요🚨
-        boolean isAuthor = post.getAuthor().getId().equals(currentUserId);
+        // 2. 작성자 조립
+        FeedResponse.PostDto.AuthorDto authorDto = FeedResponse.PostDto.AuthorDto.builder()
+                .userId(postInternalDto.author().userId())
+                .nickname(postInternalDto.author().nickname())
+                .profileImageUrl(postInternalDto.author().profileImageUrl())
+                .build();
 
-        return FeedResponse.PostDto.from(post, isLiked, isAuthor, mediaDtos);
+        return FeedResponse.PostDto.from(postInternalDto, authorDto, mediaDtos);
     }
 }

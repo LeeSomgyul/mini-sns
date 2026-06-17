@@ -4,6 +4,9 @@ dependencies {
     // 스프링 시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    // 스트링부트 기본 웹 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
     // JWT 관련
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'

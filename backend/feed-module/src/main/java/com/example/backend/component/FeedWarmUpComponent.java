@@ -1,8 +1,7 @@
 package com.example.backend.component;
 
-import com.example.backend.domain.post.entity.Post;
-import com.example.backend.domain.post.repository.PostRepository;
-import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
+import com.example.backend.connection.FeedTargetConnection;
+import com.example.backend.repository.FeedPostIndexCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -24,9 +23,10 @@ import java.util.List;
 public class FeedWarmUpComponent {
 
     private final StringRedisTemplate stringRedisTemplate;
-    private final PostRepository postRepository;
     private final FeedTargetConnection feedTargetConnection;
+    private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
 
+    //REDIS KEY: 사용자마다 각자의 postId가 모이는 공간
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
     private static final int MAX_WARMUP_SIZE = 500;
 
@@ -44,19 +44,19 @@ public class FeedWarmUpComponent {
         log.warn("[Redis 캐시 비어있음 감지] Warm-Up 시작 userId: {}", currentUserId);
 
         //1.[네트워크 복구] 내가 팔로우하는 모든 친구들의 ID 목록 추출
-        List<Long> followingsIds = feedTargetConnection.feedPushTargetIds(currentUserId);
+        List<Long> followingsIds = feedTargetConnection.feedFollowingIds(currentUserId);
 
-        if(followingsIds.isEmpty()){
+        if(followingsIds == null || followingsIds.isEmpty()){
             return;
         }
 
         //2.[DB 복구] 일반 팔로워들이 작성한 postId 500개를 DB에서 가져옴
-        List<Post> recentNormalPosts = postRepository.findRecentPostsForWarmUp(
+        List<Long> recentNormalPosts = feedPostIndexCacheRepository.findRecentPostIdsByAuthorIds(
                 followingsIds,
                 PageRequest.of(0, MAX_WARMUP_SIZE)
         );
 
-        if(recentNormalPosts.isEmpty()){
+        if(recentNormalPosts == null || recentNormalPosts.isEmpty()){
             return;
         }
 
@@ -68,8 +68,8 @@ public class FeedWarmUpComponent {
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(key);
 
-            for(Post post : recentNormalPosts){
-                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(String.valueOf(post.getId()));
+            for(Long postId : recentNormalPosts){
+                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(String.valueOf(postId));
                 connection.listCommands().rPush(rawKey, rawValue);
             }
             return null;

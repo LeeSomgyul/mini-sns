@@ -4,6 +4,7 @@ dependencies {
     implementation project(':core-common-module')
 
     // 스트링부트 기본 웹 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // JPA & PostgreSQL

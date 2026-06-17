@@ -9,7 +9,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PostRepository  extends JpaRepository<Post, Long> {
-    
+
+    // 게시글 + 작성자 + 미디어 목록을 한번에 가져오는 쿼리
+    @Query("SELECT DISTINCT p FROM Post p " +
+            "JOIN FETCH p.author " +
+            "LEFT JOIN FETCH p.mediaList " +
+            "WHERE p.id IN :postIds")
+    List<Post> findPostsWithAuthorAndMediaByIdIn(@Param("postIds") List<Long> postIds);
+
 //🔥카프카 연동 후 수정
 //    //[인플루언서 사용자의 글만 추출]
 //    /*
@@ -29,21 +36,6 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
 //    List<Post> findCelebrityPosts(
 //        @Param("authorIds") List<Long> authorIds,
 //        @Param("cursorId") Long cursorId,
-//        Pageable pageable
-//    );
-
-//    //[Redis가 비어있을때 방어 작동]
-//    /*
-//    * 오랜만에 접속한 사용자의 초기화된 Redis에 postId 500개를 한번에 채워주는 메서드
-//     */
-//    @Query(
-//            "SELECT p FROM Post p " +
-//            "WHERE p.author.id IN :authorIds " +
-//            "AND p.author.isCelebrity = false " +
-//            "ORDER BY p.id DESC"
-//    )
-//    List<Post> findRecentPostsForWarmUp(
-//        @Param("authorIds") List<Long> authorIds,
 //        Pageable pageable
 //    );
 }

@@ -1,7 +1,9 @@
-package com.example.backend.infrastructure.kafka.feed;
+package com.example.backend.kafka;
 
-import com.example.backend.domain.feed.service.connection.FeedTargetConnection;
-import com.example.backend.infrastructure.kafka.common.KafkaTopics;
+import com.example.backend.config.kafka.KafkaTopics;
+import com.example.backend.connection.FeedTargetConnection;
+import com.example.backend.entity.FeedPostIndexCache;
+import com.example.backend.repository.FeedPostIndexCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisCallback;
@@ -9,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -18,9 +21,12 @@ public class FeedPushEventConsumer {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final FeedTargetConnection feedTargetConnection;
+    private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
 
-    private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
     private static final int MAX_TIMELINE_SIZE = 499;
+
+    // [REDIS KEY] 사용자마다 각자의 postId가 모이는 공간
+    private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
     //[카프카 메시지를 받으면 아래 메서드 수행]
     /*
@@ -64,6 +70,14 @@ public class FeedPushEventConsumer {
             return null;
         });
 
-        log.info("📥 비동기 Push 완료: postId: {} 가 {} 명의 팔로워 Redis에 저장되었습니다.", event.postId(), targetIds.size());
+        // 3. 웜업을 위해 저장
+        FeedPostIndexCache feedPostIndexCache = FeedPostIndexCache.builder()
+                .postId(event.postId())
+                .authorId(event.authorId())
+                .createdAt(LocalDateTime.now())
+                .build();
+        feedPostIndexCacheRepository.save(feedPostIndexCache);
+
+        log.info("[게시물 비동기 Push 완료]: postId: {} 가 {} 명의 팔로워 Redis에 저장되었습니다.", event.postId(), targetIds.size());
     }
 }
