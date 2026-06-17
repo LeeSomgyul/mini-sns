@@ -1,6 +1,6 @@
-package com.example.backend.domain.notification.service;
+package com.example.backend.service;
 
-import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
+import com.example.backend.kafka.NotificationFeedEvent;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 // [서버 증설로 인해 Redis로 바꿀 때를 대비하여 인터페이스 구현]

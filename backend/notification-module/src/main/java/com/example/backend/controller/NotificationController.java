@@ -1,7 +1,7 @@
-package com.example.backend.domain.notification.controller;
+package com.example.backend.controller;
 
-import com.example.backend.common.security.CustomUserDetails;
-import com.example.backend.domain.notification.service.NotificationService;
+import com.example.backend.jwt.JwtUser;
+import com.example.backend.service.NotificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,13 +20,13 @@ public class NotificationController {
 
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal JwtUser jwtUser,
             HttpServletResponse response
     ){
         // Nginx가 중간에서 백엔드의 응답 잠시 보관(버퍼링)하는것 방지
         response.setHeader("X-Accel-Buffering", "no");
         response.setHeader("Connection", "keep-alive");
 
-        return notificationService.subscribe(userDetails.userId());
+        return notificationService.subscribe(jwtUser.userId());
     }
 }

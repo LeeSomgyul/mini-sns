@@ -1,8 +1,9 @@
-package com.example.backend.domain.notification.service;
+package com.example.backend.service;
 
-import com.example.backend.domain.notification.repository.SseRepository;
-import com.example.backend.domain.notification.service.connection.NotificationTargetConnection;
-import com.example.backend.infrastructure.kafka.Notification.NotificationFeedEvent;
+import com.example.backend.connection.NotificationTargetConnection;
+import com.example.backend.kafka.NotificationFeedEvent;
+import com.example.backend.sse.SseEmitterFactory;
+import com.example.backend.sse.SseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j

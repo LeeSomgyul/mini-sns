@@ -1,4 +1,4 @@
-package com.example.backend.infrastructure.kafka.Notification;
+package com.example.backend.kafka;
 
 import lombok.Builder;
 

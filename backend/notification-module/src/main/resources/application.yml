@@ -1,0 +1,8 @@
+server:
+  port: 8085  # Notification API 서버는 8085 포트로 독립 가동
+  servlet:
+    context-path: /api
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9094

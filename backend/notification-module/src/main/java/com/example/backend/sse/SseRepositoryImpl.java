@@ -1,4 +1,4 @@
-package com.example.backend.domain.notification.repository;
+package com.example.backend.sse;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

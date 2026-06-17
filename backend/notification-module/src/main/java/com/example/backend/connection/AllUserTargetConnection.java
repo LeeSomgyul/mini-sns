@@ -1,4 +1,4 @@
-package com.example.backend.domain.notification.service.connection;
+package com.example.backend.connection;
 
 import com.example.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

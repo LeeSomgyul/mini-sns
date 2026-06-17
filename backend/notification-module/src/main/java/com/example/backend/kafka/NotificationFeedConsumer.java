@@ -1,8 +1,8 @@
-package com.example.backend.infrastructure.kafka.Notification;
+package com.example.backend.kafka;
 
-import com.example.backend.domain.notification.repository.SseRepository;
-import com.example.backend.domain.notification.service.NotificationService;
-import com.example.backend.infrastructure.kafka.common.KafkaTopics;
+import com.example.backend.config.kafka.KafkaTopics;
+import com.example.backend.service.NotificationService;
+import com.example.backend.sse.SseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
