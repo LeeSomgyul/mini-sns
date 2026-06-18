@@ -19,9 +19,21 @@ services:
     container_name: minisns-redis
     ports:
       - "6379:6379"
-    restart: always
     networks:
       - sns-network
+    restart: always
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=MiniSNS:minisns-redis:6379
+    ports:
+      - "8088:8081"
+    depends_on:
+      - sns-redis
+    networks:
+      - sns-network
+    restart: always
 
   minio:
     image: minio/minio

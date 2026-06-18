@@ -39,15 +39,28 @@ public class FeedPushEventConsumer {
             groupId = "mini-sns-feed-backend"
     )
     public void savePushPostIds(FeedPushEvent event){
-        //1. [타겟 추출] postId를 전달 받아야 하는 사용자들 찾기
+
+        System.out.println("====== [진입 완] 카프카에서 메시지 수신 완료!! ======");
+        log.info("수신된 이벤트 정보 - PostId: {}, AuthorId: {}", event.postId(), event.authorId());
+
+        // 1. [DB 저장] 웜업을 위해 저장
+        FeedPostIndexCache feedPostIndexCache = FeedPostIndexCache.builder()
+                .postId(event.postId())
+                .authorId(event.authorId())
+                .createdAt(LocalDateTime.now())
+                .build();
+        feedPostIndexCacheRepository.save(feedPostIndexCache);
+
+        //2. [타겟 추출] postId를 전달 받아야 하는 사용자들 찾기
         List<Long> targetIds = feedTargetConnection.feedPushTargetIds(event.authorId());
         String postIdStr = String.valueOf(event.postId());
 
         if(targetIds.isEmpty()){
+            log.info("[인덱스 DB 저장 완료] 팔로워가 없어 Redis 푸시는 건너뜁니다.");
             return;
         }
 
-        //2. [Redis에 추가]
+        //3. [Redis에 추가] 팔로워가 있을 때만 파이프라인 작동
         /*
         * - 문제: 만약 팔로워가 1,000명일 때 for문을 돌면서 레디스를 호출하면 네트워크 부하가 걸림
         * - 해결책: 파이프라이닝을 사용하여 1,000개의 명령어를 하나의 패킷으로 묶어 레디스에 단 1번의 네트워크 통신으로 전송
@@ -70,13 +83,7 @@ public class FeedPushEventConsumer {
             return null;
         });
 
-        // 3. 웜업을 위해 저장
-        FeedPostIndexCache feedPostIndexCache = FeedPostIndexCache.builder()
-                .postId(event.postId())
-                .authorId(event.authorId())
-                .createdAt(LocalDateTime.now())
-                .build();
-        feedPostIndexCacheRepository.save(feedPostIndexCache);
+
 
         log.info("[게시물 비동기 Push 완료]: postId: {} 가 {} 명의 팔로워 Redis에 저장되었습니다.", event.postId(), targetIds.size());
     }
