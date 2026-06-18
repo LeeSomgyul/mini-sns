@@ -1,6 +1,5 @@
 package com.example.backend.service;
 
-import com.example.backend.connection.NotificationTargetConnection;
 import com.example.backend.kafka.NotificationFeedEvent;
 import com.example.backend.sse.SseEmitterFactory;
 import com.example.backend.sse.SseRepository;
@@ -20,7 +19,6 @@ public class NotificationServiceImpl implements NotificationService{
 
     private final SseRepository sseRepository;
     private final SseEmitterFactory sseEmitterFactory;
-    private final NotificationTargetConnection notificationTargetConnection;
 
     // SSE 연결 타임아웃 설정 (30분 간격으로 자동 연결 끊김)
     private static final Long DEFAULT_TIMEOUT = 30L * 60 * 1000;

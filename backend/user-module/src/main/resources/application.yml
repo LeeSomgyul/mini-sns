@@ -4,6 +4,8 @@ server:
     context-path: /api
 
 spring:
+  profiles:
+    active: local #현재 서버를 local 모드로 켜겠다는 선언
   datasource:
     url: jdbc:postgresql://localhost:5432/user_db
     username: minisns_admin

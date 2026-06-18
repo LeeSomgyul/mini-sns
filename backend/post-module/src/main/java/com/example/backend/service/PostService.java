@@ -9,6 +9,10 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.UserCache;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.kafka.FeedPushEvent;
+import com.example.backend.kafka.FeedPushEventPublisher;
+import com.example.backend.kafka.NotificationFeedEvent;
+import com.example.backend.kafka.NotificationFeedPublisher;
 import com.example.backend.kafka.media.MediaEventPublisher;
 import com.example.backend.kafka.media.MediaProcessEvent;
 import com.example.backend.repository.PostMediaRepository;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +36,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class PostService {
 
-//🔥카프카 작업 후 전달 받을 예정
-//    private final NotificationTargetConnection notificationTargetConnection;
-//    private final FeedPushEventPublisher feedPushEventPublisher;
-//    private final NotificationFeedPublisher notificationFeedPublisher;
-
+    private final FeedPushEventPublisher feedPushEventPublisher;
+    private final NotificationFeedPublisher notificationFeedPublisher;
     private final UserCacheRepository userCacheRepository;
     private final MediaEventPublisher mediaEventPublisher;
     private final ObjectMapper objectMapper;
@@ -169,28 +171,29 @@ public class PostService {
             }
         }
 
-//🔥카프카 작업 후 수정 예정
-//        //[Feed Kafka publisher] FeedPushEvent 전송
-//        FeedPushEvent feedPushEvent = FeedPushEvent.of(
-//                post.getId(),
-//                authorId
-//        );
-//        feedPushEventPublisher.publishPushEvent(feedPushEvent);
-//
-//        //[Notifation feed Kafka publisher] NotificationEvent 전송
-//        // 1. 알림 받아야 하는 대상 id 목록
-//        List<Long> targetUserIds = notificationTargetConnection.findTargetUserIds(authorId);
-//
-//        // 2. 이벤트 메시지 발송
-//        for(Long targetUserId : targetUserIds){
-//            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.of(
-//                    "NEW_POST",
-//                    targetUserId,
-//                    authorId,
-//                    post.getId()
-//            );
-//            notificationFeedPublisher.publish(notificationFeedEvent);
-//        }
+        //[Feed Kafka publisher] FeedPushEvent 전송
+        FeedPushEvent feedPushEvent = FeedPushEvent.builder()
+                .postId(post.getId())
+                .authorId(authorId)
+                .build();
+        feedPushEventPublisher.publishPushEvent(feedPushEvent);
+
+        //[Notifation feed Kafka publisher] NotificationEvent 전송
+        // 1. 알림 받아야 하는 대상 id 목록
+        //🚨현재는 모든 사용자를 조회하지만, 친구 기능 완료 후 수정하기🚨
+        List<Long> targetUserIds = userCacheRepository.findAllIdsExcept(authorId);
+
+        // 2. 이벤트 메시지 발송
+        for(Long targetUserId : targetUserIds){
+            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.builder()
+                    .type("NEW_POST")
+                    .receiverUserId(targetUserId)   //알람 받을 사람
+                    .triggerUserId(authorId)        //알람 보내는 사람 (글 작성자)
+                    .targerPostId(post.getId())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            notificationFeedPublisher.publish(notificationFeedEvent);
+        }
 
         return PostResponse.of(post, authorId);
     }

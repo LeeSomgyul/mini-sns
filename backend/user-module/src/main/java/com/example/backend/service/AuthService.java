@@ -119,10 +119,6 @@ public class AuthService {
                 .build();
         localAccountRepository.save(localAccount);//DB 저장
 
-//🔥카프카를 이용한 비동기 이벤트 발행 방식으로 개선
-//        //엘라스틱서치에 검색용 데이터 저장
-//        userSearchRepository.save(UserDocument.from(user));
-
         // 8. 사용 완료한 인증번호 Redis에서 삭제
         redisTemplate.delete(redisKey);
 

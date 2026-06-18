@@ -22,13 +22,10 @@ public class NotificationFeedConsumer {
     )
     public void comsume(NotificationFeedEvent event){
 
-        Long authorId = event.triggerUserId();
+        // 1. 알림 받을 대상 추출
+        Long receiverId = event.receiverUserId();
 
-        // 내 서버 메모리(SseRepository)에 연결되어 살아있는 모든 유저에게 "새 글 떴다!" 하고 신호를 보냄
-        sseRepository.findAll().forEach((userId, emitter) -> {
-            if(!userId.equals(authorId)){
-                notificationService.sendToClient(userId, event);
-            }
-        });
+        // 2. 카프카 메시지를 SSE 통해 전송
+        notificationService.sendToClient(receiverId, event);
     }
 }
