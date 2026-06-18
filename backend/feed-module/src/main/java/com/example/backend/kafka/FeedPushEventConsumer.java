@@ -40,9 +40,6 @@ public class FeedPushEventConsumer {
     )
     public void savePushPostIds(FeedPushEvent event){
 
-        System.out.println("====== [진입 완] 카프카에서 메시지 수신 완료!! ======");
-        log.info("수신된 이벤트 정보 - PostId: {}, AuthorId: {}", event.postId(), event.authorId());
-
         // 1. [DB 저장] 웜업을 위해 저장
         FeedPostIndexCache feedPostIndexCache = FeedPostIndexCache.builder()
                 .postId(event.postId())
@@ -82,9 +79,7 @@ public class FeedPushEventConsumer {
             }
             return null;
         });
-
-
-
+        
         log.info("[게시물 비동기 Push 완료]: postId: {} 가 {} 명의 팔로워 Redis에 저장되었습니다.", event.postId(), targetIds.size());
     }
 }

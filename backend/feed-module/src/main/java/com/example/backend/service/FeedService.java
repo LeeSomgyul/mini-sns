@@ -15,9 +15,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -106,11 +105,17 @@ public class FeedService {
         // 5-4. post 모듈에게 데이터 요청 후 가져온 데이터
         List<PostInternalDto> realPosts = postInternalClient.getPostsBulk(slicedPostIds, currentUserId);
 
+        // 5-5. 가져온 데이터를 다시 최신순 리스트대로 정렬
+        Map<Long, PostInternalDto> postMap = realPosts.stream()
+                .collect(Collectors.toMap(PostInternalDto::postId, post -> post));
+
         /* 프론트에 전송할 미디어 전체 경로 */
         String baseStorageUrl = minioEndpoint + "/" + minioBucket;
 
         //7.FeedResponse 반환
-        List<FeedResponse.PostDto> postDtos = realPosts.stream()
+        List<FeedResponse.PostDto> postDtos = slicedPostIds.stream()
+                .map(postMap::get)
+                .filter(Objects::nonNull)
                 .map(postInternalDto -> convertToPostDto(postInternalDto, baseStorageUrl))
                 .toList();
 

@@ -42,6 +42,7 @@ public record FeedResponse (
                     .likeCount(postInternalDto.likeCount())
                     .isLiked(postInternalDto.isLiked())
                     .isAuthor(postInternalDto.isAuthor())
+                    .createdAt(postInternalDto.createdAt())
                     .build();
         }
 

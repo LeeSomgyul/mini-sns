@@ -68,9 +68,10 @@ public class FeedWarmUpComponent {
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(key);
 
-            for(Long postId : recentNormalPosts){
+            for(int i = recentNormalPosts.size() - 1; i>=0; i--){
+                Long postId = recentNormalPosts.get(i);
                 byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(String.valueOf(postId));
-                connection.listCommands().rPush(rawKey, rawValue);
+                connection.listCommands().lPush(rawKey, rawValue);
             }
             return null;
         });
