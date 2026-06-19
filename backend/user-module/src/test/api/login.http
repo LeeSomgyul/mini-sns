@@ -1,0 +1,14 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@email = test@example.com
+@password = Password123!
+
+
+### 1. 일반 로그인 (토큰 발급)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}

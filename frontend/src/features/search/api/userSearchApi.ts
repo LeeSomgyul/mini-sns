@@ -13,7 +13,7 @@ export const userSearchApi = {
     //[사용자 전체 검색]
     searchUsers: async ({ keyword, pageParam, signal }: FetchUserSearchParams): Promise<UserSearchResponse<UserInfo>> => {
         const response = await api.get<ApiResponse<UserSearchResponse<UserInfo>>>(
-            '/api/v1/users/search',
+            '/api/v1/search/users',
             {
                 params: {
                     keyword: keyword,

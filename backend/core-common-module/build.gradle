@@ -1,0 +1,25 @@
+plugins {
+    // 다른 모듈에 코드를 공유하는 라이브러리임을 명시
+    id 'java-library'
+}
+
+// core-common-module는 @SpringBootApplication가 없어서 혼자 실행할 수 없는 라이브러리 역할임.
+// 때문에 부모 build.gradle에서 받아오지 못하기 때문에 따로 선언해야 함.
+dependencies {
+    // 웹 애플리케이션
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+
+    // 카프카
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // 날짜
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // 롬복
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+bootJar { enabled = false }
+jar { enabled = true }

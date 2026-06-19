@@ -1,26 +1,39 @@
 services:
   db:
     image: postgres:16
-    container_name: sns-db-container
+    container_name: minisns-postgres
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: sns_db
+      POSTGRES_USER: minisns_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: minisns_postgres
     networks:
       - sns-network
     volumes:
       - C:/mini_sns_storage/postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
 
   sns-redis:
     image: redis:latest
     container_name: minisns-redis
     ports:
       - "6379:6379"
-    restart: always
     networks:
       - sns-network
+    restart: always
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=MiniSNS:minisns-redis:6379
+    ports:
+      - "8088:8081"
+    depends_on:
+      - sns-redis
+    networks:
+      - sns-network
+    restart: always
 
   minio:
     image: minio/minio
@@ -81,17 +94,17 @@ services:
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 #현재 서비스가 작기 때문에 카프카 서버 1대 
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 #현재 서비스가 작기 때문에 카프카 서버 1대
     networks:
       - sns-network
     volumes:
       - kafka_data:/var/lib/kafka/data
-    
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: minisns-kafka-ui
     ports:
-      - "8081:8080" 
+      - "8989:8080"
     environment:
       - KAFKA_CLUSTERS_0_NAME=sns-cluster
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
@@ -104,12 +117,12 @@ services:
     image: darthsim/imgproxy:latest
     container_name: minisns-imgproxy
     ports:
-      - "8082:8080"
+      - "8086:8080"
     environment:
       - IMGPROXY_BIND=0.0.0.0:8080
       - IMGPROXY_USE_S3=true
-      - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}      
-      - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY} 
+      - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
       - AWS_REGION=us-east-1
       - IMGPROXY_S3_ENDPOINT=http://minisns-minio:9000
     networks:
@@ -127,6 +140,8 @@ services:
       - imgproxy
     networks:
       - sns-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   sns-network:

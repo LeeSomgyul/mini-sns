@@ -1,0 +1,20 @@
+dependencies {
+    // 모듈 공통 라이브러리
+    implementation project(':core-security-module')
+    implementation project(':core-common-module')
+
+    // 스트링부트 기본 웹 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 롬복
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 인증 및 보안
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+
+    // 카프카
+    implementation 'org.springframework.kafka:spring-kafka'
+}
