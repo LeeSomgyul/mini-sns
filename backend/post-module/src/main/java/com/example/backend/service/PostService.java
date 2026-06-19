@@ -9,28 +9,30 @@ import com.example.backend.entity.PostTag;
 import com.example.backend.entity.UserCache;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
-import com.example.backend.kafka.FeedPushEvent;
-import com.example.backend.kafka.FeedPushEventPublisher;
-import com.example.backend.kafka.NotificationFeedEvent;
-import com.example.backend.kafka.NotificationFeedPublisher;
+import com.example.backend.exception.NotFoundException;
+import com.example.backend.exception.UnauthorizedException;
+import com.example.backend.kafka.*;
 import com.example.backend.kafka.media.MediaEventPublisher;
 import com.example.backend.kafka.media.MediaProcessEvent;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
+import com.example.backend.repository.PostTageRepository;
 import com.example.backend.repository.UserCacheRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,13 +40,16 @@ public class PostService {
 
     private final FeedPushEventPublisher feedPushEventPublisher;
     private final NotificationFeedPublisher notificationFeedPublisher;
-    private final UserCacheRepository userCacheRepository;
+    private final PostDeletedPublisher postDeletedPublisher;
     private final MediaEventPublisher mediaEventPublisher;
     private final ObjectMapper objectMapper;
+    private final UserCacheRepository userCacheRepository;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
+    private final PostTageRepository postTageRepository;
 
-    //[게시물 등록]
+
+    // [게시물 등록]
     public PostResponse createPost(
             Long authorId,
             PostRequest request
@@ -198,7 +203,7 @@ public class PostService {
         return PostResponse.of(post, authorId);
     }
 
-    //[자식 메서드] url에서 uuid 부분 추출 (=uniqueId 만들기)
+    // [createPost 자식 메서드] url에서 uuid 부분 추출 (=uniqueId 만들기)
     private String extractUniqueId(String url){
         if(url == null || !url.contains("/")){
             return url;
@@ -213,5 +218,125 @@ public class PostService {
         }
 
         return fileName;
+    }
+
+    // [게시물 소프트 삭제]
+    // postId: 삭제할 게시물 id
+    // currentUserId: 현재 로그인하여 요청하는 삭제할 게시물의 작성자 id
+    @Transactional
+    public void deletePost(Long postId, Long currentUserId){
+
+        // 1. 게시물 조회 및 삭제 확인
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("이미 삭제된 게시물입니다."));
+
+        if(post.isDeleted()){
+            throw new NotFoundException("이미 삭제된 게시물입니다.");
+        }
+
+        // 2. 403 예외: 본인이 작성한 글이지 확인
+        if(!post.getAuthorId().equals(currentUserId)){
+            throw new UnauthorizedException("삭제 권한이 없습니다.");
+        }
+
+        // 3. 소프트 삭제
+        post.softDelete();
+
+        // 4. 카프카 이벤트 발행 (feed 모듈)
+        PostDeletedEvent event = PostDeletedEvent.of(post.getId(), post.getAuthorId());
+        postDeletedPublisher.publishPostDeleted(event);
+    }
+
+    // [게시물 하드(실제) 삭제]
+    // baselineDate: 프로그램 전체적으로 DB 및 MiniO 삭제가 실행되는 시간
+    @Transactional
+    public void cleanupExpiredPosts(LocalDateTime baselineDate){
+        // 1. 한 번에 삭제할 데이터 가져오기 (예: 500개씩 쪼개서 삭제)
+        int batchSize = 500;
+
+        // 2. 0 ~ 500 번째 데이터까지 가져오기
+        Pageable pageable = PageRequest.of(0, batchSize);
+
+        // 2-2. Slice 타입은 아래 데이터를 포함하고 있다.
+        // getCount(): 삭제해야 할 데이터 목록
+        // hasNext(): 현재 페이지 뒤에 데이터 조각이 더 남았는지 여부
+        // isFirst(): 지금 조각이 첫 번째 조각인지 여부
+        Slice<Post> postSlice;
+
+        long totalDeletedPostCount = 0;
+
+        do{
+            // 3. 레포지토리에서 500개 데이터만 가져옴
+            postSlice = postRepository.findPostsToHardDelete(baselineDate, pageable);
+
+            if(postSlice.isEmpty()){
+                break;
+            }
+
+            // 4. List 형식으로 변환
+            List<Post> expriedPosts = postSlice.getContent();
+            List<Long> postIds = expriedPosts.stream().map(Post::getId).toList();
+
+            totalDeletedPostCount += postIds.size();
+
+            // 5. Post_Media 테이블의 삭제 대상 데이터 가져오기
+            List<PostMedia> mediaList = postMediaRepository.findByPostIdIn(postIds);
+
+            // 6. MiniO에서 삭제할 대상 postid 및 해당 url추출
+            // - Long: postId
+            // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
+            Map<Long, List<String>> deletedTargerUrls = extractDeletePaths(mediaList);
+
+            // 7. DB 테이블 삭제
+            // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
+            postTageRepository.deleteByPostIdIn(postIds);
+            postMediaRepository.deleteAllInBatch(mediaList);
+            postRepository.deleteAllInBatch(expriedPosts);
+
+            // 8. MiniO 삭제하기 위한 Kafka 이벤트 발생
+            postIds.forEach(postId -> {
+                List<String> deletedTargetUrl = deletedTargerUrls.getOrDefault(postId, List.of());
+
+                PostHardDeletedEvent event = PostHardDeletedEvent.of(postId, deletedTargetUrl);
+                postDeletedPublisher.publishPostHardDeleted(event);
+            });
+
+        }while(postSlice.hasNext());
+
+        log.info("[DB 및 MiniO 정리] 물리 삭제 완료. 총 {}건의 데이터가 영구 제거되었습니다.", totalDeletedPostCount);
+    }
+
+    // [cleanupExpiredPosts의 자식 메서드] MiniO에서 삭제할 대상 url추출
+    // - Long: postId
+    // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
+    private Map<Long, List<String>> extractDeletePaths(List<PostMedia> mediaList){
+       Map<Long, List<String>> deletePathByPostId = new HashMap<>();
+
+       for(PostMedia media : mediaList){
+           Long postId = media.getPost().getId();
+           List<String> paths = new ArrayList<>();
+
+           // 미디어 타입(IMAGE or VIDEO)에 따라 그룹
+           if("VIDEO".equalsIgnoreCase(media.getMediaType().name())){
+                String mediaUrl = media.getUrl();
+
+                // url 에서 마지막 "/" 위치를 찾아 파일명 자르고 폴더까지만 가져오기
+                if(mediaUrl != null && mediaUrl.contains("/")){
+                    paths.add(mediaUrl.substring(0, mediaUrl.lastIndexOf("/")+1));
+                }else{
+                    paths.add(mediaUrl);
+                }
+
+                // 영상인 경우 썸네일도 제거 대상에 추가
+               if(media.getThumbnailUrl() != null && media.getThumbnailUrl().isBlank()){
+                   paths.add(media.getThumbnailUrl());
+               }
+           }else{
+               // 미디어 타입이 이미지면 url 그대로 사용
+               paths.add(media.getUrl());
+           }
+       }
+
+       return deletePathByPostId;
     }
 }

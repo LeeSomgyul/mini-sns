@@ -35,9 +35,10 @@ public class FeedService {
     private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
     private final PostInternalClient postInternalClient;
 
-    // [REDIS KEY]
+    // REDIS KEY: 사용자들 만의 피드 주소 키
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
+    // [게시물 보기]
     /*
     * @Param currentUserId: 현재 사용자의 ID
     * @Param cursorId: 다음 페이지 요청(무한 스크롤)을 위해 어디까지 봤는지 게시물의 postId
@@ -126,7 +127,7 @@ public class FeedService {
                 .build();
     }
 
-    //[보조 메서드] PostInternalDto를 받아 조립
+    // [보조 메서드] PostInternalDto를 받아 조립
     private FeedResponse.PostDto convertToPostDto(PostInternalDto postInternalDto, String baseStorageUrl){
         // 1. 미디어 조립
         List<FeedResponse.PostDto.MediaDto> mediaDtos = postInternalDto.media().stream()
@@ -153,4 +154,25 @@ public class FeedService {
 
         return FeedResponse.PostDto.from(postInternalDto, authorDto, mediaDtos);
     }
+
+    // [게시물 삭제]
+    // - post모듈의 게시물 삭제에 따른 feed의 DB 및 Redis 정리
+    @Transactional
+    public void deleteFeedPostIndexCache(Long postId, Long authorId){
+        // 1. feed_db의 feed_post_index_cache 테이블의 데이터 삭제
+        feedPostIndexCacheRepository.deleteByPostId(postId);
+        log.info("[DB 데이터 삭제] feed_post_index_cache 테이블의 postId {} 데이터가 삭제되었습니다.", postId);
+
+        // 2. Redis의 피드 데이터 제거
+        String authorKey = REDIS_FEED_KEY_PREFIX + authorId;
+
+        Long redisRemoved = stringRedisTemplate.opsForZSet().remove(authorKey, String.valueOf(postId));
+
+        if(redisRemoved != null && redisRemoved > 0){
+            log.info("[Redis 데이터 삭제 성공] feed:timeline: 의 postId {} 데이터가 삭제되었습니다.", postId);
+        }else{
+            log.info("[Redis 데이터 삭제 실패] feed:timeline: 의 postId {} 데이터 삭제에 실패하였습니다.", postId);
+        }
+    }
+
 }

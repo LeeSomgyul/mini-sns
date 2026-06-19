@@ -2,10 +2,12 @@ package com.example.backend.repository;
 
 import com.example.backend.entity.Post;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepository  extends JpaRepository<Post, Long> {
@@ -17,6 +19,19 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
         WHERE p.id IN :postIds
     """)
     List<Post> findPostsWithAuthorAndMediaByIdIn(@Param("postIds") List<Long> postIds);
+
+
+    // 일정 기간(baselineDate) 이전의 데이터를 DB에서 실제 삭제
+    @Query("""
+        SELECT p
+        FROM Post p
+        WHERE p.status = 'DELETED' AND p.deletedAt <= :baselineDate
+    """)
+    Slice<Post> findPostsToHardDelete(
+            @Param("baselineDate")LocalDateTime baselineDate,
+            Pageable pageable
+    );
+
 
 //🔥카프카 연동 후 수정
 //    //[인플루언서 사용자의 글만 추출]

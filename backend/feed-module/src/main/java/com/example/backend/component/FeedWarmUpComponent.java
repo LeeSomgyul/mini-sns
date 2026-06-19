@@ -71,7 +71,9 @@ public class FeedWarmUpComponent {
             for(int i = recentNormalPosts.size() - 1; i>=0; i--){
                 Long postId = recentNormalPosts.get(i);
                 byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(String.valueOf(postId));
-                connection.listCommands().lPush(rawKey, rawValue);
+
+                double score = System.currentTimeMillis();
+                connection.zSetCommands().zAdd(rawKey, score, rawValue);
             }
             return null;
         });

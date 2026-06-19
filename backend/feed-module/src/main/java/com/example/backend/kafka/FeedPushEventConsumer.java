@@ -35,8 +35,9 @@ public class FeedPushEventConsumer {
     */
 
     @KafkaListener(
-            topics = KafkaTopics.FEED_POST_TOPIC,
-            groupId = "mini-sns-feed-backend"
+            topics = KafkaTopics.FEED_POST_CREATED_TOPIC,
+            groupId = "mini-sns-feed-backend",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void savePushPostIds(FeedPushEvent event){
 
