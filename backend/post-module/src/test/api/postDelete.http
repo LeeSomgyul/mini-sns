@@ -1,0 +1,18 @@
+### ===================================================================
+### 환경 변수 설정
+### ===================================================================
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLquYDshpzqt5zrp4EiLCJpYXQiOjE3ODE3MDU0NTQsImV4cCI6MTc4MTcwNzI1NH0.c_mhrmUi75Vzo8ovp5jUiURYX0vJeaN5uEW648bzcNWnd0m9cn9IqQV5P769X2oN
+@postId = 1
+@currentUserId = 2
+
+### ===================================================================
+### 0. 테스트 흐름
+### ===================================================================
+### 1) API 호출 즉시
+###     - posts 테이블의 status가 DELTE 로 바뀜 (소프트 삭제)
+###     - 
+
+### ===================================================================
+### 1. 게시물 삭제 요청 (Soft Delete & Feed Cache Eviction 트리거)
+### ===================================================================
