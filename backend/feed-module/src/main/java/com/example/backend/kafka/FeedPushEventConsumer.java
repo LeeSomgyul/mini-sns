@@ -79,7 +79,7 @@ public class FeedPushEventConsumer {
             }
             return null;
         });
-        
+
         log.info("[게시물 비동기 Push 완료]: postId: {} 가 {} 명의 팔로워 Redis에 저장되었습니다.", event.postId(), targetIds.size());
     }
 }
