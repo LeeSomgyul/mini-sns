@@ -1,18 +1,23 @@
 ### ===================================================================
+### 테스트 흐름
+### ===================================================================
+### 1) API 호출 즉시 SoftDelete 실행
+###     - posts 테이블의 status가 DELTE 로 바뀜 (소프트 삭제)
+###     - 카프카 feed.post.deleted 발행: feed 모듈의 DB 캐시 및 Redis 데이터 삭제
+### 2) 5초 후 HardDelete 실행
+###     - post_tages, post_media, posts 순으로 DB 데이터 실제 삭제
+###     - 카프카 post.minio.deleted 발행: MiniO 실제 파일 및 폴더 삭제
+
+### ===================================================================
 ### 환경 변수 설정
 ### ===================================================================
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLquYDshpzqt5zrp4EiLCJpYXQiOjE3ODE3MDU0NTQsImV4cCI6MTc4MTcwNzI1NH0.c_mhrmUi75Vzo8ovp5jUiURYX0vJeaN5uEW648bzcNWnd0m9cn9IqQV5P769X2oN
-@postId = 1
-@currentUserId = 2
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMyIsIm5pY2tuYW1lIjoi7L6M7Zmc7ZWc6rOwIiwiaWF0IjoxNzgyMDQyODkyLCJleHAiOjE3ODIwNDQ2OTJ9.z0XGK9Xm6bU1EH-N-_cu_kiW-oFpMlNEnEmsP1nZBGBlQSiyQe3RKmJo-BxTrxDv
+@postId = 7
+@currentUserId = 13
 
 ### ===================================================================
-### 0. 테스트 흐름
+### 게시물 삭제 요청
 ### ===================================================================
-### 1) API 호출 즉시
-###     - posts 테이블의 status가 DELTE 로 바뀜 (소프트 삭제)
-###     - 
-
-### ===================================================================
-### 1. 게시물 삭제 요청 (Soft Delete & Feed Cache Eviction 트리거)
-### ===================================================================
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}

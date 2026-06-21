@@ -37,6 +37,7 @@ public class PostController {
     }
 
     // [게시물 삭제]
+    @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
         @PathVariable Long postId,
         @AuthenticationPrincipal JwtUser jwtUser

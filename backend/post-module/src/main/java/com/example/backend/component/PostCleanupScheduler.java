@@ -18,7 +18,7 @@ public class PostCleanupScheduler {
 
     // 🚨배포할때는 @Scheduled(cron = "0 0 3 * * ?")로 변경🚨
     // 현재는 테스트를 위해 5초마다 동작하도록 설정
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     public void scheduleHardDelete(){
         // 기준 시간: 현재 시간으로부터 '5초 전'
         // 🚨배포할때는 LocalDateTime.now().minusDays(30); 로 변경🚨

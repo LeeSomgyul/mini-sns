@@ -7,6 +7,7 @@ import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
 import com.example.backend.entity.PostTag;
 import com.example.backend.entity.UserCache;
+import com.example.backend.event.PostHardDeleteCompletedEvent;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.exception.NotFoundException;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -47,6 +49,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
     private final PostTageRepository postTageRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     // [게시물 등록]
@@ -251,6 +254,10 @@ public class PostService {
     // baselineDate: 프로그램 전체적으로 DB 및 MiniO 삭제가 실행되는 시간
     @Transactional
     public void cleanupExpiredPosts(LocalDateTime baselineDate){
+
+        log.info("============== [DEBUG] Hard Delete Scheduler Start ==============");
+        log.info("[DEBUG] 검색 기준 시간(Threshold): {}", baselineDate);
+
         // 1. 한 번에 삭제할 데이터 가져오기 (예: 500개씩 쪼개서 삭제)
         int batchSize = 500;
 
@@ -275,6 +282,9 @@ public class PostService {
 
             // 4. List 형식으로 변환
             List<Post> expriedPosts = postSlice.getContent();
+
+            log.info("[DEBUG] JPA가 찾아온 게시물 개수: {}개", expriedPosts.size());
+
             List<Long> postIds = expriedPosts.stream().map(Post::getId).toList();
 
             totalDeletedPostCount += postIds.size();
@@ -290,16 +300,24 @@ public class PostService {
             // 7. DB 테이블 삭제
             // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
             postTageRepository.deleteByPostIdIn(postIds);
-            postMediaRepository.deleteAllInBatch(mediaList);
-            postRepository.deleteAllInBatch(expriedPosts);
+            postMediaRepository.hardDeleteByPostIdIn(postIds);
+            postRepository.hardDeleteByIdIn(postIds);
+
+            postRepository.flush();
+
 
             // 8. MiniO 삭제하기 위한 Kafka 이벤트 발생
-            postIds.forEach(postId -> {
-                List<String> deletedTargetUrl = deletedTargerUrls.getOrDefault(postId, List.of());
+//            postIds.forEach(postId -> {
+//                List<String> deletedTargetUrl = deletedTargerUrls.getOrDefault(postId, List.of());
+//
+//                PostHardDeletedEvent event = PostHardDeletedEvent.of(postId, deletedTargetUrl);
+//                postDeletedPublisher.publishPostHardDeleted(event);
+//            });
 
-                PostHardDeletedEvent event = PostHardDeletedEvent.of(postId, deletedTargetUrl);
-                postDeletedPublisher.publishPostHardDeleted(event);
-            });
+            // DB에서 데이터 삭제 후 스프링 리스터 이벤트 발송
+            applicationEventPublisher.publishEvent(
+                    new PostHardDeleteCompletedEvent(postIds, deletedTargerUrls)
+            );
 
         }while(postSlice.hasNext());
 
@@ -314,7 +332,7 @@ public class PostService {
 
        for(PostMedia media : mediaList){
            Long postId = media.getPost().getId();
-           List<String> paths = new ArrayList<>();
+           List<String> paths = deletePathByPostId.computeIfAbsent(postId, k -> new ArrayList<>());
 
            // 미디어 타입(IMAGE or VIDEO)에 따라 그룹
            if("VIDEO".equalsIgnoreCase(media.getMediaType().name())){
@@ -328,7 +346,7 @@ public class PostService {
                 }
 
                 // 영상인 경우 썸네일도 제거 대상에 추가
-               if(media.getThumbnailUrl() != null && media.getThumbnailUrl().isBlank()){
+               if(media.getThumbnailUrl() != null && !media.getThumbnailUrl().isBlank()){
                    paths.add(media.getThumbnailUrl());
                }
            }else{

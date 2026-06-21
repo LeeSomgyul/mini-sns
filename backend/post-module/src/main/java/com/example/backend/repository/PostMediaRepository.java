@@ -2,6 +2,7 @@ package com.example.backend.repository;
 
 import com.example.backend.entity.PostMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +20,9 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long> {
         WHERE pm.post.id IN :postIds
     """)
     List<PostMedia> findByPostIdIn(@Param("postIds") List<Long> postIds);
+
+    // postId로 media 삭제
+    @Modifying(clearAutomatically = true)
+    @Query(value = "DELETE FROM post_media WHERE post_id IN (:postIds)", nativeQuery = true)
+    void hardDeleteByPostIdIn(@Param("postIds") List<Long> postIds);
 }

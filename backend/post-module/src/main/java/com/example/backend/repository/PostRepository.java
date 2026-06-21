@@ -4,6 +4,7 @@ import com.example.backend.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,15 +23,21 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
 
 
     // 일정 기간(baselineDate) 이전의 데이터를 DB에서 실제 삭제
-    @Query("""
-        SELECT p
-        FROM Post p
-        WHERE p.status = 'DELETED' AND p.deletedAt <= :baselineDate
-    """)
+    // - Post 엔티티의 @SQLRestriction 사용으로 인해 JPA가 아닌 일반 SQL문을 사용해야 함.
+    @Query(
+            value = "SELECT * FROM posts WHERE status = 'DELETED' AND deleted_at <= :baselineDate",
+            nativeQuery = true
+    )
     Slice<Post> findPostsToHardDelete(
             @Param("baselineDate")LocalDateTime baselineDate,
             Pageable pageable
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "DELETE FROM posts WHERE id IN (:postIds)", nativeQuery = true)
+    void hardDeleteByIdIn(@Param("postIds") List<Long> postIds);
+
+
 
 
 //🔥카프카 연동 후 수정

@@ -31,3 +31,8 @@ api:
   security:
     permit-urls:
       - "/v1/internal/**"
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
