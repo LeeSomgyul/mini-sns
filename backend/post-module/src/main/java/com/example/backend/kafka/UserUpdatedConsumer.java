@@ -1,5 +1,6 @@
 package com.example.backend.kafka;
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.entity.UserCache;
 import com.example.backend.repository.UserCacheRepository;
@@ -17,7 +18,7 @@ public class UserUpdatedConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.USER_ACCOUNT_UPDATED_TOPIC,
-            groupId = "post.user-cache",
+            groupId = KafkaGroupId.GROUP_POST_USER_UPDATE,
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consumerUserUpdated(UserUpdatedEvent event){

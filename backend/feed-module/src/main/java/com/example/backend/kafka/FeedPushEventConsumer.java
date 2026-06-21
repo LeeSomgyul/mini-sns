@@ -1,5 +1,6 @@
 package com.example.backend.kafka;
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.connection.FeedTargetConnection;
 import com.example.backend.entity.FeedPostIndexCache;
@@ -36,7 +37,7 @@ public class FeedPushEventConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.FEED_POST_CREATED_TOPIC,
-            groupId = "mini-sns-feed-backend",
+            groupId = KafkaGroupId.GROUP_POST_CREATE,
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void savePushPostIds(FeedPushEvent event){

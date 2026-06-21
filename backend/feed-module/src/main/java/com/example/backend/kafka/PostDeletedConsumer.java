@@ -1,5 +1,6 @@
 package com.example.backend.kafka;
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.service.FeedService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class PostDeletedConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.FEED_POST_DELETED_TOPIC,
-            groupId = "mini-sns-feed-backend",
+            groupId = KafkaGroupId.GROUP_POST_SOFT_DELETE,
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consumerPostDeleted(PostDeletedEvent event){

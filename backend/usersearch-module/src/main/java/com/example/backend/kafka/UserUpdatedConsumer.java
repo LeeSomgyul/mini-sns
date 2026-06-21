@@ -1,5 +1,6 @@
 package com.example.backend.kafka;
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.document.UserDocument;
 import com.example.backend.repository.UserSearchRepository;
@@ -17,7 +18,7 @@ public class UserUpdatedConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.USER_ACCOUNT_UPDATED_TOPIC,
-            groupId = "usersearch.user-elasticsearch",
+            groupId = KafkaGroupId.GROUP_USER_SEARCH,
             containerFactory = "kafkaListenerContainerFactory"
     )
     private void consumerUserUpdated(UserUpdatedEvent event){

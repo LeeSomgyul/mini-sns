@@ -305,16 +305,7 @@ public class PostService {
 
             postRepository.flush();
 
-
-            // 8. MiniO 삭제하기 위한 Kafka 이벤트 발생
-//            postIds.forEach(postId -> {
-//                List<String> deletedTargetUrl = deletedTargerUrls.getOrDefault(postId, List.of());
-//
-//                PostHardDeletedEvent event = PostHardDeletedEvent.of(postId, deletedTargetUrl);
-//                postDeletedPublisher.publishPostHardDeleted(event);
-//            });
-
-            // DB에서 데이터 삭제 후 스프링 리스터 이벤트 발송
+            // 8. DB에서 데이터 삭제 후 스프링 리스터 이벤트 발송
             applicationEventPublisher.publishEvent(
                     new PostHardDeleteCompletedEvent(postIds, deletedTargerUrls)
             );

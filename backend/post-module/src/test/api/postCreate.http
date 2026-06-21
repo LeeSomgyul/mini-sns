@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMyIsIm5pY2tuYW1lIjoi7L6M7Zmc7ZWc6rOwIiwiaWF0IjoxNzgyMDQwOTE3LCJleHAiOjE3ODIwNDI3MTd9.l1Z9lCc_Z_23CzmwGWbjr8ucO5tsg4pX-0K7G6M3vhNCxFazRmRoCrddh6bg-yYT
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyMyIsIm5pY2tuYW1lIjoi7L6M7Zmc7ZWc6rOwIiwiaWF0IjoxNzgyMDUzNDM5LCJleHAiOjE3ODIwNTUyMzl9.kYGb3snk8b58GE6sEPx9CjRH-540FU7Zdi3LjTclKj1htAN632ApLQOkGa9DDKsQ
 
 ### 1. 게시물 등록
 POST {{baseUrl}}/posts
