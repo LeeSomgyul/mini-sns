@@ -53,9 +53,9 @@ public class FeedService {
         // 2-1. 사용자들 만의 피드 주소 키 가져오기
         String redisKey = REDIS_FEED_KEY_PREFIX + currentUserId;
         // 2-2. Redis에 쌓여있는 500개의 postId 전체를 순서대로 가져오기
-        List<String> rawPostIds = stringRedisTemplate.opsForList().range(redisKey,0,-1);
+        Set<String> rawPostIds = stringRedisTemplate.opsForZSet().reverseRange(redisKey, 0, -1);
         // 2-3. 최적화: 500개를 다 가져오는게 아니라, 조금씩 잘라서 가져오기
-        List<Long> normalPostIds = (rawPostIds != null)?
+        List<Long> normalPostIds = (rawPostIds != null && !rawPostIds.isEmpty())?
                 rawPostIds.stream()
                     .map(Long::parseLong)
                     .filter(id -> cursorId == null || id < cursorId)

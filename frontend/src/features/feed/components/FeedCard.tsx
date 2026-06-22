@@ -17,6 +17,8 @@ export const FeedCard = ({post}: FeedCardProps) => {
     //현재 로그인한 사용자와 게시물 작성자가 동일한지 확인
     const isAuthor = myUserId !== null && post.author.userId === myUserId;
 
+    console.log(`[디버깅] 내 ID: ${myUserId} (${typeof myUserId}) / 작성자 ID: ${post.author.userId} (${typeof post.author.userId})`);
+
     return(
         <article style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--pico-table-border-color)', borderRadius: 'var(--pico-border-radius)' }}>
             <FeedHeader

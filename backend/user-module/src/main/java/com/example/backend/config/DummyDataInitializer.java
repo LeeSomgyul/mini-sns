@@ -5,6 +5,7 @@ import com.example.backend.entity.User;
 import com.example.backend.kafka.UserUpdatedPublisher;
 import com.example.backend.repository.LocalAccountRepository;
 import com.example.backend.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

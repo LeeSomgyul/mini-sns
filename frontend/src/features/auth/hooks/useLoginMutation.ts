@@ -10,7 +10,7 @@ import { ROUTES } from "../../../constants/routes";
 
 export const useLoginMutation = () => {
     const navigate = useNavigate();
-    const setAccessToken = useAuthStore((state) => state.setAccessToken);
+    const {setMyUserId, setMyNickname, setAccessToken} = useAuthStore();
 
     return useMutation<LoginResponse, AxiosError<{message: string}>, LoginFormValues>({
           mutationFn: async (formData) => {
@@ -25,9 +25,11 @@ export const useLoginMutation = () => {
                return loginApi.login(request);
           },
           //로그인 성공 시: accessToken 저장 및 홈 이동
-          onSuccess: (response) => {   
-               const accessToken = response.accessToken;
-               setAccessToken(accessToken);
+          onSuccess: (response) => {                  
+               if(response.userId) setMyUserId(response.userId);
+               if(response.nickname) setMyNickname(response.nickname);
+               if(response.accessToken) setAccessToken(response.accessToken);
+               
                navigate(ROUTES.FEED, {replace: true});
           },
           //로그인 실패 시: 개발자 확인용 로그 출력(나머지는 LoginPage.tsx에서)
