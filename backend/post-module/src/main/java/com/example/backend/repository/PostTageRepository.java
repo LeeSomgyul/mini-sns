@@ -12,10 +12,6 @@ public interface PostTageRepository extends JpaRepository<PostTag, Long> {
 
     // 게시물 삭제 시 관련 태그 id 제거
     @Modifying
-    @Query("""
-        DELETE
-        FROM PostTag p
-        WHERE p.post.id IN :postIds
-    """)
+    @Query(value = "DELETE FROM post_tags WHERE post_id IN (:postIds)", nativeQuery = true)
     void deleteByPostIdIn(@Param("postIds")List<Long> postIds);
 }

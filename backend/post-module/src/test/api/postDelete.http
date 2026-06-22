@@ -12,9 +12,9 @@
 ### 환경 변수 설정
 ### ===================================================================
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI4MyIsIm5pY2tuYW1lIjoi7L6M7Zmc7ZWc6rOwIiwiaWF0IjoxNzgyMDkxMTM2LCJleHAiOjE3ODIwOTI5MzZ9.wk_1JTZp-G4Z_ia4IGY7Nr--b95anj-lScPDlKmpK-f7nVT2G6QdelGk6sc3Wigj
-@postId = 24
-@currentUserId = 83
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODIxMTA2NTEsImV4cCI6MTc4MjExMjQ1MX0.JxH6LP7N1jegkCeyxvvx5hx6mm3DLIdolGsqXGFI6-W1P42rb3ANO5csnvqSC4b9
+@postId = 33
+@currentUserId = 1
 
 ### ===================================================================
 ### 게시물 삭제 요청

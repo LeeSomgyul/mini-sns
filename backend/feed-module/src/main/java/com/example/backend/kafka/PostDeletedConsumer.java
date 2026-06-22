@@ -27,7 +27,7 @@ public class PostDeletedConsumer {
         try{
             feedService.deleteFeedPostIndexCache(event.postId(), event.authorId());
         }catch(Exception e){
-            log.info("[Kafka Consume 수신신 실패] post 모듈에서 삭제 이벤트를 받는데 실패하였습니다. PostId: {}",
+            log.info("[Kafka Consume 처리 실패] post 모듈에서 삭제 이벤트를 처리하는데 실패하였습니다. PostId: {}",
                     event.postId(), e);
         }
     }

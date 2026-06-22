@@ -22,8 +22,6 @@ public class PostHardDeleteEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePostHardDelete(PostHardDeleteCompletedEvent event){
         log.info("[MiniO Urls 분리 진입] MiniO 삭제를 위해 Urls를 분리합니다.");
-        log.info("▶ [데이터 확인] 들어온 Post ID 목록: {}", event.postIds());
-        log.info("▶ [데이터 확인] 상세 urls 확인: {}", event.deletedTargetUrls());
 
         List<Long> postIds = event.postIds();
 

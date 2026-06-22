@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -161,18 +162,38 @@ public class FeedService {
     public void deleteFeedPostIndexCache(Long postId, Long authorId){
         // 1. feed_db의 feed_post_index_cache 테이블의 데이터 삭제
         feedPostIndexCacheRepository.deleteByPostId(postId);
-        log.info("[DB 데이터 삭제] feed_post_index_cache 테이블의 postId {} 데이터가 삭제되었습니다.", postId);
 
-        // 2. Redis의 피드 데이터 제거
-        String authorKey = REDIS_FEED_KEY_PREFIX + authorId;
+        // 2. 해당 게시물(feed)을 feed:timeline:로 전달받았던 팔로워 id 목록 추출
+        List<Long> targetIds = feedTargetConnection.feedPushTargetIds(authorId);
 
-        Long redisRemoved = stringRedisTemplate.opsForZSet().remove(authorKey, String.valueOf(postId));
-
-        if(redisRemoved != null && redisRemoved > 0){
-            log.info("[Redis 데이터 삭제 성공] feed:timeline: 의 postId {} 데이터가 삭제되었습니다.", postId);
-        }else{
-            log.info("[Redis 데이터 삭제 실패] feed:timeline: 의 postId {} 데이터 삭제에 실패하였습니다.", postId);
+        if(targetIds == null || targetIds.isEmpty()){
+            log.info("[Redis 데이터 삭제 패스] 팔로워가 없어 레디스를 청소할 타겟이 없습니다. authorId: {}", authorId);
+            // 제거 대상은 없지만 키는 제거
+            stringRedisTemplate.opsForZSet().remove(REDIS_FEED_KEY_PREFIX + authorId);
+            return;
         }
-    }
 
+        // 3. Redis 삭제 명령 묶어서 실행
+        String memberValue = String.valueOf(postId);
+
+        stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for(Long targetId : targetIds){
+                String followerKey = REDIS_FEED_KEY_PREFIX + targetId;
+
+                byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(followerKey);
+                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(memberValue);
+
+                if(rawKey != null && rawValue != null){
+                    connection.zSetCommands().zRem(rawKey, rawValue);
+                }
+            }
+            return null;
+        } );
+
+        // 4. 작성자 본인의 Redis의 피드에서도 데이터 제거
+        String myKey = REDIS_FEED_KEY_PREFIX + authorId;
+        stringRedisTemplate.opsForZSet().remove(myKey, memberValue);
+
+        log.info("[Redis 데이터 삭제 성공] feed:timeline: 의 postId {} 데이터가 삭제되었습니다.", postId);
+    }
 }

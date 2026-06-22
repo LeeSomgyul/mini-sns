@@ -16,13 +16,13 @@ public class PostCleanupScheduler {
 
     private final PostService postService;
 
-    // 🚨배포할때는 @Scheduled(cron = "0 0 3 * * ?")로 변경🚨
-    // 현재는 테스트를 위해 5초마다 동작하도록 설정
-    @Scheduled(fixedDelay = 10000)
+    // 매일 새벽 3시에 실행
+    // 테스트용: @Scheduled(fixedDelay = 10000)
+    @Scheduled(cron = "0 0 3 * * ?")
     public void scheduleHardDelete(){
-        // 기준 시간: 현재 시간으로부터 '5초 전'
-        // 🚨배포할때는 LocalDateTime.now().minusDays(30); 로 변경🚨
-        LocalDateTime baselineDate = LocalDateTime.now().minusSeconds(5);
+        // 30일 이전 소프트 삭제된 데이터 제거
+        LocalDateTime baselineDate = LocalDateTime.now().minusDays(30);
+        //테스트용: LocalDateTime baselineDate = LocalDateTime.now().minusSeconds(5);
 
         log.info("[DB 및 MiniO 정리] 클린 스케줄이 실행됩니다.");
         postService.cleanupExpiredPosts(baselineDate);

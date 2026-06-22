@@ -255,9 +255,6 @@ public class PostService {
     @Transactional
     public void cleanupExpiredPosts(LocalDateTime baselineDate){
 
-        log.info("============== [DEBUG] Hard Delete Scheduler Start ==============");
-        log.info("[DEBUG] 검색 기준 시간(Threshold): {}", baselineDate);
-
         // 1. 한 번에 삭제할 데이터 가져오기 (예: 500개씩 쪼개서 삭제)
         int batchSize = 500;
 
@@ -288,19 +285,10 @@ public class PostService {
             // 5. Post_Media 테이블의 삭제 대상 데이터 가져오기
             List<PostMedia> mediaList = postMediaRepository.findByPostIdIn(postIds);
 
-            log.info("🔍 [디버깅 1] DB에서 조회된 mediaList 개수: {}개", mediaList != null ? mediaList.size() : 0);
-
-            if (mediaList != null && !mediaList.isEmpty()) {
-                mediaList.forEach(m -> log.info("   -> 조회된 미디어 ID: {}, URL: {}, 타입: {}",
-                        m.getId(), m.getUrl(), m.getMediaType()));
-            }
-
             // 6. MiniO에서 삭제할 대상 postid 및 해당 url추출
             // - Long: postId
             // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
             Map<Long, List<String>> deletedTargerUrls = extractDeletePaths(mediaList);
-
-            log.info("🔍 [디버깅 2] extractDeletePaths 결과 맵 크기: {}", deletedTargerUrls.size());
 
             // 7. DB 테이블 삭제
             // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
