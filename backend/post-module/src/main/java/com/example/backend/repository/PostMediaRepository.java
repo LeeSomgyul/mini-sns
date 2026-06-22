@@ -14,11 +14,7 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long> {
     Optional<PostMedia> findByPostIdAndMediaTypeAndUniqueId(Long postId, PostMedia.MediaType mediaType, String uniqueId);
 
     // MiniO 삭제 대상 게시물 ID을 가져오는 메서드
-    @Query("""
-        SELECT pm
-        FROM PostMedia pm JOIN FETCH pm.post
-        WHERE pm.post.id IN :postIds
-    """)
+    @Query(value = "SELECT * FROM post_media WHERE post_id IN (:postIds)", nativeQuery = true)
     List<PostMedia> findByPostIdIn(@Param("postIds") List<Long> postIds);
 
     // postId로 media 삭제

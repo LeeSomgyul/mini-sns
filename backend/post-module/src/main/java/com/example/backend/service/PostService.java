@@ -282,20 +282,25 @@ public class PostService {
 
             // 4. List 형식으로 변환
             List<Post> expriedPosts = postSlice.getContent();
-
-            log.info("[DEBUG] JPA가 찾아온 게시물 개수: {}개", expriedPosts.size());
-
             List<Long> postIds = expriedPosts.stream().map(Post::getId).toList();
-
             totalDeletedPostCount += postIds.size();
 
             // 5. Post_Media 테이블의 삭제 대상 데이터 가져오기
             List<PostMedia> mediaList = postMediaRepository.findByPostIdIn(postIds);
 
+            log.info("🔍 [디버깅 1] DB에서 조회된 mediaList 개수: {}개", mediaList != null ? mediaList.size() : 0);
+
+            if (mediaList != null && !mediaList.isEmpty()) {
+                mediaList.forEach(m -> log.info("   -> 조회된 미디어 ID: {}, URL: {}, 타입: {}",
+                        m.getId(), m.getUrl(), m.getMediaType()));
+            }
+
             // 6. MiniO에서 삭제할 대상 postid 및 해당 url추출
             // - Long: postId
             // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
             Map<Long, List<String>> deletedTargerUrls = extractDeletePaths(mediaList);
+
+            log.info("🔍 [디버깅 2] extractDeletePaths 결과 맵 크기: {}", deletedTargerUrls.size());
 
             // 7. DB 테이블 삭제
             // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
@@ -305,14 +310,14 @@ public class PostService {
 
             postRepository.flush();
 
-            // 8. DB에서 데이터 삭제 후 스프링 리스터 이벤트 발송
+            // 8. DB에서 데이터 삭제 후 스프링 리스너 이벤트 발송
             applicationEventPublisher.publishEvent(
                     new PostHardDeleteCompletedEvent(postIds, deletedTargerUrls)
             );
 
         }while(postSlice.hasNext());
 
-        log.info("[DB 및 MiniO 정리] 물리 삭제 완료. 총 {}건의 데이터가 영구 제거되었습니다.", totalDeletedPostCount);
+        log.info("[DB 삭제 완료] 총 {}건의 데이터가 영구 제거되었습니다.", totalDeletedPostCount);
     }
 
     // [cleanupExpiredPosts의 자식 메서드] MiniO에서 삭제할 대상 url추출

@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -41,14 +42,18 @@ public class PostHardDeletedConsumer {
             try{
                 String objectKey = extractObjectKey(path);
 
-                DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(objectKey)
-                        .build();
-
-                s3Client.deleteObject(deleteObjectRequest);
-
-                log.error("[Kafka Consumer] MinIO/S3 파일 제거 성공: {}", path);
+                // 하위 .m8u3 및 .ts 모두 제거
+                if(objectKey.endsWith("/")){
+                    deleteDirectory(objectKey);
+                }else{
+                    // 이미지 파일 삭제
+                    DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(objectKey)
+                            .build();
+                    s3Client.deleteObject(deleteObjectRequest);
+                }
+                log.info("[Kafka Consumer] MinIO/S3 파일 제거 성공: {}", path);
             }catch(Exception e){
                 log.error("[Kafka Consumer] MinIO/S3 파일 제거 실패: {}", path, e);
             }
@@ -64,4 +69,38 @@ public class PostHardDeletedConsumer {
         }
         return path;
     }
-}
+
+    // [보조 메서드] path 하위 .m8u3 및 .ts 실제 파일 삭제 실행
+    // - folderPrefix: posts/user_83/post_23/109c3b10-2f79-4276-bfcf-8ce61ce812af/
+    public void deleteDirectory(String folderPrefix){
+        // 1. 해당 폴더 경로로 시작하는 모든 파일 목록 조회
+        ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+                .bucket(bucket)
+                .prefix(folderPrefix)
+                .build();
+
+        ListObjectsV2Response listResponse = s3Client.listObjectsV2(listRequest);
+
+        // 2. 하위 파일들을 한번에 제거하기 위해 list에 저장
+        List<ObjectIdentifier> objectsToDelete = new ArrayList<>();
+        for(S3Object s3Object : listResponse.contents()){
+            objectsToDelete.add(ObjectIdentifier.builder().key(s3Object.key()).build());
+        }
+
+        // 3. 삭제 실행
+        if(!objectsToDelete.isEmpty()) {
+            Delete deletePayload = Delete.builder()
+                    .objects(objectsToDelete)
+                    .build();
+
+            DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucket)
+                    .delete(deletePayload)
+                    .build();
+
+            s3Client.deleteObjects(deleteObjectsRequest);
+            log.info("[MiniO HLS 파일 삭제 완료] 총 {}개 영구 삭제 완료", objectsToDelete.size());
+        }else{
+            log.info("[MiniO HLS] 폴더 하위에 삭제할 오브젝트가 없습니다.");
+    }
+}}

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record PostHardDeleteCompletedEvent(
-        List<Long> postId,
+        List<Long> postIds,
         Map<Long, List<String>> deletedTargetUrls
 ) {
 }

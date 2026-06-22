@@ -1,6 +1,5 @@
 package com.example.backend.event;
 
-import com.example.backend.kafka.PostDeletedPublisher;
 import com.example.backend.kafka.PostHardDeletedEvent;
 import com.example.backend.kafka.PostHardDeletedPublisher;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +21,11 @@ public class PostHardDeleteEventListener {
     // (1개 post에는 여러개의 url이 있기 때문에 쪼개개서 publisher에 전송해야 한다)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePostHardDelete(PostHardDeleteCompletedEvent event){
-        log.info("[handlePostHardDelete 진입] DB 데이터 삭제 완료. 카프카 이벤트를 전송합니다.");
+        log.info("[MiniO Urls 분리 진입] MiniO 삭제를 위해 Urls를 분리합니다.");
+        log.info("▶ [데이터 확인] 들어온 Post ID 목록: {}", event.postIds());
+        log.info("▶ [데이터 확인] 상세 urls 확인: {}", event.deletedTargetUrls());
 
-        List<Long> postIds = event.postId();
+        List<Long> postIds = event.postIds();
 
         postIds.forEach(postId -> {
             List<String> deletedTargetUrl = event.deletedTargetUrls().getOrDefault(postId, List.of());
@@ -32,7 +33,7 @@ public class PostHardDeleteEventListener {
                 PostHardDeletedEvent kafkaEvent = PostHardDeletedEvent.of(postId, deletedTargetUrl);
                 postHardDeletedPublisher.publishPostHardDeleted(kafkaEvent);
             }catch(Exception e){
-                log.error("[handlePostHardDelete 실패] postId: {} 카프카 전송 실패", postId, e);
+                log.error("[MiniO Urls 분리 실패] postId: {} 카프카 전송 실패", postId, e);
             }
         });
     }
