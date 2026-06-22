@@ -1,5 +1,6 @@
 package com.example.backend.kafka;
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.connection.FeedTargetConnection;
 import com.example.backend.entity.FeedPostIndexCache;
@@ -35,8 +36,9 @@ public class FeedPushEventConsumer {
     */
 
     @KafkaListener(
-            topics = KafkaTopics.FEED_POST_TOPIC,
-            groupId = "mini-sns-feed-backend"
+            topics = KafkaTopics.FEED_POST_CREATED_TOPIC,
+            groupId = KafkaGroupId.GROUP_POST_CREATE,
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void savePushPostIds(FeedPushEvent event){
 
@@ -67,15 +69,10 @@ public class FeedPushEventConsumer {
             for(Long targetId : targetIds){
                 String key = REDIS_FEED_KEY_PREFIX + targetId;
 
-                //Redis가 이해하는 String -> byte[] 형식으로 변환
-                byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(key);
-                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(postIdStr);
+                double score = System.currentTimeMillis();
 
-                //사용자의 레디스 리스트 왼쪽에 최신 postId 삽입
-                connection.listCommands().lPush(rawKey, rawValue);
-
-                //리스트 범위를 500개로 제한하고 오래된 글은 제거(500개 뒤의 오래된 글은 DB에서 직접 가져오기)
-                connection.listCommands().lTrim(rawKey, 0, MAX_TIMELINE_SIZE);
+                stringRedisTemplate.opsForZSet().add(key, postIdStr, score);
+                stringRedisTemplate.opsForZSet().removeRange(key, 0, - (MAX_TIMELINE_SIZE + 1));
             }
             return null;
         });

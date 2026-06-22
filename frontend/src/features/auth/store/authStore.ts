@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface AuthState {
     accessToken: string | null;
@@ -13,16 +14,29 @@ interface AuthState {
 }
 
 // [전역 상태] 현재 로그인한 사용자의 정보를 전역에서 사용 가능
-export const useAuthStore = create<AuthState>((set) => ({
-    accessToken: null,
-    myUserId: null,
-    myNickname: null,
-    myProfileImageUrl: null,
-    
-    setAccessToken: (token) => set({ accessToken: token }),
-    setMyUserId: (id) => set({myUserId: id}),
-    setMyNickname: (nickname) => set({myNickname: nickname}),
-    setMyProfileImageUrl: (url) => set({myProfileImageUrl: url}),
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            accessToken: null,
+            myUserId: null,
+            myNickname: null,
+            myProfileImageUrl: null,
 
-    logout: () => set({ accessToken: null, myUserId: null }),
-}));
+            setAccessToken: (token) => set({ accessToken: token }),
+            setMyUserId: (id) => set({myUserId: id}),
+            setMyNickname: (nickname) => set({myNickname: nickname}),
+            setMyProfileImageUrl: (url) => set({ myProfileImageUrl: url }),
+
+            logout: () => set({ 
+                accessToken: null,
+                myUserId: null, 
+                myNickname: null, 
+                myProfileImageUrl: null 
+            }),  
+        }),
+        {
+            name: 'mini-sns-user-info',//로컬스토리지에 저장될 key 이름
+            storage: createJSONStorage(() => localStorage),
+        }
+    )
+);

@@ -10,12 +10,16 @@ public final class KafkaTopics {
     public static final String MEDIA_COMPLETED_TOPIC = "media.video.completed";
 
     // 2. Feed 팔로워 Redis 타임라인 저장 토픽
-    public static final String FEED_POST_TOPIC = "feed.post.created";
+    public static final String FEED_POST_CREATED_TOPIC = "feed.post.created";
+    public static final String FEED_POST_DELETED_TOPIC = "feed.post.deleted";
 
-    // 3. Notification 실시간 SSE 친구 피드 알림 토픽
+    // 3. post 모듈에서 minio로 실제 데이터 제거 토픽
+    public static final String POST_MINIO_DELETE_TOPIC = "post.minio.deleted";
+
+    // 4. Notification 실시간 SSE 친구 피드 알림 토픽
     public static final String NOTIFICATION_FEED_TOPIC = "notification.feed.created";
 
-    // 4. 유저 프로필 변경(가입, 수정 탈퇴) 이벤트 토픽
+    // 5. 유저 프로필 변경(가입, 수정 탈퇴) 이벤트 토픽
     public static final String USER_ACCOUNT_UPDATED_TOPIC = "user.account.updated";
 
 }

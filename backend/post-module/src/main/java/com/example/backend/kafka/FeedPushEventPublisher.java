@@ -15,12 +15,12 @@ public class FeedPushEventPublisher {
     public void publishPushEvent(FeedPushEvent event){
         String key = String.valueOf(event.authorId());
 
-        kafkaTemplate.send(KafkaTopics.FEED_POST_TOPIC, key, event)
+        kafkaTemplate.send(KafkaTopics.FEED_POST_CREATED_TOPIC, key, event)
                 .whenComplete((result, ex) -> {
                     if(ex == null){
-                        log.info("[post 모듈] Kafka 메시지 발행 성공: Topic: {}, AuthorId: {}, PostId: {}", KafkaTopics.FEED_POST_TOPIC, event.authorId(),event.postId());
+                        log.info("[post 모듈] Kafka 메시지 발행 성공: Topic: {}, AuthorId: {}, PostId: {}", KafkaTopics.FEED_POST_CREATED_TOPIC, event.authorId(),event.postId());
                     }else{
-                        log.error("[post 모듈] Kafka 메시지 발행 성공: Topic: {}, AuthorId: {}, PostId: {}", KafkaTopics.FEED_POST_TOPIC, event.authorId(),event.postId());
+                        log.error("[post 모듈] Kafka 메시지 발행 성공: Topic: {}, AuthorId: {}, PostId: {}", KafkaTopics.FEED_POST_CREATED_TOPIC, event.authorId(),event.postId());
                     }
                 });
     }

@@ -21,7 +21,7 @@ public class PostController {
 
     private final PostService postService;
 
-    //[최종 게시물 등록 API]
+    // [최종 게시물 등록]
     //프론트가 minio에 파일 업로드 완료 후, 해당 경로 및 게시물에 대한 데이터를 DB에 저장
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<PostResponse>> createPost (
@@ -33,6 +33,18 @@ public class PostController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("게시글이 등록되었습니다.", postResponse));
+                .body(ApiResponse.success("게시물이 등록되었습니다.", postResponse));
+    }
+
+    // [게시물 삭제]
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+        @PathVariable Long postId,
+        @AuthenticationPrincipal JwtUser jwtUser
+    ){
+        postService.deletePost(postId, jwtUser.userId());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("게시물이 삭제되었습니다.", null));
     }
 }

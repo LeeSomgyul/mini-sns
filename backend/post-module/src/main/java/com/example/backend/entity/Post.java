@@ -17,11 +17,14 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "posts")
+@Table(
+        name = "posts",
+        indexes = {
+                @Index(name = "idx_post_status_deleted_at", columnList = "status, deletedAt")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-//삭제 실행 시, 데이터를 지우지 않고 status와 deleted_at만 업데이트
-@SQLDelete(sql = "UPDATE posts SET status = 'DELETED', deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("status = 'PUBLIC'")
 public class Post {
 
@@ -29,11 +32,6 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "author_id", nullable = false)
-//    private User author;
-
-    //🔥카프카 작업 예정
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
@@ -82,12 +80,23 @@ public class Post {
         this.content = content;
     }
 
-    //--저장 메서드--
+    //--메서드--
     public void addTag(PostTag tag){
         this.tags.add(tag);
     }
 
     public void updateThumbnailUrl(String thumbnailUrl){
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    // 소프트 삭제 메서드
+    public void softDelete(){
+        this.status = PostStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    // 이미 삭제된 게시물인지 확인하는 메서드
+    public boolean isDeleted(){
+        return this.status == PostStatus.DELETED;
     }
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +36,10 @@ public class FeedService {
     private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
     private final PostInternalClient postInternalClient;
 
-    // [REDIS KEY]
+    // REDIS KEY: 사용자들 만의 피드 주소 키
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
+    // [게시물 보기]
     /*
     * @Param currentUserId: 현재 사용자의 ID
     * @Param cursorId: 다음 페이지 요청(무한 스크롤)을 위해 어디까지 봤는지 게시물의 postId
@@ -51,9 +53,9 @@ public class FeedService {
         // 2-1. 사용자들 만의 피드 주소 키 가져오기
         String redisKey = REDIS_FEED_KEY_PREFIX + currentUserId;
         // 2-2. Redis에 쌓여있는 500개의 postId 전체를 순서대로 가져오기
-        List<String> rawPostIds = stringRedisTemplate.opsForList().range(redisKey,0,-1);
+        Set<String> rawPostIds = stringRedisTemplate.opsForZSet().reverseRange(redisKey, 0, -1);
         // 2-3. 최적화: 500개를 다 가져오는게 아니라, 조금씩 잘라서 가져오기
-        List<Long> normalPostIds = (rawPostIds != null)?
+        List<Long> normalPostIds = (rawPostIds != null && !rawPostIds.isEmpty())?
                 rawPostIds.stream()
                     .map(Long::parseLong)
                     .filter(id -> cursorId == null || id < cursorId)
@@ -126,7 +128,7 @@ public class FeedService {
                 .build();
     }
 
-    //[보조 메서드] PostInternalDto를 받아 조립
+    // [보조 메서드] PostInternalDto를 받아 조립
     private FeedResponse.PostDto convertToPostDto(PostInternalDto postInternalDto, String baseStorageUrl){
         // 1. 미디어 조립
         List<FeedResponse.PostDto.MediaDto> mediaDtos = postInternalDto.media().stream()
@@ -152,5 +154,46 @@ public class FeedService {
                 .build();
 
         return FeedResponse.PostDto.from(postInternalDto, authorDto, mediaDtos);
+    }
+
+    // [게시물 삭제]
+    // - post모듈의 게시물 삭제에 따른 feed의 DB 및 Redis 정리
+    @Transactional
+    public void deleteFeedPostIndexCache(Long postId, Long authorId){
+        // 1. feed_db의 feed_post_index_cache 테이블의 데이터 삭제
+        feedPostIndexCacheRepository.deleteByPostId(postId);
+
+        // 2. 해당 게시물(feed)을 feed:timeline:로 전달받았던 팔로워 id 목록 추출
+        List<Long> targetIds = feedTargetConnection.feedPushTargetIds(authorId);
+
+        if(targetIds == null || targetIds.isEmpty()){
+            log.info("[Redis 데이터 삭제 패스] 팔로워가 없어 레디스를 청소할 타겟이 없습니다. authorId: {}", authorId);
+            // 제거 대상은 없지만 키는 제거
+            stringRedisTemplate.opsForZSet().remove(REDIS_FEED_KEY_PREFIX + authorId);
+            return;
+        }
+
+        // 3. Redis 삭제 명령 묶어서 실행
+        String memberValue = String.valueOf(postId);
+
+        stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for(Long targetId : targetIds){
+                String followerKey = REDIS_FEED_KEY_PREFIX + targetId;
+
+                byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(followerKey);
+                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(memberValue);
+
+                if(rawKey != null && rawValue != null){
+                    connection.zSetCommands().zRem(rawKey, rawValue);
+                }
+            }
+            return null;
+        } );
+
+        // 4. 작성자 본인의 Redis의 피드에서도 데이터 제거
+        String myKey = REDIS_FEED_KEY_PREFIX + authorId;
+        stringRedisTemplate.opsForZSet().remove(myKey, memberValue);
+
+        log.info("[Redis 데이터 삭제 성공] feed:timeline: 의 postId {} 데이터가 삭제되었습니다.", postId);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.FeedPostIndexCache;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,5 +35,12 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
             @Param("authorIds") List<Long> authorIds,
             @Param("cursorId") Long cursorId,
             Pageable pageable
+    );
+
+    // 삭제
+    @Modifying(clearAutomatically = true) // DB 삭제 후 JPA 자체 메모리에서도 삭제
+    @Query("DELETE FROM FeedPostIndexCache f WHERE f.postId = :postId")
+    void deleteByPostId(
+            @Param("postId") Long postId
     );
 }

@@ -66,12 +66,10 @@ public class FeedWarmUpComponent {
          * - 해결책: 파이프라이닝을 사용하여 1,000개의 명령어를 하나의 패킷으로 묶어 레디스에 단 1번의 네트워크 통신으로 전송
          */
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            byte[] rawKey = stringRedisTemplate.getStringSerializer().serialize(key);
-
             for(int i = recentNormalPosts.size() - 1; i>=0; i--){
                 Long postId = recentNormalPosts.get(i);
-                byte[] rawValue = stringRedisTemplate.getStringSerializer().serialize(String.valueOf(postId));
-                connection.listCommands().lPush(rawKey, rawValue);
+                double score = System.currentTimeMillis() + i;
+                stringRedisTemplate.opsForZSet().add(key, String.valueOf(postId), score);
             }
             return null;
         });

@@ -1,6 +1,7 @@
 package com.example.backend.kafka.media;
 
 
+import com.example.backend.config.kafka.KafkaGroupId;
 import com.example.backend.config.kafka.KafkaTopics;
 import com.example.backend.dto.file.GoWorkerResultResponse;
 import com.example.backend.service.MediaEventService;
@@ -19,7 +20,7 @@ public class MediaEventConsumer {
     //[Go워커 -> 자바 메시지 수신 및 DB 변경]
     @KafkaListener(
             topics = KafkaTopics.MEDIA_COMPLETED_TOPIC,
-            groupId = "mini-sns-media-backend",
+            groupId = KafkaGroupId.GROUP_POST_MEDIA_COMPLETED,
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void postMediaDBChange(GoWorkerResultResponse response){
