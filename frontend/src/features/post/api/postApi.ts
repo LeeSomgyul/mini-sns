@@ -64,5 +64,13 @@ export const postApi = {
             request
         );
         return response.data.data;
+    },
+
+    //7. 게시물 삭제
+    deletePost: async(postId: number) => {
+        const response = await api.delete<ApiResponse<void>>(
+            `/api/v1/posts/${postId}`
+        );
+        return response.data.data;
     }
 };

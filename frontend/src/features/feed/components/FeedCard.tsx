@@ -22,6 +22,7 @@ export const FeedCard = ({post}: FeedCardProps) => {
     return(
         <article style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--pico-table-border-color)', borderRadius: 'var(--pico-border-radius)' }}>
             <FeedHeader
+                postId={post.postId}
                 author={post.author}
                 createdAt={post.createdAt}
                 isAuthor={isAuthor}
