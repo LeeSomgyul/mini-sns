@@ -18,6 +18,8 @@ public class PostEditService {
 
     private final PostRepository postRepository;
 
+    @Value("${minio.endpoint}") private String minioEndpoint;
+    @Value("${minio.bucket}") private String minioBucket;
     @Value("${imgproxy.endpoint}") private String imgproxyEndpoint;
     @Value("${imgproxy.prefix}") private String imgproxyPrefix;
     @Value("${imgproxy.storage-protocol}") private String imgproxyStorageProtocol;
@@ -38,10 +40,10 @@ public class PostEditService {
             throw new UnauthorizedException("해당 게시물에 대한 수정 권한이 없습니다.");
         }
 
-        // 3. url 경로 조립
-        String mediaBaseUrl = imgproxyEndpoint + imgproxyPrefix + imgproxyStorageProtocol;
+        // 3. minio 경로 조립
+        // 결과: http://localhost:9000/mini-sns/
+        String minioBaseUrl = minioEndpoint + "/" + minioBucket + "/";
 
-        // 3. 반환
-        return PostEditResponse.of(post, post.getAuthorId(), mediaBaseUrl);
+        return PostEditResponse.of(post, post.getAuthorId(), minioBaseUrl, imgproxyEndpoint, imgproxyPrefix, imgproxyStorageProtocol);
     }
 }
