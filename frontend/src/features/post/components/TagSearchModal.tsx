@@ -3,8 +3,6 @@ import type { TagUserType } from "../types/TagUserType";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-import {userSearchApi} from "../../search/api/userSearchApi";
-import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "../../../common/hook/useDebounce";
 import type { UserInfo } from "../../search/types/userSearchType";
 import { useUserSearchQuery } from "../../search/hooks/useUserSearchQuery";

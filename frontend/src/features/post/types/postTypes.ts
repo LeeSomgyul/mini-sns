@@ -58,9 +58,6 @@ export interface AbortMultipartRequest{
     objectKey: string;
 }
 
-
-//-----------------(아래)수정 전----------------
-
 export interface postRequest{
     mediaList: MediaUploadRequest[];
     content: string;

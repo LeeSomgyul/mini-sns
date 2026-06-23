@@ -72,5 +72,13 @@ export const postApi = {
             `/api/v1/posts/${postId}`
         );
         return response.data.data;
+    },
+
+    //8. 게시물 수정 시 이전 게시물 불러오기
+    getPostForEdit: async(postId: number) => {
+        const response = await api.get<ApiResponse<postResponse>>(
+            `/api/v1/posts/${postId}`
+        );
+        return response.data.data;
     }
 };

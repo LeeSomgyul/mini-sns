@@ -6,17 +6,16 @@ import com.example.backend.entity.PostTag;
 import lombok.Builder;
 
 import java.util.List;
-import java.util.Map;
 
 @Builder
-public record PostResponse (
+public record PostEditResponse(
         Long postId,
         Long authorId,
         String thumbnailUrl,
-        List<MediaResponse> mediaList,
+        List<PostEditResponse.MediaResponse> mediaList,
         String content,
-        List<TagUserResponse> tagUsers
-){
+        List<PostEditResponse.TagUserResponse> tagUsers
+) {
     @Builder
     public record MediaResponse(
             Long mediaId,
@@ -25,8 +24,8 @@ public record PostResponse (
             String thumbnailUrl,
             int sortOrder
     ){
-        public static MediaResponse from (PostMedia postMedia){
-            return new MediaResponse(
+        public static PostEditResponse.MediaResponse from (PostMedia postMedia){
+            return new PostEditResponse.MediaResponse(
                     postMedia.getId(),
                     postMedia.getMediaType().name(),
                     postMedia.getUrl(),
@@ -41,26 +40,26 @@ public record PostResponse (
             Long userId,
             String nickname
     ){
-        public static TagUserResponse of(PostTag postTag, String nickname){
-            return new TagUserResponse(
+        public static PostEditResponse.TagUserResponse of(PostTag postTag, String nickname){
+            return new PostEditResponse.TagUserResponse(
                     postTag.getUserId(),
                     nickname
             );
         }
     }
 
-    public static PostResponse of (Post post, Long authorId){
-        return new PostResponse(
+    public static PostEditResponse of (Post post, Long authorId){
+        return new PostEditResponse(
                 post.getId(),
                 authorId,
                 post.getThumbnailUrl(),
-                post.getMediaList().stream().map(MediaResponse::from).toList(),
+                post.getMediaList().stream().map(PostEditResponse.MediaResponse::from).toList(),
                 post.getContent(),
                 post.getTags().stream()
                         .map(tag -> {
                             //🚨아직 닉네임을 모르니, 임시로 "사용자_숫자ID"로 프론트에 던져줍니다.🚨
                             String tempNickname = "사용자_" + tag.getUserId();
-                            return TagUserResponse.of(tag, tempNickname);
+                            return PostEditResponse.TagUserResponse.of(tag, tempNickname);
                         })
                         .toList()
         );

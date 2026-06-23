@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { NavItemType, ModalType } from "../../types/navItemType";
 import { ROUTES } from "../../constants/routes";
 import SettingsModal from "./SettingsModal";
-import {PostCreateModal} from "../../features/post/pages/PostCreateModal";
+import {PostFormModal} from "../../features/post/pages/PostFormModal";
 
 
 const Navigation = () => {
@@ -67,7 +67,7 @@ const Navigation = () => {
             </ul>
             {/* 네비게이션의 모달(피드 작성) */}
             {activeModal === 'write' && (
-                <PostCreateModal closeModal={closeModal}/>
+                <PostFormModal closeModal={closeModal} mode='create'/>
             )} 
 
             {/* 네비게이션의 모달(설정) */}

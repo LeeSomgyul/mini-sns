@@ -2,15 +2,23 @@ import { useTagManager } from '../hooks/useTagManager';
 import TagSearchModal from '../components/TagSearchModal';
 import { useState } from 'react';
 
-export default function PostTag() {
+interface PostTagProps{
+    mode: 'create' | 'edit';
+    disabled?: boolean;
+}
+
+export default function PostTag({mode, disabled}: PostTagProps) {
 
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     // 커스텀 훅에서 상태와 메서드 가져오기
     const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
 
-    //모달창 오픈 여부
+    // 모달창 오픈 여부
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // 로딩중 or 게시물 저장 중일 때 버튼 비활성화
+    const isActionDisabled = disabled;
 
     return (
         <div>
@@ -33,7 +41,8 @@ export default function PostTag() {
                 type="button"
                 className="secondary outline" 
                 style={{ width: '100%', marginBottom: '0.7rem' }}
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => !isActionDisabled && setIsModalOpen(true)}
+                disabled={isActionDisabled}
             >
                 태그 추가
             </button>
@@ -60,6 +69,7 @@ export default function PostTag() {
                             className="secondary outline" 
                             style={{ margin: 0, padding: '0.2rem 0.5rem', width: 'auto', fontSize: '0.8rem' }}
                             onClick={() => handleRemoveTag(user.userId)}   
+                            disabled={isActionDisabled}
                         >
                             삭제
                         </button>
