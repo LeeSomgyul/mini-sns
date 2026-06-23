@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from 'react-dom';
 import { useBlocker } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
@@ -25,12 +25,20 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
     // 해당 모달의 모드
     const isEdit = mode == 'edit';
 
-    // 1. [게시물 수정 전용] 기존 데이터 조회
+    // 1-1. [게시물 수정 전용] 기존 미디어 데이터 조회
     const {data: postData, isLoading: isPostLoading} = useQuery({
         queryKey: ['feeds', 'edit', postId],    //불러온 데이터가 저장될 공간
         queryFn: () => postApi.getPostForEdit(postId!),
         enabled: isEdit && !!postId //수정 모드이면서 postId가 존재할 때만 실행
     });
+
+    // 1-2. [게시물 수정 전용] 기존 태그 데이터 조회
+    const taggedUserIds = useMemo(() => {
+        if(!postData?.tagUsers) return [];
+        return postData.tagUsers.map((user: {userId: number}) => user.userId);
+    },[postData]);
+
+
 
     // 2-1. 리엑트 훅 라이브러리 초기 세팅
     const methods = useForm<PostFormValues>({

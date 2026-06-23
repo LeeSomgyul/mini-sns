@@ -3,7 +3,6 @@ package com.example.backend.dto;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
 import com.example.backend.entity.PostTag;
-import lombok.Builder;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -13,9 +12,9 @@ public record PostEditResponse(
         Long postId,
         Long authorId,
         String thumbnailUrl,
-        List<PostEditResponse.MediaResponse> mediaList,
+        List<MediaResponse> mediaList,
         String content,
-        List<PostEditResponse.TagUserResponse> tagUsers
+        List<TagUserResponse> tagUsers
 ) {
     public record MediaResponse(
             Long mediaId,
@@ -27,7 +26,7 @@ public record PostEditResponse(
     ){
         private static final ObjectMapper objectMapper = new ObjectMapper();
 
-        public static PostEditResponse.MediaResponse from (PostMedia postMedia, String minioBaseUrl, String imgproxyEndpoint, String imgproxyPrefix, String imgproxyProtocol){
+        public static MediaResponse from (PostMedia postMedia, String minioBaseUrl, String imgproxyEndpoint, String imgproxyPrefix, String imgproxyProtocol){
             String finalUrl = postMedia.getUrl();
             String finalThumbnailUrl = null;
             String cropStateStr = postMedia.getCropState();
@@ -47,7 +46,7 @@ public record PostEditResponse(
                 }
             }
 
-            return new PostEditResponse.MediaResponse(
+            return new MediaResponse(
                     postMedia.getId(),
                     postMedia.getMediaType().name(),
                     finalUrl,
@@ -112,14 +111,10 @@ public record PostEditResponse(
     }
 
     public record TagUserResponse(
-            Long userId,
-            String nickname
+            Long userId
     ){
-        public static PostEditResponse.TagUserResponse of(PostTag postTag, String nickname){
-            return new PostEditResponse.TagUserResponse(
-                    postTag.getUserId(),
-                    nickname
-            );
+        public static TagUserResponse from(PostTag postTag){
+            return new TagUserResponse(postTag.getUserId());
         }
     }
 
@@ -133,11 +128,7 @@ public record PostEditResponse(
                         .toList(),
                 post.getContent(),
                 post.getTags().stream()
-                        .map(tag -> {
-                            //🚨아직 닉네임을 모르니, 임시로 "사용자_숫자ID"로 프론트에 던져줍니다.🚨
-                            String tempNickname = "사용자_" + tag.getUserId();
-                            return PostEditResponse.TagUserResponse.of(tag, tempNickname);
-                        })
+                        .map(TagUserResponse::from)
                         .toList()
         );
     }

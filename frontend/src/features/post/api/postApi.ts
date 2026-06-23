@@ -8,6 +8,8 @@ import type{
     CompleteMultipartRequest, CompleteMultipartResponse,
     AbortMultipartRequest
 } from "../types/postTypes";
+import type { TagUserNickname } from '../types/TagUserType';
+
 
 
 export const postApi = {
@@ -78,6 +80,17 @@ export const postApi = {
     getPostForEdit: async(postId: number) => {
         const response = await api.get<ApiResponse<postResponse>>(
             `/api/v1/posts/${postId}`
+        );
+        return response.data.data;
+    },
+
+    //9. 게시물 수정 시 태그 닉네임 가져오기
+    getPostNickname: async(userIds: number[]) => {
+        if(userIds.length === 0) return [];
+
+        const response = await api.get<ApiResponse<TagUserNickname>>(
+            `/api/v1/users`,
+            { params: { ids: userIds.join(',') } }
         );
         return response.data.data;
     }

@@ -5,3 +5,9 @@ export interface TagUserType{
     name: string;
     profileImageUrl?: string | null;
 }
+
+// 게시물 수정 시 userId로 nickname 찾아오기
+export interface TagUserNickname{
+    userId: number;
+    nickname: string;
+}
