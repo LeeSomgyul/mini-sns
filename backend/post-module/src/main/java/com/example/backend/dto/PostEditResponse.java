@@ -24,12 +24,12 @@ public record PostEditResponse(
             String thumbnailUrl,
             int sortOrder
     ){
-        public static PostEditResponse.MediaResponse from (PostMedia postMedia){
+        public static PostEditResponse.MediaResponse from (PostMedia postMedia, String baseUrl){
             return new PostEditResponse.MediaResponse(
                     postMedia.getId(),
                     postMedia.getMediaType().name(),
-                    postMedia.getUrl(),
-                    postMedia.getThumbnailUrl(),
+                    baseUrl + postMedia.getUrl(),
+                    baseUrl + postMedia.getThumbnailUrl(),
                     postMedia.getSortOrder()
             );
         }
@@ -48,12 +48,14 @@ public record PostEditResponse(
         }
     }
 
-    public static PostEditResponse of (Post post, Long authorId){
+    public static PostEditResponse of (Post post, Long authorId, String mediaBaseUrl){
         return new PostEditResponse(
                 post.getId(),
                 authorId,
                 post.getThumbnailUrl(),
-                post.getMediaList().stream().map(PostEditResponse.MediaResponse::from).toList(),
+                post.getMediaList().stream()
+                        .map(media -> PostEditResponse.MediaResponse.from(media, mediaBaseUrl))
+                        .toList(),
                 post.getContent(),
                 post.getTags().stream()
                         .map(tag -> {

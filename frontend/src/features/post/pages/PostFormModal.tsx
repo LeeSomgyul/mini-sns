@@ -63,7 +63,8 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
                     sortOrder: media.sortOrder,
                     status: 'SUCCESS',  //게시물 수정 완료 상태
                     previewUrl: media.url   //리엑트는 파일 경로를 previewUrl에서 찾음
-                }))
+                })),
+                content: postData.content
             });
         }
     },[postData?.postId, isEdit, reset])

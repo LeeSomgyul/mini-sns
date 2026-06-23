@@ -9,13 +9,14 @@ import com.example.backend.service.PostEditService;
 import com.example.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/posts")
@@ -60,7 +61,7 @@ public class PostController {
         PostEditResponse response = postEditService.getPostForEdit(postId, jwtUser.userId());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("게시물이 조회되었습니다.", null));
+                .body(ApiResponse.success("게시물이 조회되었습니다.", response));
     }
 
 }
