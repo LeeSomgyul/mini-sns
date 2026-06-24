@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { reissueTokenApi } from '../api/reissueTokenApi';
+import { AUTH_KEYS } from '../../../constants/queryKey';
 
 // 새로고침 시 토큰 자동 발급
 export const useTokenRefresh = () => {
@@ -8,7 +9,7 @@ export const useTokenRefresh = () => {
     const { accessToken, setAccessToken, logout } = useAuthStore();
 
     return useQuery({
-        queryKey: ["auth", "reissue"],
+        queryKey: AUTH_KEYS.reissue(),
         
         queryFn: async () => {
             try {

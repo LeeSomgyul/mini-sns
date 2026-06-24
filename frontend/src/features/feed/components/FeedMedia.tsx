@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useQueryClient } from '@tanstack/react-query';
 import type { MediaDto } from "../types/feedResponseType";
 import { HlsVideoPlayer } from "./HlsVideoPlayer";
+import { FEED_KEYS } from "../../../constants/queryKey";
 
 interface FeedMediaProps{
     mediaList: MediaDto[];
@@ -19,8 +20,6 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
     const [hasError, setHasError] = useState(false);
     const [retryKey, setRetryKey] = useState(0);
 
-    if(!mediaList || mediaList.length === 0) return null;
-
     const queryClient = useQueryClient();
     const intervalRef = useRef<number | null>(null);
     const currentMedia = mediaList[currentIndex];
@@ -30,7 +29,6 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
 
     //다른 사진으로 넘어가면, 에러 화면을 정상 화면으로 초기화
     useEffect(() => {
-        setHasError(false);
 
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -41,7 +39,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
         if(isProcessing){
             intervalRef.current = window.setInterval(() => {
                 queryClient.invalidateQueries({
-                    queryKey: ["feeds"],
+                    queryKey: FEED_KEYS.all,
                     exact: false
                 });
             },3000);
@@ -54,6 +52,8 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
             }
         };
     },[isProcessing, queryClient]);
+
+    if(!mediaList || mediaList.length === 0) return null;
 
     //[버튼] 이미지 재시도 
     const handleRetry = () => {

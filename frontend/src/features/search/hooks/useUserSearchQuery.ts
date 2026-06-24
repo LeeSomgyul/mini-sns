@@ -1,14 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { userSearchApi } from "../api/userSearchApi";
+import { USER_KEYS } from "../../../constants/queryKey";
 
-// 키 이름표 만드는 메서드 
-export const userKeys = {
-    // 모든 캐시 방 이름의 첫 시작 이름
-    all: ['users'] as const,
-    // 각자 키 제작 
-    search: (keyword: string, type: 'all' | 'friends' = 'all') => 
-        ['...userKeys.all', 'search', keyword] as const,
-};
 
 // [사용자 검색 인피니트 쿼리 커스텀 훅]
 // - keyword: 사용자 검색 인풋
@@ -21,7 +14,7 @@ export const useUserSearchQuery = (keyword: string, type: 'all' | 'friends' = 'a
         // 1. 검색어가 바뀔 때마다 각각 다른 캐시방 만들기 
         // - type이 'all'이면 ['users', 'search', 'all', keyword]
         // - type이 'friends'이면 ['users', 'search', 'friends', keyword]
-        queryKey: userKeys.search(trimmedKeyword, type),
+        queryKey: USER_KEYS.search(trimmedKeyword, type),
         
         // 2. 검색어 찾아오는 함수 실행 
         queryFn: ({ pageParam, signal }) => 

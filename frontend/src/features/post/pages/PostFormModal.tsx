@@ -14,6 +14,7 @@ import { type MediaResponse } from "../types/postTypes";
 import PostMediaUploader from "./PostMediaUploader"; 
 import PostDescription from "./PostDescription";
 import PostTag from "./PostTag";
+import { POST_KEYS } from "../../../constants/queryKey";
 
 interface PostFormModalProps {
     closeModal: () => void;
@@ -29,8 +30,8 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
     // postData: 게시물 전체 데이터 덩어리 
     // isPostLoading: 데이터 가져오는 중인지 상태 
     const {data: postData, isLoading: isPostLoading} = useQuery({
-        queryKey: ['post', 'media', postId],    //불러온 미디어 데이터가 저장될 공간
-        queryFn: () => postApi.getPostForEdit(postId!),
+        queryKey: POST_KEYS.media(postId ?? 0),    //불러온 미디어 데이터가 저장될 공간
+        queryFn: () => postApi.getPostForEdit(postId ?? 0),
         enabled: isEdit && !!postId //수정 모드이면서 postId가 존재할 때만 실행
     });
 
@@ -182,7 +183,7 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
                                     <PostDescription mode={mode}/>
                                 </div>
                                 <div>
-                                    <PostTag mode={mode}/>
+                                    <PostTag mode={mode} postId={postId}/>
                                 </div>
                             </div>
                             

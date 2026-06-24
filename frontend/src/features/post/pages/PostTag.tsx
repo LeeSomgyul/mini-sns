@@ -6,10 +6,11 @@ import type { TagUserProfileResponse } from '../types/TagUserType';
 
 interface PostTagProps{
     mode: 'create' | 'edit';
+    postId: number | undefined;
     disabled?: boolean;
 }
 
-export default function PostTag({mode, disabled}: PostTagProps) {
+export default function PostTag({mode, postId, disabled}: PostTagProps) {
 
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
@@ -29,7 +30,7 @@ export default function PostTag({mode, disabled}: PostTagProps) {
     // [게시물 수정] 추출한 id 배열로 백엔드에 사용자 정보 요청
     // tagUserProfiles: id로 백엔드에서 찾아온 사용자 정보(이름, 닉네임, 프로필이미지url)
     // 예: { "userId": 11, "nickname": "gildong123", "name": "홍길동", "profileImageUrl": "hong.png" }
-    const { data: tagUserProfiles } = useTagUserProfile(taggedUserIds, taggedUserIds.length > 0);
+    const { data: tagUserProfiles } = useTagUserProfile(postId ?? 0, taggedUserIds, taggedUserIds.length > 0);
 
     // [게시물 수정] Map 형식으로 가공
     // 예: [11, { "userId": 11, "nickname": "gildong123", "name": "홍길동", "profileImageUrl": "hong.png" }]
