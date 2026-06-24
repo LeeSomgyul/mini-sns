@@ -24,8 +24,8 @@ export const useTagManager = () => {
 
     // [태그 삭제]
     const handleRemoveTag = (userId: number) => {
-        const newTags = tagUsers.filter(user => user.userId !== userId);
-        setValue('tagUsers', newTags, { shouldValidate: true });
+        const updatedTags = tagUsers.filter(user => user.userId !== userId);
+        setValue('tagUsers', updatedTags, { shouldValidate: true, shouldDirty: true });
     };
 
     return {

@@ -1,9 +1,6 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.ApiResponse;
-import com.example.backend.dto.PostEditResponse;
-import com.example.backend.dto.PostRequest;
-import com.example.backend.dto.PostResponse;
+import com.example.backend.dto.*;
 import com.example.backend.jwt.JwtUser;
 import com.example.backend.service.PostEditService;
 import com.example.backend.service.PostService;
@@ -64,4 +61,17 @@ public class PostController {
                 .body(ApiResponse.success("게시물이 조회되었습니다.", response));
     }
 
+    // [게시물 수정] 수정 후 저장 버튼
+    @PatchMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> updatePost(
+            @PathVariable("postId") Long postId,
+            @RequestBody @Valid PostUpdateRequest request,
+            @AuthenticationPrincipal JwtUser jwtUser
+    ){
+        Long userId = jwtUser.userId();
+        postEditService.updatePost(postId, userId, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("게시물이 성공적으로 수정되었습니다.", null));
+    }
 }

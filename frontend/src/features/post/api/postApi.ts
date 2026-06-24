@@ -6,7 +6,8 @@ import type{
     postRequest, postResponse,
     ListPartsRequest, ListPartsResponse,
     CompleteMultipartRequest, CompleteMultipartResponse,
-    AbortMultipartRequest
+    AbortMultipartRequest,
+    PostUpdateRequest
 } from "../types/postTypes";
 import type { TagUserProfileResponse } from '../types/TagUserType';
 
@@ -93,5 +94,14 @@ export const postApi = {
             { params: { userIds: userIds.join(',') } }
         );
         return response.data.data;
+    },
+
+    //10. 게시물 수정
+    updatePost: async(postId: number, data: PostUpdateRequest): Promise<ApiResponse<null>> => {
+        const response = await api.patch<ApiResponse<null>>(
+            `/api/v1/posts/${postId}`,
+            data
+        );
+        return response.data;
     }
 };

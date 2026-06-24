@@ -17,7 +17,7 @@ import com.example.backend.kafka.media.MediaEventPublisher;
 import com.example.backend.kafka.media.MediaProcessEvent;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
-import com.example.backend.repository.PostTageRepository;
+import com.example.backend.repository.PostTagRepository;
 import com.example.backend.repository.UserCacheRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ public class PostService {
     private final UserCacheRepository userCacheRepository;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
-    private final PostTageRepository postTageRepository;
+    private final PostTagRepository postTagRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
@@ -292,7 +292,7 @@ public class PostService {
 
             // 7. DB 테이블 삭제
             // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
-            postTageRepository.deleteByPostIdIn(postIds);
+            postTagRepository.deleteByPostIdIn(postIds);
             postMediaRepository.hardDeleteByPostIdIn(postIds);
             postRepository.hardDeleteByIdIn(postIds);
 

@@ -92,3 +92,18 @@ export interface TagUserResponse {
     userId: number;
     nickname: string;
 }
+
+//============ 게시물 수정 ============
+export interface TagUserRequest{
+    userId: number;
+}
+
+export interface PostUpdateRequest{
+    content: string;
+    tagUsers: TagUserRequest[];
+}
+
+export interface PostUpdateParams{
+    postId: number;
+    data: PostUpdateRequest;
+}
