@@ -84,5 +84,8 @@ public class PostEditService {
                             .toList();
             postTagRepository.saveAll(newTags);
         }
+
+        // JPA의 영속성 문제 해결
+        postRepository.saveAndFlush(post);
     }
 }
