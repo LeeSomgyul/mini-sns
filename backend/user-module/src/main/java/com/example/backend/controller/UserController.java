@@ -3,9 +3,11 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.response.NicknameCheckResponse;
+import com.example.backend.dto.response.TagUserProfileResponse;
 import com.example.backend.service.UserService;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
@@ -23,7 +27,7 @@ public class UserController {
 
     private final UserService userService;
 
-    //닉네임 중복 체크
+    // [닉네임 중복 체크]
     @GetMapping("/nickname/exists")
     public ResponseEntity<ApiResponse<NicknameCheckResponse>> checkNickName (
             @RequestParam
@@ -55,5 +59,17 @@ public class UserController {
         ApiResponse<NicknameCheckResponse> response = userService.checkNicknameDuplicate(nickname, currentUserId);
 
         return ResponseEntity.ok(response);
+    }
+
+    // [게시물 수정: 기존 태그된 사용자의 정보 불러오기]
+    @GetMapping("/tags")
+    public ResponseEntity<ApiResponse<List<TagUserProfileResponse>>> getTagUserProfile(
+            @RequestParam("userIds") List<Long> userIds
+    ){
+        List<TagUserProfileResponse> response = userService.getTagUserProfile(userIds);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("태그 사용자 정보 가져오기 성공", response));
     }
 }

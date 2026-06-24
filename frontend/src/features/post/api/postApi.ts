@@ -89,8 +89,8 @@ export const postApi = {
         if(userIds.length === 0) return [];
 
         const response = await api.get<ApiResponse<TagUserProfileResponse[]>>(
-            `/api/v1/users/bulk`,
-            { params: { ids: userIds.join(',') } }
+            `/api/v1/users/tags`,
+            { params: { userIds: userIds.join(',') } }
         );
         return response.data.data;
     }
