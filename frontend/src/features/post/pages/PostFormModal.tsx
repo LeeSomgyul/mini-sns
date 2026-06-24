@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from 'react-dom';
 import { useBlocker } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
@@ -25,19 +25,14 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
     // 해당 모달의 모드
     const isEdit = mode == 'edit';
 
-    // 1-1. [게시물 수정 전용] 기존 미디어 데이터 조회
+    // 1-1. [게시물 수정] 기존 미디어 데이터 조회
+    // postData: 게시물 전체 데이터 덩어리 
+    // isPostLoading: 데이터 가져오는 중인지 상태 
     const {data: postData, isLoading: isPostLoading} = useQuery({
-        queryKey: ['feeds', 'edit', postId],    //불러온 데이터가 저장될 공간
+        queryKey: ['post', 'media', postId],    //불러온 미디어 데이터가 저장될 공간
         queryFn: () => postApi.getPostForEdit(postId!),
         enabled: isEdit && !!postId //수정 모드이면서 postId가 존재할 때만 실행
     });
-
-    // 1-2. [게시물 수정 전용] 기존 태그 데이터 조회
-    const taggedUserIds = useMemo(() => {
-        if(!postData?.tagUsers) return [];
-        return postData.tagUsers.map((user: {userId: number}) => user.userId);
-    },[postData]);
-
 
 
     // 2-1. 리엑트 훅 라이브러리 초기 세팅
@@ -62,6 +57,7 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
     // 3. [게시물 수정 전용] 수정 상태라면 이전 게시물 불러오기 
     useEffect(() => {
         if(isEdit && postData){
+            // 리엑트 훅 폼 데이터(백엔드 최종 전송용) 주입
             reset({
                 mediaList: postData.mediaList.map((media: MediaResponse) => ({
                     mediaId: media.mediaId,
@@ -72,7 +68,10 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
                     status: 'SUCCESS',  //게시물 수정 완료 상태
                     previewUrl: media.url   //리엑트는 파일 경로를 previewUrl에서 찾음
                 })),
-                content: postData.content
+                content: postData.content,
+                tagUsers: postData.tagUsers.map((user: {userId: number}) => ({
+                    userId: user.userId
+                })),
             });
         }
     },[postData?.postId, isEdit, reset])

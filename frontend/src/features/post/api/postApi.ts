@@ -8,7 +8,7 @@ import type{
     CompleteMultipartRequest, CompleteMultipartResponse,
     AbortMultipartRequest
 } from "../types/postTypes";
-import type { TagUserNickname } from '../types/TagUserType';
+import type { TagUserProfileResponse } from '../types/TagUserType';
 
 
 
@@ -85,11 +85,11 @@ export const postApi = {
     },
 
     //9. 게시물 수정 시 태그 닉네임 가져오기
-    getPostNickname: async(userIds: number[]) => {
+    getTagUserProfile: async(userIds: number[]): Promise<TagUserProfileResponse[]> => {
         if(userIds.length === 0) return [];
 
-        const response = await api.get<ApiResponse<TagUserNickname>>(
-            `/api/v1/users`,
+        const response = await api.get<ApiResponse<TagUserProfileResponse[]>>(
+            `/api/v1/users/bulk`,
             { params: { ids: userIds.join(',') } }
         );
         return response.data.data;
