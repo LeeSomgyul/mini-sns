@@ -12,5 +12,6 @@ public final class KafkaGroupId {
     public static final String GROUP_POST_SOFT_DELETE = "minisns-post-soft-delete";
     public static final String GROUP_POST_HARD_DELETE = "minisns-post-hard-delete";
     public static final String GROUP_POST_USER_UPDATE = "minisns-post-user-update";
+    public static final String GROUP_POST_LIKE = "minisns-post-like";
 
 }
