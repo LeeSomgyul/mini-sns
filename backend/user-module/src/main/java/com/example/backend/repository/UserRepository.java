@@ -21,4 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //[글쓴이(actorId)를 제외한 현재 서비스의 모든 유저ID 리스트 가져오기
     @Query("SELECT u.id FROM User u WHERE u.id != :actorId")
     List<Long> findAllIdsExcept(@Param("actorId") Long actorId);
+
+    //[여러 userId로 User 가져오기]
+    List<User> findByIdIn(List<Long> userIds);
 }

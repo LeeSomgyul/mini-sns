@@ -281,7 +281,6 @@ export const useMediaManager = () => {
         if(e.target) e.target.value = '';
     };
 
-
     // [미디어 제거]
     const handleRemoveMedia = (indexToRemove: number) => {
         //현재 등록되어있는 미디어에서 몇 번째 인덱스인지 확인

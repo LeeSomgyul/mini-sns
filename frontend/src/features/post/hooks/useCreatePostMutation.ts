@@ -4,6 +4,7 @@ import { postApi } from "../api/postApi";
 import type { PostFormValues } from "../schemas/postSchema";
 import type { postResponse} from "../types/postTypes";
 import type { AxiosError } from "axios";
+import { FEED_KEYS } from "../../../constants/queryKey";
 
 
 interface UseCreatePostProps {
@@ -52,7 +53,7 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
 
             //방금 등록한 게시물 불러오기 
             await queryClient.invalidateQueries({
-                queryKey: ["feeds"],
+                queryKey: FEED_KEYS.all,
                 exact: false,
                 refetchType: 'all'
             });

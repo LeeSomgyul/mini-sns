@@ -6,8 +6,11 @@ import type{
     postRequest, postResponse,
     ListPartsRequest, ListPartsResponse,
     CompleteMultipartRequest, CompleteMultipartResponse,
-    AbortMultipartRequest
+    AbortMultipartRequest,
+    PostUpdateRequest
 } from "../types/postTypes";
+import type { TagUserProfileResponse } from '../types/TagUserType';
+
 
 
 export const postApi = {
@@ -72,5 +75,33 @@ export const postApi = {
             `/api/v1/posts/${postId}`
         );
         return response.data.data;
+    },
+
+    //8. 게시물 수정 시 이전 게시물 불러오기
+    getPostForEdit: async(postId: number) => {
+        const response = await api.get<ApiResponse<postResponse>>(
+            `/api/v1/posts/${postId}`
+        );
+        return response.data.data;
+    },
+
+    //9. 게시물 수정 시 태그 닉네임 가져오기
+    getTagUserProfile: async(userIds: number[]): Promise<TagUserProfileResponse[]> => {
+        if(userIds.length === 0) return [];
+
+        const response = await api.get<ApiResponse<TagUserProfileResponse[]>>(
+            `/api/v1/users/tags`,
+            { params: { userIds: userIds.join(',') } }
+        );
+        return response.data.data;
+    },
+
+    //10. 게시물 수정
+    updatePost: async(postId: number, data: PostUpdateRequest): Promise<ApiResponse<null>> => {
+        const response = await api.patch<ApiResponse<null>>(
+            `/api/v1/posts/${postId}`,
+            data
+        );
+        return response.data;
     }
 };

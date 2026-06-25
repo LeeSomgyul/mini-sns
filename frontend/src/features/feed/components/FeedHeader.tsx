@@ -1,6 +1,7 @@
 import type {AuthorDto} from "../types/feedResponseType";
 import { formatFeedDate } from "../hooks/formatFeedDate";
 import { useDeletePost } from "../../post/hooks/useDeletePost";
+import { usePostModalStore } from "../../post/store/usePostModalStore";
 
 interface FeedHeaderProps {
     postId: number;
@@ -11,11 +12,12 @@ interface FeedHeaderProps {
 
 //[컴포넌트] 피드 카드 상단의 '작성자 정보' 및 '수정 and 삭제' 버튼 영역 
 //@param {FeedHeaderProps} props - 작성자 정보, 작성 시간, 본인 여부
-export const FeedHeader = ({ postId, author, createdAt, isAuthor }: FeedHeaderProps) => {
+export const FeedHeader = ({ postId, author, createdAt, isAuthor}: FeedHeaderProps) => {
 
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     const {mutate: deletePost, isPending} = useDeletePost();
+    const {openEditModal} = usePostModalStore();
 
     // [삭제 버튼 클릭]
     const handleDeletePost = () => {
@@ -55,6 +57,7 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor }: FeedHeaderPr
                     <button
                         className="outline secondary"
                         style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                        onClick={() => openEditModal(postId)}
                     >
                         수정
                     </button>

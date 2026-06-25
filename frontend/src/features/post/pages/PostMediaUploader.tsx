@@ -4,7 +4,15 @@ import { useMediaManager } from '../hooks/useMediaManager';
 import { useMediaUI } from '../hooks/useMediaUI';
 import { useState } from 'react';
 
-export default function PostMediaUploader() {
+interface PostMediaUploader {
+    mode: 'create' | 'edit';
+}
+
+export default function PostMediaUploader({mode}: PostMediaUploader) {
+
+    // 해당 모달의 모드
+    const isEdit = mode == 'edit';
+
     const {mediaList ,actions, isMaxReached} = useMediaManager();
     const {uiState, uiActions, fileInputRef} = useMediaUI();
 
@@ -73,36 +81,38 @@ export default function PostMediaUploader() {
                     <div style={{ margin: 0, fontSize: '0.7rem' }}>이미지 및 영상 등록</div>
                     <div style={{ fontSize: '0.7rem' }}>({mediaList.length}/5)</div>
                 </>
-                <div style={{ display: 'flex' }}>
-                    <div>
-                        <input
-                            type="file"
-                            accept="image/*,video/mp4,video/quicktime"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={actions.addMedia}
-                            multiple
-                        />
+                {!isEdit && (
+                    <div style={{ display: 'flex' }}>
+                        <div>
+                            <input
+                                type="file"
+                                accept="image/*,video/mp4,video/quicktime"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                onChange={actions.addMedia}
+                                multiple
+                            />
+                            <button 
+                                type="button" 
+                                className="secondary outline" 
+                                style={{ marginRight: '5px', padding: '0.3rem' }} 
+                                disabled={isMaxReached} 
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                추가
+                            </button>
+                        </div>
                         <button 
                             type="button" 
                             className="secondary outline" 
-                            style={{ marginRight: '5px', padding: '0.3rem' }} 
+                            style={{ padding: '0.3rem' }} 
                             disabled={isMaxReached} 
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={uiActions.openWebcamModal}
                         >
-                            추가
+                            카메라
                         </button>
                     </div>
-                    <button 
-                        type="button" 
-                        className="secondary outline" 
-                        style={{ padding: '0.3rem' }} 
-                        disabled={isMaxReached} 
-                        onClick={uiActions.openWebcamModal}
-                    >
-                        카메라
-                    </button>
-                </div>
+                )}
             </div>
 
             {/* 메인 미리보기 화면 */}
@@ -138,14 +148,16 @@ export default function PostMediaUploader() {
                                 alt="미리보기"
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
-                            <button
-                                type="button"
-                                className="secondary"
-                                style={{ position: 'absolute', top: '10px', right: '10px', padding: '0.2rem 0.5rem', fontSize: '0.8rem', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '4px' }}
-                                onClick={uiActions.openCropModal}
-                            >
-                                편집
-                            </button>
+                            {!isEdit && (
+                                <button
+                                    type="button"
+                                    className="secondary"
+                                    style={{ position: 'absolute', top: '10px', right: '10px', padding: '0.2rem 0.5rem', fontSize: '0.8rem', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '4px' }}
+                                    onClick={uiActions.openCropModal}
+                                >
+                                    편집
+                                </button>
+                            )}
                         </div>
                     )
                 ) : (
@@ -190,15 +202,17 @@ export default function PostMediaUploader() {
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />
                                     )}
-                                    <button
-                                        type="button"
-                                        className="close"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onRemoveMedia(index);
-                                        }}
-                                        style={{ position: 'absolute', top: '5px', right: '5px' }}
-                                    />                                
+                                    {!isEdit && (
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRemoveMedia(index);
+                                            }}
+                                            style={{ position: 'absolute', top: '5px', right: '5px' }}
+                                        />   
+                                    )}                    
                                 </>
                             ) : (
                                 <span></span>

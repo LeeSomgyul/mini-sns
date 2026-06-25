@@ -56,7 +56,10 @@ export const FeedList = () => {
         <section style={{ position: 'relative', maxWidth: '600px', margin: '0 auto', paddingTop: '3rem' }}>
             {/* 조립된 FeedCard 배치 */}
             {allPosts.map((post) => (
-                <FeedCard key={post.postId} post={post}/>
+                <FeedCard
+                    key={post.postId}
+                    post={post}
+                />
             ))}
 
             {/* 무한 스크롤 바닥 센서 */}

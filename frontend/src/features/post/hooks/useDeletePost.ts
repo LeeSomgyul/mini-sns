@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postApi } from "../api/postApi";
 import toast from 'react-hot-toast';
 import type { PostDto } from "../../feed/types/feedResponseType";
+import { FEED_KEYS } from "../../../constants/queryKey";
 
 export interface FeedResponse {
     posts: PostDto[];
@@ -17,12 +18,12 @@ export const useDeletePost = () => {
         
         // postId: 제거 대상 id
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['feeds'] });
+            queryClient.invalidateQueries({ queryKey: FEED_KEYS.all });
             toast.success("게시물이 성공적으로 삭제되었습니다.");
         },
         onError: (error) => {
             console.error('게시물 삭제 실패: ', error);
-            queryClient.invalidateQueries({queryKey: ['feeds']});
+            queryClient.invalidateQueries({queryKey: FEED_KEYS.all});
         }
     });
 };

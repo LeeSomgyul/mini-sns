@@ -1,13 +1,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { FeedResponse } from "../types/feedResponseType";
 import { feedApi } from "../api/feedApi";
+import { FEED_KEYS } from "../../../constants/queryKey";
 
 //[무한스크롤]
 //🚨Error 반환은 구체적으로 수정하기🚨
 export const useFeedInfiniteQuery = (size: number = 20) => {
     return useInfiniteQuery<FeedResponse, Error>({
         // 1.key 단위로 데이터 캐싱
-        queryKey: ["feeds", size],
+        queryKey: FEED_KEYS.lists(),
 
         // 2.api 호출하여 데이터 가져오기
         queryFn: async({pageParam = null, signal}) => {

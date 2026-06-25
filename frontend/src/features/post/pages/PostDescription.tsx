@@ -3,9 +3,14 @@ import { useAutoResize } from '../hooks/useAutoResize';
 import type { PostFormValues } from '../schemas/postSchema';
 import type React from 'react';
 
-export default function PostDescription() {
+interface PostDescriptionProps{
+    mode: 'create' | 'edit';
+    disabled?: boolean;
+}
 
-    const { control } = useFormContext<PostFormValues>();
+export default function PostDescription({mode, disabled}: PostDescriptionProps) {
+
+    const { control, formState:{isSubmitting} } = useFormContext<PostFormValues>();
 
     //현재 값 감지
     const watchedContent = useWatch({
@@ -15,6 +20,9 @@ export default function PostDescription() {
     });
 
     const autoResizeRef = useAutoResize(watchedContent, 500);
+
+    // 초기 로딩중 or 저장 중일 시 textarea 잠금
+    const isInputDisabled = disabled || isSubmitting;
 
     return (
         <Controller
@@ -56,6 +64,7 @@ export default function PostDescription() {
                                     autoResizeRef.current = node;
                                 }
                             }}
+                            disabled = {isInputDisabled}
                         />
                 </div>
                 )

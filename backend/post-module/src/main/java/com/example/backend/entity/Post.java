@@ -99,4 +99,10 @@ public class Post {
     public boolean isDeleted(){
         return this.status == PostStatus.DELETED;
     }
+
+    // 게시물의 게시글 업데이트 메서드
+    public void updateContent(String content){
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

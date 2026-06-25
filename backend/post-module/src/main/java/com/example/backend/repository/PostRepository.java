@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository  extends JpaRepository<Post, Long> {
 
@@ -37,7 +38,11 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
     @Query(value = "DELETE FROM posts WHERE id IN (:postIds)", nativeQuery = true)
     void hardDeleteByIdIn(@Param("postIds") List<Long> postIds);
 
-
+    // 게시물 존재 확인
+    @Query("select p from Post p " +
+            "left join fetch p.mediaList " +
+            "where p.id = :postId and p.status != 'DELETED'")
+    Optional<Post> findByPostWithMedia(@Param("postId") Long postId);
 
 
 //🔥카프카 연동 후 수정

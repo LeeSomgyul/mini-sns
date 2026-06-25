@@ -1,3 +1,4 @@
+import { FEED_KEYS } from "../../../constants/queryKey";
 import { NotificationBanner } from "../../notification/components/NotificationBanner";
 import { useNewFeedNotification } from "../../notification/hooks/useNewFeedNotification";
 import { FeedList } from "../components/FeedList";
@@ -24,7 +25,7 @@ export const FeedPage = ({onRefreshScroll}: FeedPageProps) => {
 
         //캐시 파괴 및 새로고침
         await queryClient.invalidateQueries({
-            queryKey: ["feeds", 20],
+            queryKey: FEED_KEYS.lists(20),
         });        
     }
 
