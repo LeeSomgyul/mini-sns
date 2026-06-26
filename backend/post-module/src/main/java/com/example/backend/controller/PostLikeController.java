@@ -1,11 +1,12 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.ApiResponse;
-import com.example.backend.dto.PostLikeRequest;
+import com.example.backend.jwt.JwtUser;
 import com.example.backend.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +20,9 @@ public class PostLikeController {
     @PostMapping("/{postId}/likes")
     public ResponseEntity<ApiResponse<Void>> addLike(
             @PathVariable Long postId,
-            @RequestBody PostLikeRequest request
-    ){
-        postLikeService.addLike(postId, request);
+            @AuthenticationPrincipal JwtUser jwtUser
+            ){
+        postLikeService.addLike(postId, jwtUser.userId());
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -32,9 +33,9 @@ public class PostLikeController {
     @DeleteMapping("/{postId}/likes")
     public ResponseEntity<ApiResponse<Void>> cancelLike(
             @PathVariable Long postId,
-            @RequestBody PostLikeRequest request
+            @AuthenticationPrincipal JwtUser jwtUser
     ){
-        postLikeService.cancelLike(postId, request);
+        postLikeService.cancelLike(postId, jwtUser.userId());
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)

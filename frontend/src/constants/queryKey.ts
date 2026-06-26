@@ -10,7 +10,7 @@ export const AUTH_KEYS = {
 export const FEED_KEYS = {
     all: ['feeds'] as const,
 
-    // 무한 스크롤 및 목록 조회
+    // 목록 조회 및 무한 스크롤
     lists: (size?: number) => (size 
         ? [...FEED_KEYS.all, 'list', {size}] as const
         : [...FEED_KEYS.all, 'list'] as const
