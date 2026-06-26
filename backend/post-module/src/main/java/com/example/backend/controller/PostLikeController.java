@@ -15,15 +15,29 @@ public class PostLikeController {
 
     private final PostLikeService postLikeService;
 
+    // 1. 좋아요 등록
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponse<Void>> toggleLike(
+    public ResponseEntity<ApiResponse<Void>> addLike(
             @PathVariable Long postId,
             @RequestBody PostLikeRequest request
     ){
-        postLikeService.toggleLike(postId, request);
+        postLikeService.addLike(postId, request);
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("게시물 좋아요 비동기 처리 완료", null));
+                .status(HttpStatus.ACCEPTED)
+                .body(ApiResponse.success("게시물 좋아요 등록 완료", null));
+    }
+
+    // 2. 좋아요 취소
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<ApiResponse<Void>> cancelLike(
+            @PathVariable Long postId,
+            @RequestBody PostLikeRequest request
+    ){
+        postLikeService.cancelLike(postId, request);
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(ApiResponse.success("게시물 좋아요 취소 완료", null));
     }
 }

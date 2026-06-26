@@ -21,10 +21,10 @@ public class PostLikePublisher {
                 .whenComplete((result, ex) -> {
                     if(ex == null){
                         log.info("[PostLike 이벤트] 카프카 메시지 발행 성공: Topic: {}, PostId: {}, UserId: {}",
-                                KafkaTopics.FEED_POST_CREATED_TOPIC, event.postId(),event.userId());
+                                KafkaTopics.POST_LIKE_TOPIC, event.postId(),event.userId());
                     }else{
                         log.error("[PostLike 이벤트] 카프카 메시지 발행 실패: Topic: {}, PostId: {}, UserId: {}",
-                                KafkaTopics.FEED_POST_CREATED_TOPIC, event.postId(),event.userId());
+                                KafkaTopics.POST_LIKE_TOPIC, event.postId(),event.userId());
                     }
                 });
     }

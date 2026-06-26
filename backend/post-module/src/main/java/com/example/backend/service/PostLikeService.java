@@ -14,15 +14,15 @@ public class PostLikeService {
 
     private final PostLikePublisher postLikePublisher;
 
-    public void toggleLike(Long postId, PostLikeRequest request){
-        // 1. 카프카 이벤트 메시지 전송
-        PostLikeEvent event = PostLikeEvent.of(postId, request.userId(), request.isLiked());
-
-        // 2. 퍼블리셔로 카프카 메시지 발송
+    // 1. 좋아요 등록
+    public void addLike(Long postId, PostLikeRequest request){
+        PostLikeEvent event = PostLikeEvent.of(postId, request.userId(), true);
         postLikePublisher.publisher(event);
+    }
 
-        log.debug("[PostLikeService] 카프카 퍼플리셔 메시지 발송: postId {}, userId {}",
-                postId, request.userId()
-        );
+    // 2. 좋아요 취소
+    public void cancelLike(Long postId, PostLikeRequest request){
+        PostLikeEvent event = PostLikeEvent.of(postId, request.userId(), false);
+        postLikePublisher.publisher(event);
     }
 }

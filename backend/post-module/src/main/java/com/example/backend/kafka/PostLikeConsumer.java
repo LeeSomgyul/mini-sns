@@ -33,8 +33,14 @@ public class PostLikeConsumer {
         log.info("[Kafka Consumer] 게시물 좋아요 이벤트 수신 - postId: {}, userId: {}", event.postId(), event.userId());
 
         // 1. 게시물 존재 여부 확인
-        Post post = postRepository.findById(event.postId())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
+        Optional<Post> postOpt = postRepository.findById(event.postId());
+
+        if(postOpt.isEmpty()){
+            log.warn("이미 삭제된 게시물입니다. postId: {}", event.postId());
+            return;
+        }
+
+        Post post = postOpt.get();
 
         // 2. 현재 사용자가 이미 게시물에 좋아요를 눌렀는지 확인 후 PostLike 데이터 가져오기
         // - 좋아요 눌렀으면 데이터 가져오고, 좋아요 안눌렀으면 데이터 비어있는 상태로 가져옴
