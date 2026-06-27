@@ -26,7 +26,12 @@ export const FeedCard = ({post}: FeedCardProps) => {
                 isAuthor={isAuthor}
             />
             <FeedMedia mediaList={post.media}/>
-            <FeedActions likeCount={post.likeCount} commentCount={post.commentCount}/>
+            <FeedActions 
+                postId={post.postId}
+                isLiked={post.isLiked}
+                likeCount={post.likeCount}
+                commentCount={post.commentCount}
+            />
             <FeedContent content={post.content}/>
         </article>
     );

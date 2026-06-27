@@ -24,8 +24,10 @@ export const LikeButton = ({postId, likeCount, isLiked}: LikeButtonProps) => {
     return(
         <button
             onClick={handleLikeToggle}
+            disabled={isPending} // API 요청 중 버튼 비활성화
+            style={{ padding: '0.4rem 0.8rem', cursor: isPending ? 'not-allowed' : 'pointer' }}
         >
-
+            {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
         </button>
     );
 };

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { FEED_KEYS } from "../../../constants/queryKey";
 import type { FeedResponse } from "../../feed/types/feedResponseType";
 import { postApi } from "../api/postApi";
@@ -22,7 +22,7 @@ export const usePostLikeMutation = () => {
             const previousFeed = queryClient.getQueryData<FeedResponse>(FEED_KEYS.lists());
 
             // 캐시 데이터 수동 업데이트
-            queryClient.setQueryData<FeedResponse>(FEED_KEYS.lists(), (oldData) => 
+            queryClient.setQueryData<InfiniteData<FeedResponse>>(FEED_KEYS.lists(), (oldData) => 
                 updateFeedCache(oldData, postId, isCurrentlyLiked)
             );
 
@@ -50,26 +50,42 @@ export const usePostLikeMutation = () => {
 //   캐시 데이터 업데이트 메서드
 //================================
 const updateFeedCache = (
-    oldData: FeedResponse | undefined,
+    oldData: InfiniteData<FeedResponse> | undefined,
     postId: number,
     isCurrentlyLiked: boolean
-): FeedResponse | undefined => {
+): InfiniteData<FeedResponse> | undefined => {
     
     // 1. 업데이트 된 내용이 없다면 기존 데이터 그대로 리턴
-    if(!oldData?.posts) return oldData;
+    if(!oldData?.pages) return oldData;
 
     // 2. 업데이트 된 내용 있다면 캐시 업데이트
-    const updateList = oldData.posts.map((post) => {
-        if(post.postId !== postId) return post;
+    const updatePages = oldData.pages.map((page) => {
+        // 각 페이지(무한스크롤) 내부의 posts 배열이 비어있으면 해당 페이지는 스킵
+        if(!page.posts) return page;
 
-        return{
-            ...post,
-            isLiked: !isCurrentlyLiked,
-            likeCount: isCurrentlyLiked 
-                ? Math.max(0, post.likeCount - 1)
-                : post.likeCount + 1
-        };
-    })
+        // 무한스크롤 페이지 내부의 posts 꺼내기
+        const updatedPosts = page.posts.map((post) => {
+            if(post.postId !== postId) return post;
 
-    return {...oldData, posts: updateList}
+            const currentCount = post.likeCount ?? 0;
+
+            return{
+                ...post,
+                isLiked: !isCurrentlyLiked,
+                likeCount: isCurrentlyLiked 
+                    ? Math.max(0, currentCount - 1)
+                    : currentCount + 1
+            };
+        });
+
+        return {
+            ...page,
+            posts: updatedPosts
+        }
+    });
+
+    return {
+        ...oldData,
+        pages: updatePages
+    }
 }

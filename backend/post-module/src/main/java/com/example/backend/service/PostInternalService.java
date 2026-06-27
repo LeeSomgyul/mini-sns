@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.dto.PostInternalDto;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.UserCache;
+import com.example.backend.repository.PostLikeRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserCacheRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.List;
 public class PostInternalService {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserCacheRepository userCacheRepository;
 
     // [feed 모듈이 요청한 대로 응답] post 모듈의 PostInternalClient와 연결
@@ -25,10 +27,11 @@ public class PostInternalService {
             return List.of();
         }
 
+        // 1. 피드 게시물로 띄울 게시글들 한꺼번에 조회
         List<Post> posts = postRepository.findPostsWithAuthorAndMediaByIdIn(postIds);
 
-        //🚨좋아요 기능 완료 후 연동🚨
-        // 해당 게시글에 로그인한 사용자 (feed 모듈에서 요청 보낸 user)가 좋아요 눌렀는지
+        // 2. 로그인한 유저가 게시물 중 실제 좋아요 누른 1페이지(20개) 게시물의 id 가져오기
+        List<Long> likedPostIds = postLikeRepository.findLikedPostIdsByUserId(currentUserId, postIds);
 
         return posts.stream()
                 .map(post -> {
@@ -36,7 +39,7 @@ public class PostInternalService {
                     UserCache userCache = userCacheRepository.findById(authorId)
                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저 캐시입니다. id=" + authorId));
 
-                    boolean isLiked = false; //🚨좋아요 기능 완료 후 수정. 지금은 일단 false🚨
+                    boolean isLiked = likedPostIds.contains(post.getId());
 
                     return PostInternalDto.from(userCache, post, currentUserId, isLiked);
                 }).toList();
