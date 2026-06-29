@@ -1,35 +1,42 @@
-import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { reissueTokenApi } from '../api/reissueTokenApi';
-import { AUTH_KEYS } from '../../../constants/queryKey';
+import { useEffect, useRef, useState } from 'react';
 
-// 새로고침 시 토큰 자동 발급
+// [토큰 없음 수동 방어]
+// 앱이 처음 켜질 때(새로고침), 가장 먼저 딱 1번 인증 환경을 깔끔하게 세팅해 주는 역할.
 export const useTokenRefresh = () => {
-   
-    const { accessToken, setAccessToken, logout } = useAuthStore();
+    const {setAccessToken, logout } = useAuthStore();
+    const [isLoading, setIsLoading] = useState(true);
+    const hasInitialized = useRef(false);
 
-    return useQuery({
-        queryKey: AUTH_KEYS.reissue(),
-        
-        queryFn: async () => {
-            try {
-                const data = await reissueTokenApi.reissueToken();
-                setAccessToken(data.accessToken); 
-                return data.accessToken;
-            } catch (error) {
-                logout();
-                throw error; 
+    useEffect(() => {
+        // 이미 실행 중이라면 중복 실행 차단
+        if(hasInitialized.current) return;
+        hasInitialized.current = false;
+
+        const initAuth = async () => {
+            // 1. 토큰 가져오기
+            const currentToken = useAuthStore.getState().accessToken;
+
+            // 2. 이미 메모리(Zustand)에 accessToken이 있다면 토큰 재발급X 및 로딩 종료
+            if(currentToken){
+                setIsLoading(false);
+                return;
             }
-        },
-        
-        // 위 api 요청은 accessToken이 비어있을때만 실행
-        enabled: !accessToken, 
-        // 재실행 안함
-        retry: false, 
-        
-        // 브라우저 창 탭 이동 시 불필요한 재요청 방지 
-        refetchOnWindowFocus: false, 
-        
-        gcTime: 0,
-    });
+
+            // 3. accessTokne이 없다면 refreshToken 사용해서 토큰 재발급 시도
+            try{
+                const data = await reissueTokenApi.reissueToken();
+                setAccessToken(data.accessToken);
+            }catch(error){
+                logout();
+            }finally{
+                setIsLoading(false);
+            }
+        };
+
+        initAuth();
+    },[setAccessToken, logout]);
+
+    return {isLoading};
 };
