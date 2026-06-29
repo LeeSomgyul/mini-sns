@@ -103,5 +103,21 @@ export const postApi = {
             data
         );
         return response.data;
-    }
+    },
+
+    // 11. 게시물 좋아요 등록 및 취소
+    toggleLike: async(postId: number, isCurrentlyLiked: boolean): Promise<null> => {
+        if(isCurrentlyLiked){
+            // 이미 좋아요가 등록된 상태라면 -> 취소 요청
+            const response = await api.delete<ApiResponse<null>>(
+                `/api/v1/posts/${postId}/likes`
+            );
+            return response.data.data;
+        }else{
+            const response = await api.post<ApiResponse<null>>(
+                `/api/v1/posts/${postId}/likes`
+            );
+            return response.data.data;
+        }
+    },
 };

@@ -22,4 +22,6 @@ public final class KafkaTopics {
     // 5. 유저 프로필 변경(가입, 수정 탈퇴) 이벤트 토픽
     public static final String USER_ACCOUNT_UPDATED_TOPIC = "user.account.updated";
 
+    // 6. post 모듈: 게시물 좋아요 토픽
+    public static final String POST_LIKE_TOPIC = "post.like.toggled";
 }

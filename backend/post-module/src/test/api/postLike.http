@@ -1,0 +1,25 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMSIsIm5pY2tuYW1lIjoi7L6M7Zmc7ZWc6rOwIiwiaWF0IjoxNzgyNDM2MTM0LCJleHAiOjE3ODI0Mzc5MzR9.97qJ5zPub3fQWiPdRscqzUc-zC8rib_-fwHOKzzOPfkyTLyTSZO8heMCP4jSRHr_
+@postId = 39
+@userId = 11
+
+### 1. 게시물 좋아요 등록
+POST {{baseUrl}}/posts/{{postId}}/likes
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "userId": {{userId}}
+}
+
+
+
+### 2. 게시물 좋아요 취소
+DELETE {{baseUrl}}/posts/{{postId}}/likes
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "userId": {{userId}}
+}

@@ -14,8 +14,8 @@ public record PostInternalDto(
         Author author,
         String content,
         List<Media> media,
-        int commentCount,
-        int likeCount,
+        long commentCount,
+        long likeCount,
         boolean isLiked,
         boolean isAuthor,
         LocalDateTime createdAt

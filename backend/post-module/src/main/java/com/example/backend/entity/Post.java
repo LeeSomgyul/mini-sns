@@ -42,10 +42,10 @@ public class Post {
     private String thumbnailUrl;
 
     @Column(name = "comment_count", nullable = false)
-    private int commentCount = 0;
+    private long commentCount = 0;
 
     @Column(name = "like_count", nullable = false)
-    private int likeCount = 0;
+    private long likeCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -104,5 +104,17 @@ public class Post {
     public void updateContent(String content){
         this.content = content;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // 좋아요 증가 메서드
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+
+    // 좋아요 감소 메서드
+    public void decreaseLikeCount(){
+        if(this.likeCount > 0){
+            this.likeCount--;
+        }
     }
 }
