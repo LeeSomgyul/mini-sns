@@ -24,4 +24,10 @@ public final class KafkaTopics {
 
     // 6. post 모듈: 게시물 좋아요 토픽
     public static final String POST_LIKE_TOPIC = "post.like.toggled";
+
+    // 7-1. 팔로우 추가(친구 추가) 시 팔로우 갯수 갱신을 위한 이벤트 토픽
+    public static final String USER_FOLLOW_COUNT_UPDATED_TOPIC = "user.follow.count.updated";
+
+    // 7-2. 게시물 추가 시 게시물 갯수 갱신을 위한 이벤트 토픽
+    public static final String POST_COUNT_UPDATED_TOPIC = "post.count.updated";
 }

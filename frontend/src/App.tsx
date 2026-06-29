@@ -39,12 +39,12 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const { isLoading } = useTokenRefresh();
+  // const { isLoading } = useTokenRefresh();
 
-  //토큰 재발급 기다리는 동안
-  if(isLoading){
-    return <div>로그인 정보를 확인 중입니다...</div>;
-  }
+  // //토큰 재발급 기다리는 동안
+  // if(isLoading){
+  //   return <div>로그인 정보를 확인 중입니다...</div>;
+  // }
 
   return (
     <>

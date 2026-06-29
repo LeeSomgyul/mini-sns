@@ -50,6 +50,7 @@ public class PostService {
     private final PostMediaRepository postMediaRepository;
     private final PostTagRepository postTagRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final PostCountUpdatedPublisher postCountUpdatedPublisher;
 
 
     // [게시물 등록]
@@ -202,6 +203,15 @@ public class PostService {
                     .build();
             notificationFeedPublisher.publish(notificationFeedEvent);
         }
+
+        //[카프카 이벤트 전송] PostCountUpdatedEvent
+        // - profile의 작성한 게시물 개수 갱신을 위한 이벤트
+        PostCountUpdatedEvent postCountUpdatedEvent = PostCountUpdatedEvent.builder()
+                .userId(authorId)
+                .postId(post.getId())
+                .build();
+        postCountUpdatedPublisher.publisher(postCountUpdatedEvent);
+
 
         return PostResponse.of(post, authorId);
     }

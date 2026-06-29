@@ -6,6 +6,7 @@ public final class KafkaGroupId {
     private KafkaGroupId(){}
 
     public static final String GROUP_USER_SEARCH = "minisns-user-search-es";
+    public static final String GROUP_USER_PROFILE = "minisns-user-profile";
 
     public static final String GROUP_POST_MEDIA_COMPLETED = "minisis-post-media-completed";
     public static final String GROUP_POST_CREATE = "minisns-post-create";
