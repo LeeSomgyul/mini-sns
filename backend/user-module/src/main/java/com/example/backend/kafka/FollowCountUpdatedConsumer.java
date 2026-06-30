@@ -38,7 +38,7 @@ public class FollowCountUpdatedConsumer {
             groupId = KafkaGroupId.GROUP_USER_PROFILE,
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consumeFollowCountUpdated(FollowCountUpdatedEvent event){
+    public void consume(FollowCountUpdatedEvent event){
         Long followerId = event.followerId(); // 팔로우를 한 사람 (나)
         Long followeeId = event.followeeId(); // 팔로우를 받은 사람 (상대방)
 

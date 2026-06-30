@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class PostService {
 
-    private final FeedPushEventPublisher feedPushEventPublisher;
+    private final PostCreatedPublisher postCreatedPublisher;
     private final NotificationFeedPublisher notificationFeedPublisher;
     private final PostDeletedPublisher postDeletedPublisher;
     private final MediaEventPublisher mediaEventPublisher;
@@ -50,7 +50,6 @@ public class PostService {
     private final PostMediaRepository postMediaRepository;
     private final PostTagRepository postTagRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final PostCountUpdatedPublisher postCountUpdatedPublisher;
 
 
     // [게시물 등록]
@@ -181,11 +180,8 @@ public class PostService {
         }
 
         //[Feed Kafka publisher] FeedPushEvent 전송
-        FeedPushEvent feedPushEvent = FeedPushEvent.builder()
-                .postId(post.getId())
-                .authorId(authorId)
-                .build();
-        feedPushEventPublisher.publishPushEvent(feedPushEvent);
+        PostCreatedEvent postCreatedEvent = PostCreatedEvent.of(post.getId(), authorId);
+        postCreatedPublisher.publish(postCreatedEvent);
 
         //[Notifation feed Kafka publisher] NotificationEvent 전송
         // 1. 알림 받아야 하는 대상 id 목록
@@ -203,15 +199,6 @@ public class PostService {
                     .build();
             notificationFeedPublisher.publish(notificationFeedEvent);
         }
-
-        //[카프카 이벤트 전송] PostCountUpdatedEvent
-        // - profile의 작성한 게시물 개수 갱신을 위한 이벤트
-        PostCountUpdatedEvent postCountUpdatedEvent = PostCountUpdatedEvent.builder()
-                .userId(authorId)
-                .postId(post.getId())
-                .build();
-        postCountUpdatedPublisher.publisher(postCountUpdatedEvent);
-
 
         return PostResponse.of(post, authorId);
     }

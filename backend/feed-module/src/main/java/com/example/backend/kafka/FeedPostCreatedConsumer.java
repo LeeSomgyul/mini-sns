@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FeedPushEventConsumer {
+public class FeedPostCreatedConsumer {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final FeedTargetConnection feedTargetConnection;
@@ -36,11 +36,11 @@ public class FeedPushEventConsumer {
     */
 
     @KafkaListener(
-            topics = KafkaTopics.FEED_POST_CREATED_TOPIC,
-            groupId = KafkaGroupId.GROUP_POST_CREATE,
+            topics = KafkaTopics.POST_CREATED_TOPIC,
+            groupId = KafkaGroupId.GROUP_FEED_POST_CREATE,
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void savePushPostIds(FeedPushEvent event){
+    public void savePushPostIds(FeedPostCreatedEvent event){
 
         // 1. [DB 저장] 웜업을 위해 저장
         FeedPostIndexCache feedPostIndexCache = FeedPostIndexCache.builder()

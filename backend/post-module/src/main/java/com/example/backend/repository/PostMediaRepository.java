@@ -1,6 +1,7 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.PostMedia;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,13 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long> {
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM post_media WHERE post_id IN (:postIds)", nativeQuery = true)
     void hardDeleteByPostIdIn(@Param("postIds") List<Long> postIds);
+
+    // userId로, sortOrder가 0번째인 게시물에 대한 게시물 생성일 최신순으로 가져오기
+    @Query("""
+        SELECT pm
+        FROM PostMedia pm JOIN pm.post p
+        WHERE p.authorId = :userId AND pm.sortOrder = 0
+        ORDER BY p.createdAt DESC
+    """)
+    List<PostMedia> findTopMediaByUserId(@Param("userId") Long userId, Pageable pageable);
 }
