@@ -136,6 +136,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
     }
 
+    // 429 Too Many Requests: 레디스의 lock 순서 받기 위한 시간 5초 초과
+    @ExceptionHandler(RedisLockTimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleRedisLockTimeoutException(RedisLockTimeoutException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status("error")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
+    }
+
     //500 Server Error 에러 처리 (메일 발송 실패)
     @ExceptionHandler(EmailSendFailureException.class)
     public ResponseEntity<ErrorResponse> handleEmailSendFailureException(EmailSendFailureException ex){
