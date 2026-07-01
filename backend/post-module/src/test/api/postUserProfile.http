@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODI4NjkxNjgsImV4cCI6MTc4Mjg3MDk2OH0.DRIO_fZD_0OCkAuHtypRxkVlAWWrlvAq519GJ7BpJTjAFYQrPnnxugRx-B4k1LtI
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODI4ODczODIsImV4cCI6MTc4Mjg4OTE4Mn0.Y13Q3GtGFzdsX65F-h9gImPNPvEuqquY8W6mMZQpt_gmJLxdSLVVDWgnciHDpkaM
 @userId = 1
 
 ### 1. Post 모듈 프로필 조회

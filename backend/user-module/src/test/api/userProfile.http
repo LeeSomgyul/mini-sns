@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODI4NjgzNDAsImV4cCI6MTc4Mjg3MDE0MH0.i7cxU0onsIddYiS_xr14CTdddIyGCAY0AZ-8l8Lx1BokkfzeJbQ2utvmddZRQHbg
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODI4ODQ2NjIsImV4cCI6MTc4Mjg4NjQ2Mn0.tFqLirz9l8vaGuMovEzhjiiEtmt9xEAYyGEbDFnV7XxPD70YDXjcBga0GTrLOdKz
 @userId = 4
 
 ### 1. User 모듈 프로필 조회

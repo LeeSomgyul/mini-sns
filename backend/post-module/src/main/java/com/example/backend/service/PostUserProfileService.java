@@ -3,9 +3,11 @@ package com.example.backend.service;
 import com.example.backend.config.PostRedisKeyManager;
 import com.example.backend.dto.PostUserProfileResponse;
 import com.example.backend.entity.PostMedia;
+import com.example.backend.exception.NotFoundException;
 import com.example.backend.exception.RedisLockTimeoutException;
 import com.example.backend.repository.PostMediaRepository;
 import com.example.backend.repository.PostRepository;
+import com.example.backend.repository.UserCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -28,6 +30,7 @@ public class PostUserProfileService {
 
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
+    private final UserCacheRepository userCacheRepository;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
@@ -37,6 +40,10 @@ public class PostUserProfileService {
     // [메인 로직] 화면에 보여줄 프로필 전체 정보 조립
     // - userId: 가져올 프로필 대상
     public PostUserProfileResponse getPostUserProfile(Long userId){
+
+        userCacheRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
         // 1. 게시물 수 캐시 조회 (분산 락)
         long postCount = getPostCountWithLock(userId);
 
