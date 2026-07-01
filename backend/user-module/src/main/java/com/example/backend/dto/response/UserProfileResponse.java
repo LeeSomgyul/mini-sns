@@ -9,7 +9,7 @@ public record UserProfileResponse(
         String profileImageUrl,
         long followerCount,
         long followingCount,
-        boolean isFollowing,
+        Boolean isFollowing,
         boolean isMe,
         long mutualFollowerCount, // 나와 함께 아는 친구의 총 인원 수
         String representativeMutualNickname // 대표 친구 1명 닉네임 (없으면 null)
@@ -18,7 +18,7 @@ public record UserProfileResponse(
         User user,
         long followerCount,
         long followingCount,
-        boolean isFollowing,
+        Boolean isFollowing,
         boolean isMe,
         long mutualFollowerCount,
         String representativeMutualNickname

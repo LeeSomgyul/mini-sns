@@ -22,7 +22,7 @@ public class JwtTokenProvider {
     private final SecretKey key;
 
     //키 만료 시간
-    private static final long accessTokenValidity = 1000L * 10; //30분
+    private static final long accessTokenValidity = 1000L * 60 * 30; //30분
     private static final long refreshTokenValidity = 1000L * 60 * 60 * 24 * 7; //7일
 
     // JWT ROLE

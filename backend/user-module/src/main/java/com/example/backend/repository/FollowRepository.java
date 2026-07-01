@@ -2,6 +2,8 @@ package com.example.backend.repository;
 
 import com.example.backend.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -17,8 +19,10 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 
     // 내가 팔로우하는 사람들의 id 목록 조회
-    List<Long> findFolloweeIdsByFollowerId(Long followerId);
+    @Query("SELECT f.followeeId FROM Follow f WHERE f.followerId = :followerId")
+    List<Long> findFolloweeIdsByFollowerId(@Param("followerId") Long followerId);
 
     // 나를 팔로우하는 사람들의 id 목록 조회
-    List<Long> findFollowerIdsByFollowerId(Long followeeId);
+    @Query("SELECT f.followerId FROM Follow f WHERE f.followeeId = :followeeId")
+    List<Long> findFollowerIdsByFolloweeId(@Param("followeeId") Long followeeId);
 }

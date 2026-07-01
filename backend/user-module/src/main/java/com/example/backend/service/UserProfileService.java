@@ -84,6 +84,11 @@ public class UserProfileService {
             }
         }
 
+        // [방어] Boolean 타입과 boolean 타입 불일치 문제 막기
+        if(isFollowing == null){
+            isFollowing = false;
+        }
+
         return UserProfileResponse.from(
                 user, followerCount, followingCount,
                 isFollowing, isMe,
@@ -128,11 +133,11 @@ public class UserProfileService {
             if(cachedValue != null) return Long.parseLong(cachedValue);
 
             // 6. 진짜 레디스 값이 없다면 DB에 진입하여 가져오기
-            long countFromDB = 0L;
-            switch (type) {
+            long countFromDB = switch (type) {
                 case FOLLOWER_COUNT -> followRepository.countByFolloweeId(userId);
                 case FOLLOWING_COUNT -> followRepository.countByFollowerId(userId);
-            }
+                default -> 0L;
+            };
 
             // 7. 레디스 저장
             stringRedisTemplate.opsForValue().set(redisKey, String.valueOf(countFromDB));
@@ -151,15 +156,15 @@ public class UserProfileService {
     }
 
     // [함께 아는 친구 데이터를 Redis에서 가져오는 메서드 + 락]
-    private void warmUpSetWithLock(FollowCountUpdatedConsumer.RedisKeyType type, Long userId, boolean isFollowingSet){
+    private void warmUpSetWithLock(FollowCountUpdatedConsumer.RedisKeyType type, Long userId, Boolean isFollowingSet){
         // 1. 레디스 키 조립
         String redisKey = FollowCountUpdatedConsumer.generateKey(type, userId);
 
         // 2. 레디스 캐시에 데이터 있는지 우선 확인
         // - 캐시가 있으면: 레디스 캐시에 있는 데이터 반환
         // - 캐시가 없으면: 레디스 분산 락 실행
-        String cachedValue = stringRedisTemplate.opsForValue().get(redisKey);
-        if(cachedValue != null) return;
+        Boolean hasKey = stringRedisTemplate.hasKey(redisKey);
+        if(Boolean.TRUE.equals(hasKey)) return;
 
         // 3. 레디스 캐시가 비어있다면, 해당 키 전용 좌물쇠 준비
         String lockKey = "lock:" + redisKey;
@@ -179,14 +184,14 @@ public class UserProfileService {
             // 5. 다른 스레드의 결과를 보고 더블 체크
             // - 이제 내 차례가 되서 DB로 들어가기 전에, 이전 스레드들이 내가 필요한 값을 DB에서 가져왔는지 확인
             // - 만약 이전에 DB에 들어갔다 나온 스레드가 채워놓았으면 DB 진입 안하고 바로 리턴
-            cachedValue = stringRedisTemplate.opsForValue().get(redisKey);
-            if(cachedValue != null) return;
+            hasKey = stringRedisTemplate.hasKey(redisKey);
+            if(Boolean.TRUE.equals(hasKey)) return;
 
             // 6. 함께 아는 친구 비즈니스 로직 시작
             // 6-1. 나를 팔로우하는 사람 or 내가 팔로우하는 사람 id 목록 리스트로 모두 가져오기
             List<Long> ids = isFollowingSet
                     ? followRepository.findFolloweeIdsByFollowerId(userId)
-                    : followRepository.findFollowerIdsByFollowerId(userId);
+                    : followRepository.findFollowerIdsByFolloweeId(userId);
 
             if(!ids.isEmpty()){
                 // 6-2. DB에 팔로우 데이터가 존재하면 String 배열로 변환한 뒤, Redis Set에 저장
