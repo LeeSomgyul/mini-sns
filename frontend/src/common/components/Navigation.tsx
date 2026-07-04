@@ -5,6 +5,7 @@ import type { NavItemType, ModalType } from "../../types/navItemType";
 import { ROUTES } from "../../constants/routes";
 import SettingsModal from "./SettingsModal";
 import {PostFormModal} from "../../features/post/pages/PostFormModal";
+import { useAuthStore } from "../../features/auth/store/authStore";
 
 
 const Navigation = () => {
@@ -13,12 +14,13 @@ const Navigation = () => {
     const navigate = useNavigate();
 
     const [activeModal, setActiveModal] = useState<ModalType>(null);//모달 오픈 유무
-    const userId = "userId"; //🚨🚨실제 사용자 id 넣기🚨🚨
+    const { myUserId } = useAuthStore();
+    const currentUserId = myUserId ?? 0;
 
     const NAV_ITEMS: NavItemType[] = [
         {id: 'feed', path: ROUTES.FEED, label: '홈', type: 'link'},
         {id: 'write', path: null, label: '피드 작성', type: 'modal'},
-        {id: 'profile', path: ROUTES.PROFILE(userId), label: '프로필', type: 'link'},
+        {id: 'profile', path: ROUTES.PROFILE.LINK(currentUserId), label: '프로필', type: 'link'},
         {id: 'settings', path: null, label: '설정', type: 'modal'}
     ];
 

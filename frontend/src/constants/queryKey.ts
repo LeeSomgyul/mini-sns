@@ -40,3 +40,18 @@ export const USER_KEYS = {
     search: (keyword: string, type: 'all' | 'friends' = 'all') => 
         [...USER_KEYS.all, 'search', type, keyword] as const,
 };
+
+// [프로필 관련]
+export const PROFILE_KEYS = {
+    all: ['profile'] as const,
+
+    // user 모듈에서 가져오는 기본 유저 정보
+    users: () => [...PROFILE_KEYS.all, 'user'] as const,
+    // 특정 유저의 상세 프로필 키 ['profile', 'user', userId]
+    user: (userId: number) => [...PROFILE_KEYS.users(), userId] as const,
+
+    // post 모듈에서 가져오는 유저 게시물 정보
+    posts: () => [...PROFILE_KEYS.all, 'post'] as const,
+    // 특정 유저의 상세 게시물 프로필 키 ['profile', 'post', userId]
+    post: (userId: number) => [...PROFILE_KEYS.posts(), userId] as const,
+};
