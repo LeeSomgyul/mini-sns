@@ -3,7 +3,9 @@ package com.example.backend.service;
 
 import com.example.backend.client.PostInternalClient;
 import com.example.backend.component.FeedWarmUpComponent;
+import com.example.backend.component.ImgproxyConverterComponent;
 import com.example.backend.connection.FeedTargetConnection;
+import com.example.backend.dto.FeedDetailResponse;
 import com.example.backend.dto.FeedResponse;
 import com.example.backend.dto.PostInternalDto;
 import com.example.backend.repository.FeedPostIndexCacheRepository;
@@ -35,6 +37,7 @@ public class FeedService {
     private final FeedTargetConnection feedTargetConnection;
     private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
     private final PostInternalClient postInternalClient;
+    private final ImgproxyConverterComponent imgproxyConverterComponent;
 
     // REDIS KEY: 사용자들 만의 피드 주소 키
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
@@ -133,7 +136,8 @@ public class FeedService {
         // 1. 미디어 조립
         List<FeedResponse.PostDto.MediaDto> mediaDtos = postInternalDto.media().stream()
                 .map(media -> FeedResponse.PostDto.MediaDto.create(
-                       media.mediaUrl(),
+                        imgproxyConverterComponent,
+                        media.mediaUrl(),
                         media.thumbnailUrl(),
                         media.type(),
                         media.cropState(),
@@ -196,4 +200,5 @@ public class FeedService {
 
         log.info("[Redis 데이터 삭제 성공] feed:timeline: 의 postId {} 데이터가 삭제되었습니다.", postId);
     }
+
 }

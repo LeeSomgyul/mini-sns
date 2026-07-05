@@ -1,9 +1,15 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLquYDshpzqt5zrp4EiLCJpYXQiOjE3ODE3MDU0NTQsImV4cCI6MTc4MTcwNzI1NH0.c_mhrmUi75Vzo8ovp5jUiURYX0vJeaN5uEW648bzcNWnd0m9cn9IqQV5P769X2oN
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODMyNjY5ODYsImV4cCI6MTc4MzI2ODc4Nn0.K7S39UDJ9qud985l-KS5koeq0Zp3Moy6D0jXELRnF96V9Sto378XFsv5hL1v04sM
+@postId = 23
 
 
 ### 1. post 모듈이 요청한 데이터 전달 내부 api
 GET {{baseUrl}}/feed?cursorId=1&size=10
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2. 게시물 단건 조회 
+GET {{baseUrl}}/feed/{{postId}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
