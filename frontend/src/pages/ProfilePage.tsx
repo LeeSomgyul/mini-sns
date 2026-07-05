@@ -57,15 +57,15 @@ export const ProfilePage = () => {
 
     const selectedPost: PostDto | null = (postData && postData.thumbnails.length > 0 && userData)
         ? createVirtualPost(
-            selectedUrl || postData.thumbnails[0], // 클릭한 게 있다면 그걸 쓰고, 없다면 최신순(0번째) 썸네일을 기본 노출
-            selectedUrl ? 99999 : 0 // 클릭 유무에 따른 임시 가상 ID 부여
+            selectedUrl || postData.thumbnails[0], 
+            selectedUrl ? 99999 : 0 
           )
         : null;
     
 
     // [썸네일 클릭 시 변경 핸들러]
     const handleThumbnailSelect = (url: string) => {
-        setSelectedUrl(url); // 클릭한 URL로 업데이트 -> 컴포넌트 리렌더링 유발
+        setSelectedUrl(url);
 
         if (profileScrollRef.current) {
             profileScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });

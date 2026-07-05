@@ -14,13 +14,14 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,24 +40,26 @@ public class PostUserProfileService {
 
     // [메인 로직] 화면에 보여줄 프로필 전체 정보 조립
     // - userId: 가져올 프로필 대상
-    public PostUserProfileResponse getPostUserProfile(Long userId){
+    public PostUserProfileResponse getPostUserProfile(Long userId, int page, int size){
 
         userCacheRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
 
-        // 1. 게시물 수 캐시 조회 (분산 락)
-        long postCount = getPostCountWithLock(userId);
+        // 1-1. 게시물 수 캐시 조회 (분산 락)
+        long totalPostCount = getPostCountWithLock(userId);
+
+        // 1-2. 무한스크롤 페이징 객체 생성
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         // 2. 썸네일 경로 조립
         String baseStorageUrl = minioEndpoint + "/" + minioBucket;
 
         // 3. DB에서 최신 sortOrder = 0인 9개의 썸네일용 미디어 가져오기
-        //🚨무한 스크롤 구현해야함🚨
-        List<PostMedia> topMediaList = postMediaRepository.findTopMediaByUserId(userId, PageRequest.of(0, 9));
+        Slice<PostMedia> mediaSlice = postMediaRepository.findTopMediaByUserId(userId, pageRequest);
 
         // 4. 이미지 or 비디오에 따른 썸네일 추출 경로 확인
         // - 이미지는 url에서, 영상의 썸네일은 thumbnail_url에서 가져와야함
-        List<String> thumbnails = topMediaList.stream()
+        List<String> thumbnails = mediaSlice.getContent().stream()
                 .map(media -> {
                     String targetPath = (media.getMediaType() == PostMedia.MediaType.VIDEO)
                             ? media.getThumbnailUrl()
@@ -68,9 +71,9 @@ public class PostUserProfileService {
                     }
                     return baseStorageUrl + "/" + targetPath;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-        return PostUserProfileResponse.of(postCount, thumbnails);
+        return PostUserProfileResponse.of(totalPostCount, thumbnails, mediaSlice.hasNext());
     }
 
 

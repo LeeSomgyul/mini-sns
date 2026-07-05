@@ -6,10 +6,7 @@ import com.example.backend.service.PostUserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/posts")
@@ -20,9 +17,11 @@ public class PostUserProfileController {
 
     @GetMapping("/users/{userId}/profile")
     public ResponseEntity<ApiResponse<PostUserProfileResponse>> getPostUserProfile(
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ){
-        PostUserProfileResponse response = postUserProfileService.getPostUserProfile(userId);
+        PostUserProfileResponse response = postUserProfileService.getPostUserProfile(userId, page, size);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

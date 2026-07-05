@@ -2,6 +2,7 @@ package com.example.backend.repository;
 
 import com.example.backend.entity.PostMedia;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +31,5 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long> {
         WHERE p.authorId = :userId AND pm.sortOrder = 0
         ORDER BY p.createdAt DESC
     """)
-    List<PostMedia> findTopMediaByUserId(@Param("userId") Long userId, Pageable pageable);
+    Slice<PostMedia> findTopMediaByUserId(@Param("userId") Long userId, Pageable pageable);
 }

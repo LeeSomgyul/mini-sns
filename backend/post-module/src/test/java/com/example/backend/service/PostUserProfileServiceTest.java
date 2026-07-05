@@ -59,7 +59,7 @@ class PostUserProfileServiceTest {
         for(int i=0; i<threadCount; i++){
             executorService.submit(() -> {
                 try {
-                    postUserProfileService.getPostUserProfile(TARGET_USER_ID);
+                    postUserProfileService.getPostUserProfile(TARGET_USER_ID, 0, 12);
                 }finally {
                     latch.countDown();
                 }
