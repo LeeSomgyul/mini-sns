@@ -15,7 +15,15 @@ export const ProfilePage = () => {
     const targetUserId = paramUserId ? Number(paramUserId) : myUserId;
 
     // [탄스택쿼리 호출 (비동기)]
-    const { userData, postData, isLoading, isError } = useProfile(targetUserId!);
+    const { 
+        userData,
+        postData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isError
+    } = useProfile(targetUserId!);
     // 사용자가 클릭한 그리들의 썸네일 
     const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
     const profileScrollRef = useRef<HTMLElement>(null);
@@ -91,7 +99,14 @@ export const ProfilePage = () => {
                 <article style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
                     <ProfileHeader userData={userData} postCount={postData.postCount} />
                     <hr style={{ margin: '1rem 0' }} />
-                    <ProfileMediaGrid thumbnails={postData.thumbnails} onThumbnailSelect={handleThumbnailSelect} />
+                    
+                    <ProfileMediaGrid 
+                        thumbnails={postData.thumbnails} 
+                        onThumbnailSelect={handleThumbnailSelect} 
+                        fetchNextPage={fetchNextPage}
+                        hasNextPage={hasNextPage}
+                        isFetchingNextPage={isFetchingNextPage}
+                    />
                 </article>
             </aside>
         </main>
