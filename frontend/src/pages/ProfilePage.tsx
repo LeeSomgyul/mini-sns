@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfile } from '../features/profile/hooks/useProfile';
 import { useAuthStore } from '../features/auth/store/authStore';
@@ -26,17 +26,41 @@ export const ProfilePage = () => {
 
     // 사용자가 클릭한 그리들의 썸네일 
     const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+
+    // 이전 최신글 id 기억
+    const prevLatestPostIdRef = useRef<number | null>(null);
     
     // 초기 진입 시 0번째 게시물 자동 선택
     useEffect(() => {
-        // 1. 이미 선택된 게시물이 있다면 아무것도 안함
-        if(selectedPostId !== null) return;
+        // 1. 데이터가 아예 없으면 자동 선택 불가
+        if(!postData?.thumbnails || postData.thumbnails.length === 0){
+            setSelectedPostId(null);
+            prevLatestPostIdRef.current = null;
+            return;
+        }
 
-        // 2. 첫번째 게시물의 존재 확인
-        const firstThumbnail = postData?.thumbnails?.[0];
+        // 프로필 우측 그리들의 최신 0번째 게시물
+        const latestPostId = postData.thumbnails[0]?.postId;
 
-        if(firstThumbnail && firstThumbnail.postId){
-            setSelectedPostId(firstThumbnail.postId);
+        // 2. 현재 선택된 postId가 우측 그리드에 여전히 존재하는지 검사
+        const isCurrentPostValid = postData.thumbnails.some(
+            (thumb) => thumb.postId === selectedPostId
+        );
+
+        const isNewPostAdded = 
+            prevLatestPostIdRef.current !== null &&
+            prevLatestPostIdRef.current !== latestPostId;
+
+        
+            // 3. 만약 초기 진입 상태가 null 이거나 방금 삭제되었다면 새 데이터로 교체
+        if(selectedPostId === null || !isCurrentPostValid || isNewPostAdded){
+            if (latestPostId) {
+                setSelectedPostId(latestPostId);
+            }
+        }
+
+        if(latestPostId){
+            prevLatestPostIdRef.current = latestPostId;
         }
     },[postData, selectedPostId]);
 
@@ -62,7 +86,10 @@ export const ProfilePage = () => {
         <main className="container" style={{ display: 'flex', height: '100vh', gap: '2rem', padding: '1rem' }}>
             {/* 왼쪽: 피드 영역 */}
             <section style={{ flex: 2, overflowY: 'auto', paddingRight: '1rem' }}>
-                <ProfileFeedDetail postId={selectedPostId}/>
+                <ProfileFeedDetail 
+                    postId={selectedPostId}
+                    onDeleteSuccess={() => setSelectedPostId(null)}
+                />
             </section>
 
             {/* 오른쪽: 사용자 프로필 영역 */}

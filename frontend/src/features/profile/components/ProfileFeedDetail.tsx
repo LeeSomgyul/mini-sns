@@ -3,10 +3,11 @@ import { useFeedDetail } from "../../feed/hooks/useFeedDetail";
 
 interface ProfileFeedDetailProps {
     postId: number | null;
+    onDeleteSuccess?: () => void;
 }
 
 // 우측 게시물 썸네일 클릭 시 -> 게시물 단건 조회
-export const ProfileFeedDetail = ({postId}: ProfileFeedDetailProps) => {
+export const ProfileFeedDetail = ({postId, onDeleteSuccess}: ProfileFeedDetailProps) => {
 
     const {
         data: post,
@@ -43,7 +44,10 @@ export const ProfileFeedDetail = ({postId}: ProfileFeedDetailProps) => {
 
     return(
         <article style={{ margin: 0, height: '100%', overflowY: 'auto' }}>
-            <FeedCard post={post} />
+            <FeedCard 
+                post={post} 
+                onDeleteSuccess={onDeleteSuccess}
+            />
         </article>
     );
 };
