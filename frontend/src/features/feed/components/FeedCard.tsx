@@ -7,10 +7,11 @@ import { FeedMedia } from "./FeedMedia";
 
 interface FeedCardProps{
     post: PostDto;
+    onDeleteSuccess?: () => void;
 }
 
 //[조립 컴포넌트] FeedHeader + FeedMedia +  FeedActions + FeedContent
-export const FeedCard = ({post}: FeedCardProps) => {
+export const FeedCard = ({post, onDeleteSuccess}: FeedCardProps) => {
     //현재 로그인한 사용자의 id
     const {myUserId} = useAuthStore();
     
@@ -24,6 +25,7 @@ export const FeedCard = ({post}: FeedCardProps) => {
                 author={post.author}
                 createdAt={post.createdAt}
                 isAuthor={isAuthor}
+                onDeleteSuccess={onDeleteSuccess}
             />
             <FeedMedia mediaList={post.media}/>
             <FeedActions 

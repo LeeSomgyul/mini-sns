@@ -8,15 +8,22 @@ interface FeedHeaderProps {
     author: AuthorDto;
     createdAt: string;
     isAuthor: boolean;
+    onDeleteSuccess?: () => void;
 }
 
 //[컴포넌트] 피드 카드 상단의 '작성자 정보' 및 '수정 and 삭제' 버튼 영역 
 //@param {FeedHeaderProps} props - 작성자 정보, 작성 시간, 본인 여부
-export const FeedHeader = ({ postId, author, createdAt, isAuthor}: FeedHeaderProps) => {
+export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSuccess}: FeedHeaderProps) => {
 
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
-    const {mutate: deletePost, isPending} = useDeletePost();
+    const {mutate: deletePost, isPending} = useDeletePost({
+        onDeleteSuccess: () => {
+            if(onDeleteSuccess){
+                onDeleteSuccess();
+            }
+        }
+    });
     const {openEditModal} = usePostModalStore();
 
     // [삭제 버튼 클릭]
@@ -24,7 +31,7 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor}: FeedHeaderPro
         const isConfirmed = window.confirm("게시물을 삭제할까요?\n삭제 후 복구할 수 없습니다.");
 
         if(isConfirmed){
-            deletePost(postId);
+            deletePost({postId, userId: author.userId});
         }
     };
 

@@ -4,7 +4,7 @@ import { postApi } from "../api/postApi";
 import type { PostFormValues } from "../schemas/postSchema";
 import type { postResponse} from "../types/postTypes";
 import type { AxiosError } from "axios";
-import { FEED_KEYS } from "../../../constants/queryKey";
+import { FEED_KEYS, PROFILE_KEYS } from "../../../constants/queryKey";
 
 
 interface UseCreatePostProps {
@@ -45,18 +45,35 @@ export const useCreatePostMutation = ({ closeModal }: UseCreatePostProps) => {
             // DB 저장 API 호출
             return await postApi.createPost(postRequest);
         },
-        onSuccess: async () => {
+        onSuccess: async (data) => {
             closeModal();
             toast.success('게시물이 등록되었습니다!');
 
+            const currentUserId = data.authorId;
+
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
-            //방금 등록한 게시물 불러오기 
+            // 1. 홈의 타임라인 피드 전체 업데이트
             await queryClient.invalidateQueries({
                 queryKey: FEED_KEYS.all,
                 exact: false,
                 refetchType: 'all'
             });
+
+            if(currentUserId){
+                // 2. 프로필의 우측 그리드 썸네일 새로고침
+                queryClient.invalidateQueries({
+                    queryKey: PROFILE_KEYS.post(currentUserId),
+                    refetchType: 'all'
+                });
+
+                // 3. 프로필 상단 헤더 게시물 개수 새로고침
+                queryClient.invalidateQueries({
+                    queryKey: PROFILE_KEYS.user(currentUserId),
+                    exact: true,
+                    refetchType: 'all'
+                });
+            }
         },
         onError: (error) => {
             console.error("업로드 실패: ", error);
