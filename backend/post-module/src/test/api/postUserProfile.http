@@ -1,0 +1,11 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODMyNDgwNzYsImV4cCI6MTc4MzI0OTg3Nn0.u6SorALg_gxNv29B1iSpEjs-EW6g7_tkrlnO3eBrmOxmxURvA33cMcfrlZf7J8ex
+@userId = 1
+@page = 0
+@size = 2
+
+### 1. Post 모듈 프로필 조회
+GET {{baseUrl}}/posts/users/{{userId}}/profile?page={{page}}&size={{size}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

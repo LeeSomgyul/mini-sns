@@ -31,11 +31,10 @@ public class DummyFollowInitializer implements ApplicationRunner {
         Set<String> keys = stringRedisTemplate.keys("feed:*");
         if(keys!=null && !keys.isEmpty()){
             stringRedisTemplate.delete(keys);
-            log.info("[더미 팔로우 실행중] 과거 테스트용 피드 Redis 데이터 {}개를 청소했습니다.", keys.size());
         }
 
         // 2. 가상 팔로우 생성
-        List<String> mockUserIds = LongStream.rangeClosed(1, 100)
+        List<String> mockUserIds = LongStream.rangeClosed(1, 10)
                 .mapToObj(String::valueOf)
                 .toList();
 

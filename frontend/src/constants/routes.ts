@@ -4,5 +4,8 @@ export const ROUTES = {
     LOGIN: '/login',
     KAKAOLOGIN: '/login/kakao',
     JOIN: '/join',
-    PROFILE: (id: string | ':id') => `/profile/${id}`
+    PROFILE: {
+        PATH: '/profile/:userId',
+        LINK: (userId: string | number) => `/profile/${userId}` 
+    }
 };

@@ -44,6 +44,9 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
             "where p.id = :postId and p.status != 'DELETED'")
     Optional<Post> findByPostWithMedia(@Param("postId") Long postId);
 
+    // 게시물 작성자(authorId) 기준으로 게시물 개수 확인
+    long countByAuthorId(Long authorId);
+
 
 //🔥카프카 연동 후 수정
 //    //[인플루언서 사용자의 글만 추출]

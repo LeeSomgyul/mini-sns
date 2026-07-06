@@ -1,16 +1,15 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.ApiResponse;
+import com.example.backend.dto.FeedDetailResponse;
 import com.example.backend.dto.FeedResponse;
 import com.example.backend.jwt.JwtUser;
+import com.example.backend.service.FeedDetailService;
 import com.example.backend.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FeedController {
 
     private final FeedService feedService;
+    private final FeedDetailService feedDetailService;
 
     //[친구 기반 메인 Feed 조회 API]
     /*
@@ -41,5 +41,15 @@ public class FeedController {
 
         FeedResponse response = feedService.getFeedTimeline(currentUserId, cursorId, validatedSize);
         return ResponseEntity.ok(ApiResponse.success("피드가 조회되었습니다.", response));
+    }
+
+    // [단건 피드 상세 조회]
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<FeedDetailResponse>> getFeedDetail(
+            @AuthenticationPrincipal JwtUser jwtUser,
+            @PathVariable Long postId
+    ){
+        FeedDetailResponse response = feedDetailService.getFeedDetail(postId, jwtUser.userId());
+        return ResponseEntity.ok(ApiResponse.success("피드가 상세 조회되었습니다.", response));
     }
 }

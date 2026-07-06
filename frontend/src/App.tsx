@@ -6,7 +6,6 @@ import PublicRoute from "./common/components/PublicRoute";
 import Layout from "./Layout";
 import { ROUTES } from "./constants/routes";
 import KakaoCallback from "./features/auth/pages/KakaoCallbackPage";
-import { useTokenRefresh } from "./features/auth/hooks/useTokenRefresh";
 
 // [라우터 객체 선언] (react-router-dom ver.6 이상): 기존 <BrowserRouter> 대체
 const router = createBrowserRouter([
@@ -26,7 +25,7 @@ const router = createBrowserRouter([
       {path: ROUTES.FEED, element: <Layout/>,
         children: [
           {index: true, element: <HomePage/>},
-          {path: ROUTES.PROFILE('userId'), element: <ProfilePage/>}//🚨🚨userId 작업하기🚨🚨
+          {path: ROUTES.PROFILE.PATH, element: <ProfilePage/>}
         ],
       },
     ],
@@ -39,12 +38,12 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const { isLoading } = useTokenRefresh();
+  // const { isLoading } = useTokenRefresh();
 
-  //토큰 재발급 기다리는 동안
-  if(isLoading){
-    return <div>로그인 정보를 확인 중입니다...</div>;
-  }
+  // //토큰 재발급 기다리는 동안
+  // if(isLoading){
+  //   return <div>로그인 정보를 확인 중입니다...</div>;
+  // }
 
   return (
     <>

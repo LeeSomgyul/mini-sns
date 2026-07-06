@@ -15,6 +15,14 @@ export const FEED_KEYS = {
         ? [...FEED_KEYS.all, 'list', {size}] as const
         : [...FEED_KEYS.all, 'list'] as const
     ),
+
+    // 프로필 단건 게시물 조회
+    details: () => [...FEED_KEYS.all, 'detail'] as const,
+    // ['feeds', 'detail', postId]
+    detail: (postId: number | null) => (postId
+        ? [...FEED_KEYS.details(), postId] as const
+        : [...FEED_KEYS.details()] as const
+    )
 };
 
 // [게시물 관련]
@@ -39,4 +47,19 @@ export const USER_KEYS = {
     // all, frineds 카테고리에 따른 키 생성
     search: (keyword: string, type: 'all' | 'friends' = 'all') => 
         [...USER_KEYS.all, 'search', type, keyword] as const,
+};
+
+// [프로필 관련]
+export const PROFILE_KEYS = {
+    all: ['profile'] as const,
+
+    // user 모듈에서 가져오는 기본 유저 정보
+    users: () => [...PROFILE_KEYS.all, 'user'] as const,
+    // 특정 유저의 상세 프로필 키 ['profile', 'user', userId]
+    user: (userId: number) => [...PROFILE_KEYS.users(), userId] as const,
+
+    // post 모듈에서 가져오는 유저 게시물 정보
+    posts: () => [...PROFILE_KEYS.all, 'post'] as const,
+    // 특정 유저의 상세 게시물 프로필 키 ['profile', 'post', userId]
+    post: (userId: number) => [...PROFILE_KEYS.posts(), userId] as const,
 };

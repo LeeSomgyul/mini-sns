@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class PostService {
 
-    private final FeedPushEventPublisher feedPushEventPublisher;
+    private final PostCreatedPublisher postCreatedPublisher;
     private final NotificationFeedPublisher notificationFeedPublisher;
     private final PostDeletedPublisher postDeletedPublisher;
     private final MediaEventPublisher mediaEventPublisher;
@@ -180,11 +180,8 @@ public class PostService {
         }
 
         //[Feed Kafka publisher] FeedPushEvent 전송
-        FeedPushEvent feedPushEvent = FeedPushEvent.builder()
-                .postId(post.getId())
-                .authorId(authorId)
-                .build();
-        feedPushEventPublisher.publishPushEvent(feedPushEvent);
+        PostCreatedEvent postCreatedEvent = PostCreatedEvent.of(post.getId(), authorId);
+        postCreatedPublisher.publish(postCreatedEvent);
 
         //[Notifation feed Kafka publisher] NotificationEvent 전송
         // 1. 알림 받아야 하는 대상 id 목록
