@@ -15,6 +15,14 @@ export const FEED_KEYS = {
         ? [...FEED_KEYS.all, 'list', {size}] as const
         : [...FEED_KEYS.all, 'list'] as const
     ),
+
+    // 프로필 단건 게시물 조회
+    details: () => [...FEED_KEYS.all, 'detail'] as const,
+    // ['feeds', 'detail', postId]
+    detail: (postId: number | null) => (postId
+        ? [...FEED_KEYS.details(), postId] as const
+        : [...FEED_KEYS.details()] as const
+    )
 };
 
 // [게시물 관련]

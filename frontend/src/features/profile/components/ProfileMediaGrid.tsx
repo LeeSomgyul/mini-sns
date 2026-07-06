@@ -1,8 +1,13 @@
 import { useEffect, useRef } from "react";
 
+interface ProfileThumbnail {
+  postId: number;
+  thumbnailUrl: string;
+}
+
 interface ProfileMediaGridProps {
-  thumbnails: string[];
-  onThumbnailSelect: (url: string) => void; 
+  thumbnails: ProfileThumbnail[];
+  onThumbnailSelect: (postId: number) => void; 
   fetchNextPage: () => void;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
@@ -52,14 +57,14 @@ export const ProfileMediaGrid = ({
   return (
     <>
       <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
-        {thumbnails.map((url, idx) => (
+        {thumbnails.map((thumb, idx) => (
           <div 
             key={idx} 
             style={{ aspectRatio: '1 / 1', backgroundColor: 'var(--pico-muted-color)', cursor: 'pointer' }}
-            onClick={() => onThumbnailSelect(url)}
+            onClick={() => onThumbnailSelect(thumb.postId)}
           >
             <img 
-              src={url} 
+              src={thumb.thumbnailUrl} 
               alt={`게시물 썸네일 ${idx}`} 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             />

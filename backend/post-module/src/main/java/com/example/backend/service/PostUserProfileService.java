@@ -59,17 +59,23 @@ public class PostUserProfileService {
 
         // 4. 이미지 or 비디오에 따른 썸네일 추출 경로 확인
         // - 이미지는 url에서, 영상의 썸네일은 thumbnail_url에서 가져와야함
-        List<String> thumbnails = mediaSlice.getContent().stream()
+        List<PostUserProfileResponse.ProfileThumbnailDto> thumbnails = mediaSlice.getContent().stream()
                 .map(media -> {
                     String targetPath = (media.getMediaType() == PostMedia.MediaType.VIDEO)
                             ? media.getThumbnailUrl()
                             : media.getUrl();
 
                     // DB에 저장된 경로가 "/"로 시작하는 경우 (원래 "/"없긴 한데 안전하게..)
+                    String finalThumbnailUrl;
                     if(targetPath != null && targetPath.startsWith("/")){
-                        return baseStorageUrl + targetPath;
+                        finalThumbnailUrl = baseStorageUrl + targetPath;
+                    }else{
+                        finalThumbnailUrl = baseStorageUrl + "/" + targetPath;
                     }
-                    return baseStorageUrl + "/" + targetPath;
+
+                    Long linkedPostId = media.getPost().getId();
+
+                    return PostUserProfileResponse.ProfileThumbnailDto.of(linkedPostId, finalThumbnailUrl);
                 })
                 .toList();
 
