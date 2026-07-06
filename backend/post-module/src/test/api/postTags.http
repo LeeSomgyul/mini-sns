@@ -1,0 +1,9 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODMzMTczNjksImV4cCI6MTc4MzMxOTE2OX0.f0GgwzsNsbwXGqsJfmBLK5cjarPGBhYNNpCAEx7aHBzYdKas3x_2S2W-ZAhjR5Ce
+@postId = 55
+
+### 1. 게시물 태그 조회
+GET {{baseUrl}}/posts/{{postId}}/tags
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

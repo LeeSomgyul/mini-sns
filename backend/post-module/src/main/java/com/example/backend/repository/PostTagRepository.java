@@ -1,5 +1,6 @@
 package com.example.backend.repository;
 
+import com.example.backend.dto.PostTagResponse;
 import com.example.backend.entity.PostTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,14 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
         WHERE pt.post.id = :postId
     """)
     void deleteByPostId(@Param("postId")Long postId);
+
+    // post_tags 테이블에서 post_id로 태그된 사용자를 조회
+    // 및 tag_order 순서대로 오름차순 정렬
+    @Query("""
+        SELECT pt
+        FROM PostTag pt
+        WHERE pt.post.id = :postId
+        ORDER BY pt.tagOrder ASC
+    """)
+    List<PostTag> findTagsByPostId(@Param("postId") Long postId);
 }
