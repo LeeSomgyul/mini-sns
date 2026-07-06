@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { LikeButton } from "./LikeButton";
+import { FeedTagModal } from "./FeedTagModal";
 
 interface FeedActionsProps{
     postId: number;
@@ -16,6 +18,9 @@ export const FeedActions = ({
     likeCount=0,
     commentCount=0,
 }: FeedActionsProps) => {
+
+    const [ isTagModalOpen, setIsTagModalOpen] = useState(false);
+
     return(
         <footer style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0', borderTop: '1px solid var(--pico-table-border-color)' }}>
             {/* 1. 좋아요 버튼 */}
@@ -27,9 +32,20 @@ export const FeedActions = ({
             <button className="outline secondary" style={{ padding: '0.4rem 0.8rem' }}>
                 💬 댓글 {commentCount}
             </button>
-            <button className="outline secondary" style={{ padding: '0.4rem 0.8rem' }}>
+            <button
+                className="outline secondary"
+                style={{ padding: '0.4rem 0.8rem' }}
+                onClick={() => setIsTagModalOpen(true)}
+            >
                 🏷️ 태그
             </button>
+
+            {/* 태그 모달 */}
+            <FeedTagModal
+                postId={postId}
+                isOpen={isTagModalOpen}
+                onClose={() => setIsTagModalOpen(false)}
+            />
         </footer>
     );
 };

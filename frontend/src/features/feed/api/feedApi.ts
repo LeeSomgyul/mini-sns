@@ -2,6 +2,7 @@ import api from '../../../common/api/axios';
 import type { ApiResponse } from '../../../common/types/commonType';
 import type { FeedParams } from "../types/feedParamsType";
 import type { FeedResponse, PostDto } from "../types/feedResponseType";
+import type { PostTagResponse, UserTagResponse } from '../types/feedTagsType';
 
 export const feedApi = {
     //1. 피드 조회
@@ -24,6 +25,23 @@ export const feedApi = {
     getFeedDetail: async (postId: number): Promise<PostDto> => {
         const response = await api.get<ApiResponse<PostDto>>(
             `/api/v1/feed/${postId}`
+        );
+        return response.data.data;
+    },
+
+    // 3. post 모듈의 게시물 태그 정보
+    getFeedPostTags: async(postId: number): Promise<PostTagResponse[]> => {
+        const response = await api.get<ApiResponse<PostTagResponse[]>>(
+            `/api/v1/posts/${postId}/tags`
+        );
+        return response.data.data;
+    },
+
+    // 4. user 모듈의 게시물 태그 정보
+    getFeedUserTags: async(userIds: number[]): Promise<UserTagResponse[]> => {
+        const response = await api.post<ApiResponse<UserTagResponse[]>>(
+            `/api/v1/users/tags`,
+            {userIds}
         );
         return response.data.data;
     },
