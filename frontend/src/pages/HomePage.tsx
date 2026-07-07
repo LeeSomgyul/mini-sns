@@ -1,17 +1,20 @@
-import { useRef, useState } from "react";
+import { useRef} from "react";
 import { FeedPage } from "../features/feed/page/FeedPage";
 import { SearchTotalSpace } from "../features/search/pages/SearchTotalSpace";
+import { FeedCommentSidebar } from "../features/feed/components/FeedCommentSidebar";
+import { useCommentStore } from "../features/feed/store/useCommentStore";
 
 //[홈] 피드(feed) + 사용자 검색(userSearch)
 export const HomePage = () => {
 
-    // 우측 사용자검색 or 게시물 댓글 어떤걸 띄울지
-    const [isCommentMode, setIsCommentMode] = useState(false);
+    // [댓글 전역 상태 연결] postId, 댓글창 닫기
+    const activePostId = useCommentStore((state) => state.activePostId);
+    const closeCommentSide = useCommentStore((state) => state.closeCommentSide);
 
-    //피드 스크롤 html 태그 관리
+    // 피드 스크롤 html 태그 관리
     const feedScrollRef = useRef<HTMLElement>(null);
 
-    //[메서드] 피드 스크롤을 맨 위로 올리는 기능
+    // [메서드] 피드 스크롤을 맨 위로 올리는 기능
     const scrollToTap = () => {
         if(feedScrollRef.current){
             feedScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -32,9 +35,10 @@ export const HomePage = () => {
 
             {/* 오른쪽: 게시물 댓글 or 사용자 검색 영역 */}
             <aside style={{ flex: 1, minWidth: '300px', height: '100%' }}>
-                {isCommentMode ? (
+                {activePostId !== null ? (
                     <FeedCommentSidebar
-                        onClose = {() => setIsCommentMode(false)}
+                        postId={activePostId}
+                        onClose = {closeCommentSide}
                     />
                 ) : (
                     <SearchTotalSpace/>

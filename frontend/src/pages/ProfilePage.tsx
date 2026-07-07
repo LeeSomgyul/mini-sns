@@ -6,15 +6,19 @@ import { useAuthStore } from '../features/auth/store/authStore';
 import { ProfileHeader } from '../features/profile/components/ProfileHeader';
 import { ProfileMediaGrid } from '../features/profile/components/ProfileMediaGrid';
 import { ProfileFeedDetail } from '../features/profile/components/ProfileFeedDetail';
+import { useCommentStore } from "../features/feed/store/useCommentStore";
+import { FeedCommentSidebar } from '../features/feed/components/FeedCommentSidebar';
 
 export const ProfilePage = () => {
+    
+    // [댓글 전역 상태 연결] postId, 댓글창 닫기
+    const activePostId = useCommentStore((state) => state.activePostId);
+    const closeCommentSide = useCommentStore((state) => state.closeCommentSide);
+
     const { userId: paramUserId } = useParams<{ userId: string }>();
     const { myUserId } = useAuthStore();
     
     const targetUserId = paramUserId ? Number(paramUserId) : myUserId;
-
-    // 우측 프로필 or 게시물 댓글 어떤걸 띄울지
-    const [isCommentMode, setIsCommentMode] = useState(false);
 
     // [탄스택쿼리 호출 (비동기)]
     const { 
@@ -37,7 +41,9 @@ export const ProfilePage = () => {
     useEffect(() => {
         // 1. 데이터가 아예 없으면 자동 선택 불가
         if(!postData?.thumbnails || postData.thumbnails.length === 0){
-            setSelectedPostId(null);
+            setTimeout(() => {
+                setSelectedPostId(null);
+            }, 0);
             prevLatestPostIdRef.current = null;
             return;
         }
@@ -58,7 +64,9 @@ export const ProfilePage = () => {
             // 3. 만약 초기 진입 상태가 null 이거나 방금 삭제되었다면 새 데이터로 교체
         if(selectedPostId === null || !isCurrentPostValid || isNewPostAdded){
             if (latestPostId) {
-                setSelectedPostId(latestPostId);
+                setTimeout(() => {
+                    setSelectedPostId(latestPostId);
+                }, 0);
             }
         }
 
@@ -97,9 +105,10 @@ export const ProfilePage = () => {
 
             {/* 오른쪽: 사용자 프로필 영역 */}
             <aside style={{ flex: 1, minWidth: '300px', height: '100%', overflowY: 'auto' }}>
-                {isCommentMode ? (
+                {activePostId !== null ? (
                     <FeedCommentSidebar
-                        onClose = {() => setIsCommentMode(false)}
+                        postId={activePostId}
+                        onClose = {closeCommentSide}
                     />
                 ) : (
                     <article style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
