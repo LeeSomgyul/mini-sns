@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "post_tags")
+@Table(name = "post_tags", indexes = {
+        // 1. 동일한 post_id를 가진 행들을 모으기
+        // 2. 모아진 post_id에서 tag_order를 순서대로 정렬
+        @Index(name = "idx_post_tags_on_post_and_order", columnList = "post_id, tag_order")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class PostTag {

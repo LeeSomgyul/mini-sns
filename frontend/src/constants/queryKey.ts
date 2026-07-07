@@ -38,6 +38,9 @@ export const POST_KEYS = {
     // 각 postId에 해당하는 태그 정보
     tagUsers: (postId: number, userIds: number[]) => 
         [...POST_KEYS.detail(postId), 'tagUsers', {ids: userIds.join(',')}] as const,
+
+    // 각 게시물의 태그 정보를 가져오는 키
+    tags: (postId: number) => [...POST_KEYS.detail(postId), 'tags'] as const,
 };
 
 // [사용자 관련]
@@ -47,6 +50,9 @@ export const USER_KEYS = {
     // all, frineds 카테고리에 따른 키 생성
     search: (keyword: string, type: 'all' | 'friends' = 'all') => 
         [...USER_KEYS.all, 'search', type, keyword] as const,
+
+    // 넘겨받은 userIds 배열을 기반으로 프로필 정보(닉네임, 이름, 프로필사진)를 가져오는 키
+    tags: (userIds: number[]) => [...USER_KEYS.all, 'tags', {dis: userIds.join(',')}] as const,
 };
 
 // [프로필 관련]
