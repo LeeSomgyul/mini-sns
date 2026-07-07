@@ -13,6 +13,9 @@ export const ProfilePage = () => {
     
     const targetUserId = paramUserId ? Number(paramUserId) : myUserId;
 
+    // 우측 프로필 or 게시물 댓글 어떤걸 띄울지
+    const [isCommentMode, setIsCommentMode] = useState(false);
+
     // [탄스택쿼리 호출 (비동기)]
     const { 
         userData,
@@ -94,18 +97,24 @@ export const ProfilePage = () => {
 
             {/* 오른쪽: 사용자 프로필 영역 */}
             <aside style={{ flex: 1, minWidth: '300px', height: '100%', overflowY: 'auto' }}>
-                <article style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
-                    <ProfileHeader userData={userData} postCount={postData.postCount} />
-                    <hr style={{ margin: '1rem 0' }} />
-                    
-                    <ProfileMediaGrid 
-                        thumbnails={postData.thumbnails} 
-                        onThumbnailSelect={handleThumbnailSelect} 
-                        fetchNextPage={fetchNextPage}
-                        hasNextPage={hasNextPage}
-                        isFetchingNextPage={isFetchingNextPage}
+                {isCommentMode ? (
+                    <FeedCommentSidebar
+                        onClose = {() => setIsCommentMode(false)}
                     />
-                </article>
+                ) : (
+                    <article style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
+                        <ProfileHeader userData={userData} postCount={postData.postCount} />
+                        <hr style={{ margin: '1rem 0' }} />
+                        
+                        <ProfileMediaGrid 
+                            thumbnails={postData.thumbnails} 
+                            onThumbnailSelect={handleThumbnailSelect} 
+                            fetchNextPage={fetchNextPage}
+                            hasNextPage={hasNextPage}
+                            isFetchingNextPage={isFetchingNextPage}
+                        />
+                    </article>
+                )}
             </aside>
         </main>
     );

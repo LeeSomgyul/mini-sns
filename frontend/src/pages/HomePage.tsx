@@ -1,9 +1,12 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FeedPage } from "../features/feed/page/FeedPage";
 import { SearchTotalSpace } from "../features/search/pages/SearchTotalSpace";
 
 //[홈] 피드(feed) + 사용자 검색(userSearch)
 export const HomePage = () => {
+
+    // 우측 사용자검색 or 게시물 댓글 어떤걸 띄울지
+    const [isCommentMode, setIsCommentMode] = useState(false);
 
     //피드 스크롤 html 태그 관리
     const feedScrollRef = useRef<HTMLElement>(null);
@@ -27,9 +30,15 @@ export const HomePage = () => {
                 </article>
             </section>
 
-            {/* 오른쪽: 사용자 검색 영역 */}
+            {/* 오른쪽: 게시물 댓글 or 사용자 검색 영역 */}
             <aside style={{ flex: 1, minWidth: '300px', height: '100%' }}>
-                <SearchTotalSpace/>
+                {isCommentMode ? (
+                    <FeedCommentSidebar
+                        onClose = {() => setIsCommentMode(false)}
+                    />
+                ) : (
+                    <SearchTotalSpace/>
+                )}
             </aside>
         </main>
     );

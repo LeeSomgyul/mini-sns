@@ -1,5 +1,6 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from '../../../common/types/commonType';
+import type { FeedCommentResponse } from '../types/feedCommentType';
 import type { FeedParams } from "../types/feedParamsType";
 import type { FeedResponse, PostDto } from "../types/feedResponseType";
 import type { PostTagResponse, UserTagResponse } from '../types/feedTagsType';
@@ -45,4 +46,9 @@ export const feedApi = {
         );
         return response.data.data;
     },
+
+    // 5. 댓글 가짜 데이터 반환 (🚨api 개발 후 수정하기🚨)
+    getFeedComments: async(postId: number): Promise<FeedCommentResponse> => {
+        
+    }
 };
