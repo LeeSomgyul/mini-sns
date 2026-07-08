@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface PostRepository  extends JpaRepository<Post, Long> {
 
+    // [게시물의 미디어 파일을 한번에 가져오는 코드]
     @Query("""
         SELECT DISTINCT p 
         FROM Post p 
@@ -23,7 +24,7 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
     List<Post> findPostsWithAuthorAndMediaByIdIn(@Param("postIds") List<Long> postIds);
 
 
-    // 일정 기간(baselineDate) 이전의 데이터를 DB에서 실제 삭제
+    // [일정 기간(baselineDate) 이전의 데이터를 DB에서 실제 삭제]
     // - Post 엔티티의 @SQLRestriction 사용으로 인해 JPA가 아닌 일반 SQL문을 사용해야 함.
     @Query(
             value = "SELECT * FROM posts WHERE status = 'DELETED' AND deleted_at <= :baselineDate",
@@ -34,18 +35,28 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
             Pageable pageable
     );
 
+    // [데이터베이스에서 게시물을 실제 하드 삭제]
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM posts WHERE id IN (:postIds)", nativeQuery = true)
     void hardDeleteByIdIn(@Param("postIds") List<Long> postIds);
 
-    // 게시물 존재 확인
+    // [게시물 존재 확인]
     @Query("select p from Post p " +
             "left join fetch p.mediaList " +
             "where p.id = :postId and p.status != 'DELETED'")
     Optional<Post> findByPostWithMedia(@Param("postId") Long postId);
 
-    // 게시물 작성자(authorId) 기준으로 게시물 개수 확인
+    // [게시물 작성자(authorId) 기준으로 게시물 개수 확인]
     long countByAuthorId(Long authorId);
+
+    // [댓글 개수 +1]
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        UPDATE Post p
+        SET p.commentCount = p.commentCount + 1
+        WHERE p.id = :postId
+        """)
+    void incrementCommentCount(@Param("postId") Long postId);
 
 
 //🔥카프카 연동 후 수정
