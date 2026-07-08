@@ -2,7 +2,7 @@ import { useRef} from "react";
 import { FeedPage } from "../features/feed/page/FeedPage";
 import { SearchTotalSpace } from "../features/search/pages/SearchTotalSpace";
 import { FeedCommentSidebar } from "../features/feed/components/FeedCommentSidebar";
-import { useCommentStore } from "../features/feed/store/useCommentStore";
+import { useCommentStore } from "../common/store/useCommentStore";
 
 //[홈] 피드(feed) + 사용자 검색(userSearch)
 export const HomePage = () => {

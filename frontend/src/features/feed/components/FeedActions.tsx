@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LikeButton } from "./LikeButton";
 import { FeedTagModal } from "./FeedTagModal";
-import { useCommentStore } from "../store/useCommentStore";
+import { useCommentStore } from "../../../common/store/useCommentStore";
 
 interface FeedActionsProps{
     postId: number;

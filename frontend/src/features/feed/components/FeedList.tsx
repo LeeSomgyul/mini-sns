@@ -5,7 +5,7 @@ import { FeedBottomLoading, FeedTopLoading } from "./FeedLoading";
 import { FeedError } from "./FeedError";
 import { FeedEmpty } from "./FeedEmpty";
 import { FeedCard } from "./FeedCard";
-import { useCommentStore } from "../store/useCommentStore";
+import { useCommentStore } from "../../../common/store/useCommentStore";
 
 //[메인 컨테이너] FeedCard를 리스트로 출력 및 무한 스크롤
 export const FeedList = () => {

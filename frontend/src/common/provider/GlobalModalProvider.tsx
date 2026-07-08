@@ -1,4 +1,4 @@
-import { usePostModalStore } from "../../features/post/store/usePostModalStore"
+import { usePostModalStore } from "../store/usePostModalStore"
 import { PostFormModal } from "../../features/post/pages/PostFormModal";
 
 // [모달 전역 관리]

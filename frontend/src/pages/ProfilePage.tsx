@@ -6,7 +6,7 @@ import { useAuthStore } from '../features/auth/store/authStore';
 import { ProfileHeader } from '../features/profile/components/ProfileHeader';
 import { ProfileMediaGrid } from '../features/profile/components/ProfileMediaGrid';
 import { ProfileFeedDetail } from '../features/profile/components/ProfileFeedDetail';
-import { useCommentStore } from "../features/feed/store/useCommentStore";
+import { useCommentStore } from "../common/store/useCommentStore";
 import { FeedCommentSidebar } from '../features/feed/components/FeedCommentSidebar';
 
 export const ProfilePage = () => {

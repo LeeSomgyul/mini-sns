@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useFeedComment } from "../hooks/useFeedComment";
+import { FeedCommentForm } from "./FeedCommentForm";
 
 interface FeedCommentSidebarProps {
     postId: number | null;
@@ -41,14 +42,7 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
 
     if(!postId) return null;
 
-    // [메서드] 댓글 등록 버튼
-    const handleCommentSubmit = async(formData: FormData) => {
-        const commentContent = formData.get("content");
-
-        if(!commentContent) return;
-
-        console.log('댓글 등록 시도 내용: ', commentContent);
-    }
+    
 
     return(
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', borderLeft: '1px solid var(--pico-table-border-color)' }}>
@@ -129,20 +123,8 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                 )}
             </div>
 
-            {/* 하단 고정 영역: 댓글 입력 창 */}
-            <form action={handleCommentSubmit} style={{ margin: 0, padding: '1rem', borderTop: '1px solid var(--pico-table-border-color)', background: 'var(--pico-background-color)' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', margin: 0 }}>
-                    <input 
-                        type="text" 
-                        placeholder="댓글을 입력하세요..." 
-                        required 
-                        style={{ margin: 0, flex: 1 }}
-                    />
-                    <button type="submit" style={{ margin: 0, width: 'auto', padding: '0 1.2rem' }}>
-                        등록
-                    </button>
-                </div>
-            </form>
+            {/* 하단 사용자 댓글 입력 창 */}
+            <FeedCommentForm/>
 
         </div>
     );

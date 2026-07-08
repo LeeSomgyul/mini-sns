@@ -1,7 +1,7 @@
 import type {AuthorDto} from "../types/feedResponseType";
 import { formatFeedDate } from "../hooks/formatFeedDate";
 import { useDeletePost } from "../../post/hooks/useDeletePost";
-import { usePostModalStore } from "../../post/store/usePostModalStore";
+import { usePostModalStore } from "../../../common/store/usePostModalStore";
 
 interface FeedHeaderProps {
     postId: number;
