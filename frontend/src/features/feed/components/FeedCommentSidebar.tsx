@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useFeedComment } from "../hooks/useFeedComment";
+import { usePostComment } from "../../post/hooks/usePostComment";
 import { FeedCommentForm } from "./FeedCommentForm";
 
 interface FeedCommentSidebarProps {
@@ -18,7 +18,7 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
         hasNextPage,
         isLoading,
         isFetchingNextPage,
-    } = useFeedComment(postId);
+    } = usePostComment(postId);
 
     // [댓글 자동으로 더 불러오기]
     // 1. 감시카메라 설치

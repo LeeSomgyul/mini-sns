@@ -1,9 +1,9 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM0NzcxNDUsImV4cCI6MTc4MzQ3ODk0NX0.wcCNf07F9960bc6I_K5H14iADInzEPL_VMl4AAht4mOIZxwN6hMLdIE-ZBLcqQR1
-@postId = 46
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyIiwibmlja25hbWUiOiLsg4jrsr3rp6TtgazroZwiLCJpYXQiOjE3ODM1MjQ4NDQsImV4cCI6MTc4MzUyNjY0NH0.2SAye-ZiukWh1xtiihtS6Ou_UMiE59GBn0OPGtv6ga8pv3wOM4iJu9lu3gN-YTPd
+@postId = 25
 
-### 1. 정상적인 댓글 작성 (201 Created 예상)
+### 1. 정상적인 댓글 작성
 POST {{baseUrl}}/posts/{{postId}}/comments
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -12,7 +12,7 @@ Authorization: Bearer {{accessToken}}
     "content": "게시물이 아주 멋져용!"
 }
 
-### 2. 빈 문자열 공백 검증 테스트 (400 Bad Request 예상)
+### 2. 빈 문자열 공백 검증 테스트
 POST {{baseUrl}}/posts/{{postId}}/comments
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -21,7 +21,7 @@ Authorization: Bearer {{accessToken}}
     "content": "  "
 }
 
-### 3. 300자 초과 글자수 검증 테스트 (400 Bad Request 예상)
+### 3. 300자 초과 글자수 검증 테스트 
 POST {{baseUrl}}/posts/{{postId}}/comments
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -29,3 +29,13 @@ Authorization: Bearer {{accessToken}}
 {
     "content": "이 댓글은 300자를 초과하는 실패 테스트용 댓글입니다. 가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가"
 }
+
+### 4. 댓글 목록 첫 페이지 조회
+GET {{baseUrl}}/posts/{{postId}}/comments?size=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 5. 댓글 목록 다음 페이지 무한스크롤 조회
+GET {{baseUrl}}/posts/{{postId}}/comments?cursor=2&size=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

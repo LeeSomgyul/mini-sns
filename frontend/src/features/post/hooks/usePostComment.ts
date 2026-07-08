@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { POST_KEYS } from "../../../constants/queryKey";
-import { feedApi } from "../api/feedApi";
+import { postCommentApi } from "../api/postCommentApi";
 
-export const useFeedComment = (postId: number | null) => {
+export const usePostComment = (postId: number | null) => {
 
     // [무한스크롤 훅]
     const {
@@ -19,12 +19,16 @@ export const useFeedComment = (postId: number | null) => {
 
         // 2. api 요청 
         // - pageParam: 몇번째 페이지 데이터 가져올지 전달
-        queryFn: ({pageParam = 0}) => {
-            return feedApi.getFeedComments(postId!, pageParam as number);
+        queryFn: ({pageParam}) => {
+            return postCommentApi.getPostComments(
+                postId!,
+                pageParam as number | null,
+                10
+            );
         },
 
         // 3. 처음 api 요청 시 0번째 페이지 요청
-        initialPageParam: 0,
+        initialPageParam: null as number | null,
 
         // 4. 다음 페이지 번호를 어떻게 구해야 하는지 방법
         getNextPageParam: (lastPage) => {

@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.PostCommentRequest;
+import com.example.backend.dto.PostCommentResponse;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostComment;
 import com.example.backend.entity.UserCache;
@@ -11,8 +12,15 @@ import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserCacheRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.example.backend.dto.PostCommentResponse.*;
+import static com.example.backend.dto.PostCommentResponse.CommentContentResponse.*;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +59,59 @@ public class PostCommentService {
         applicationEventPublisher.publishEvent(new PostCommentCreatedEvent(postId));
 
         return savedCommentData.getId();
+    }
+
+    // [특정 게시물의 댓글 목록 조회]
+    // @param postId: 댓글이 소속되어 있는 게시물 id
+    // @param cursor: 몇번째 댓글까지 확인했는지 (마지막으로 응답한 댓글 id)
+    // @param size: 한번에 응답 할 댓글 개수
+    // @param currentUserId: 현재 로그인한 사용자 id
+    // @return PostCommentResponse: 댓글 조회 최종 응답 (댓글 내용, 다음 게시물 커서, 다음 페이지 존재 여부)
+    public PostCommentResponse getComments(Long postId, Long cursor, int size, Long currentUserId){
+        // 1. 무한 스크롤을 위해 페이징 조립
+        // - 0: 몇 번째 페이지부터 댓글 조회 시작할 것인지?
+        // - size: 한 페이지 당 데이터를 최대 몇 개씩 묶어서 가져올 것인가?
+        PageRequest pageRequest = PageRequest.of(0, size);
+
+        // 2. 특정 게시물의 댓글을 Slice 하여 가져오기
+        Slice<PostComment> commentSlice = postCommentRepository.findCommentsWithSlice(postId, cursor, pageRequest);
+
+        // 3. 프론트 응답을 위한 DTO 조립
+        List<CommentContentResponse> contentDto = commentSlice.getContent().stream()
+                .map(comment -> {
+                    // 각 댓글의 사용자 정보 조립
+                    UserCache userCache = userCacheRepository.findByUserId(comment.getAuthorId())
+                            .orElse(null);
+
+                    String nickname = (userCache != null) ? userCache.getNickname() : "알 수 없는 사용자";
+                    String profileUrl = (userCache != null) ? userCache.getProfileImageUrl() : null;
+
+                    CommentAuthorResponse authorDto = CommentAuthorResponse.of(
+                            comment.getAuthorId(),
+                            nickname,
+                            profileUrl
+                    );
+
+                    // 내가 (로그인한 사용자 본인) 작성한 댓글인지 확인
+                    boolean isMine = currentUserId != null && currentUserId.equals(comment.getAuthorId());
+
+                    // 프론트 응답 전송
+                    return CommentContentResponse.of(
+                            comment.getId(),
+                            authorDto,
+                            comment.getContent(),
+                            comment.getCreatedAt(),
+                            isMine
+                    );
+                })
+                .toList();
+
+        // 4. 다음 페이지 스크롤을 위한 페이지 정보 출력
+        Long nextCursor = null;
+        if(commentSlice.hasNext() && !contentDto.isEmpty()){
+            nextCursor = contentDto.get(contentDto.size() - 1).commentId();
+        }
+
+        return PostCommentResponse.of(contentDto, nextCursor, commentSlice.hasNext());
     }
 }
