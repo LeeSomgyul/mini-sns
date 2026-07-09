@@ -53,4 +53,13 @@ public class PostComment {
         this.authorId = authorId;
         this.content = content;
     }
+
+    // [댓글 수정]
+    public void updateContent(String newContent){
+        if(newContent == null || newContent.isBlank()){
+            throw new IllegalArgumentException("잘못된 댓글 내용입니다.");
+        }
+
+        this.content = newContent;
+    }
 }

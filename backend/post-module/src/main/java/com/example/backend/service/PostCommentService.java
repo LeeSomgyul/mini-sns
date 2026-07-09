@@ -44,7 +44,7 @@ public class PostCommentService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
 
         // 2. 댓글 작성자가 user_cache 테이블에 존재 여부 확인
-        UserCache userCache = userCacheRepository.findById(authorId)
+        userCacheRepository.findById(authorId)
                 .orElseThrow(() -> new NotFoundException("캐시데이터가 누락된 사용자입니다."));
 
         // 3. 댓글 저장
@@ -143,5 +143,40 @@ public class PostCommentService {
 
         // 6. posts 테이블의 게시글 개수 -1 차감
         postCommentRepository.decreaseCommentCount(postId);
+    }
+
+    // [댓글 수정]
+    // @param commentId: 수정 대상 댓글 id
+    // @param currentUserId: 현재 로그인한 사용자의 id
+    // @param request: 수정된 댓글 내용 dto
+    @Transactional
+    public CommentContentResponse updateComment(Long commentId, Long currentUserId, PostCommentRequest request){
+        // 1. [검증] 댓글이 DB에 존재하는지 여부 확인
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않거나 이미 삭제된 댓글입니다."));
+
+        // 2. [검증] 댓글 수정 요청한 사용자가 해당 댓글 작성자인지 확인
+        if(!comment.getAuthorId().equals(currentUserId)){
+            throw new UnauthorizedException("수정 권한이 없습니다.");
+        }
+
+        // 3. [검증] 댓글 작성자가 user_cache 테이블에 존재 여부 확인
+        UserCache userCache = userCacheRepository.findById(comment.getAuthorId())
+                .orElseThrow(() -> new NotFoundException("캐시데이터가 누락된 사용자입니다."));
+
+        // 4. 댓글 수정
+        comment.updateContent(request.content());
+
+        return CommentContentResponse.of(
+                comment.getId(),
+                CommentAuthorResponse.of(
+                        userCache.getUserId(),
+                        userCache.getNickname(),
+                        userCache.getProfileImageUrl()
+                ),
+                comment.getContent(),
+                comment.getCreatedAt(),
+                true
+        );
     }
 }
