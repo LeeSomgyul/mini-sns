@@ -28,8 +28,6 @@ public class QPostComment extends EntityPathBase<PostComment> {
 
     public final DateTimePath<java.time.Instant> createdAt = createDateTime("createdAt", java.time.Instant.class);
 
-    public final DateTimePath<java.time.Instant> deletedAt = createDateTime("deletedAt", java.time.Instant.class);
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final QPost post;

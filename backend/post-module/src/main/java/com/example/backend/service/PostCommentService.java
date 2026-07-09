@@ -7,6 +7,7 @@ import com.example.backend.entity.PostComment;
 import com.example.backend.entity.UserCache;
 import com.example.backend.event.PostCommentCreatedEvent;
 import com.example.backend.exception.NotFoundException;
+import com.example.backend.exception.UnauthorizedException;
 import com.example.backend.repository.PostCommentRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserCacheRepository;
@@ -113,5 +114,34 @@ public class PostCommentService {
         }
 
         return PostCommentResponse.of(contentDto, nextCursor, commentSlice.hasNext());
+    }
+
+    // [댓글 하드 삭제 & 게시글 수 차감]
+    // @param commentId: 삭제 대상 댓글 id
+    // @param currentUserId: 현재 로그인한 사용자의 id
+    @Transactional
+    public void deleteComment(Long commentId, Long currentUserId){
+        // 1. [검증] 삭제 대상 댓글이 DB에 실제 존재하는지 확인
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않거나 이미 삭제된 댓글입니다."));
+
+        // 2. [검증] 댓글 삭제 요청한 사용자가 해당 댓글 작성자인지 확인
+        if(!comment.getAuthorId().equals(currentUserId)){
+            throw new UnauthorizedException("삭제 권한이 없습니다.");
+        }
+
+        // 3. 게시글 수 차감에 사용할 postId 가져오기
+        Long postId = comment.getPost().getId();
+
+        // 4. DB에서 댓글 하드 삭제 실행
+        int deletedRows = postCommentRepository.deleteCommentById(commentId);
+
+        // 5. [검증] 동시에 다른 기기에서 이미 지운 경우 확인
+        if(deletedRows == 0){
+            throw new NotFoundException("이미 삭제된 댓글입니다.");
+        }
+
+        // 6. posts 테이블의 게시글 개수 -1 차감
+        postCommentRepository.decreaseCommentCount(postId);
     }
 }

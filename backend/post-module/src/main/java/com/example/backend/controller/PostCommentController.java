@@ -22,7 +22,7 @@ public class PostCommentController {
     // [댓글 추가]
     @PostMapping("/{postId}/comments")
     public ResponseEntity<ApiResponse<Long>> createComment(
-            @PathVariable Long postId,
+            @PathVariable("postId") Long postId,
             @AuthenticationPrincipal JwtUser jwtUser,
             @Valid @RequestBody PostCommentRequest request
     ){
@@ -36,7 +36,7 @@ public class PostCommentController {
     // [특정 게시물의 댓글 목록 조회]
     @GetMapping("/{postId}/comments")
     public ResponseEntity<ApiResponse<PostCommentResponse>> getComments(
-            @PathVariable Long postId,
+            @PathVariable("postId") Long postId,
             @AuthenticationPrincipal JwtUser jwtUser,
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "size", defaultValue = "10") int size

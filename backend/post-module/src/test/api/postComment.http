@@ -1,7 +1,8 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyIiwibmlja25hbWUiOiLsg4jrsr3rp6TtgazroZwiLCJpYXQiOjE3ODM1MjQ4NDQsImV4cCI6MTc4MzUyNjY0NH0.2SAye-ZiukWh1xtiihtS6Ou_UMiE59GBn0OPGtv6ga8pv3wOM4iJu9lu3gN-YTPd
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM1NjAwNzUsImV4cCI6MTc4MzU2MTg3NX0.MNbzvANMctE7N3YrpXh658VQU5lmwdRcHEO2UI9ZjuGCFp0lSOM0p_pKiwS1QohQ
 @postId = 25
+@commentId = 4
 
 ### 1. 정상적인 댓글 작성
 POST {{baseUrl}}/posts/{{postId}}/comments
@@ -37,5 +38,10 @@ Authorization: Bearer {{accessToken}}
 
 ### 5. 댓글 목록 다음 페이지 무한스크롤 조회
 GET {{baseUrl}}/posts/{{postId}}/comments?cursor=2&size=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 6. 댓글 삭제 (나의 댓글 삭제 & 타인 댓글 삭제 시도)
+DELETE {{baseUrl}}/comments/{{commentId}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
