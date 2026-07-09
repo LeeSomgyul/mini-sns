@@ -1,8 +1,8 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2MDY5MjIsImV4cCI6MTc4MzYwODcyMn0.IlIyorL50gXIigk6oO21VXZ4mg9jWLkUrMNcGVJ-hPUiE2ay3wWkYjIrtLn6xWko
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2MDk1NDAsImV4cCI6MTc4MzYxMTM0MH0.aTK7bLndp1DMrnY5emMOsndhnArPMvJ1gpbTr_0Rm_B_AvZfvkAyCgzgdb-18gKq
 @postId = 25
-@commentId = 100
+@commentId = 1
 
 ### 1. 정상적인 댓글 작성
 POST {{baseUrl}}/posts/{{postId}}/comments
@@ -10,7 +10,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "content": "게시물이 아주 멋져용!"
+    "content": "테스트중이라네"
 }
 
 ### 2. 빈 문자열 공백 검증 테스트

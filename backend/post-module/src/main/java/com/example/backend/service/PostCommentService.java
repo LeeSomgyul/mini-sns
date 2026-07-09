@@ -102,7 +102,8 @@ public class PostCommentService {
                             authorDto,
                             comment.getContent(),
                             comment.getCreatedAt(),
-                            isMine
+                            isMine,
+                            false
                     );
                 })
                 .toList();
@@ -176,6 +177,7 @@ public class PostCommentService {
                 ),
                 comment.getContent(),
                 comment.getCreatedAt(),
+                true,
                 true
         );
     }

@@ -17,10 +17,11 @@ public record PostCommentResponse(
             CommentAuthorResponse author,
             String content,
             Instant createdAt,
-            boolean isMine
+            boolean isMine,
+            boolean isEdited
     ){
-        public static CommentContentResponse of (Long commentId, CommentAuthorResponse author, String content, Instant createdAt, boolean isMine){
-            return new CommentContentResponse(commentId, author, content, createdAt, isMine);
+        public static CommentContentResponse of (Long commentId, CommentAuthorResponse author, String content, Instant createdAt, boolean isMine, boolean isEdited){
+            return new CommentContentResponse(commentId, author, content, createdAt, isMine, isEdited);
         }
 
         public record CommentAuthorResponse(
