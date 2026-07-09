@@ -30,5 +30,15 @@ export const postCommentApi = {
         );
 
         return response.data.data;
-    }
+    },
+
+    // 3. 댓글 삭제
+    // @param commentId: 삭제 대상 댓글 id
+    deletePostComment: async(commentId: number): Promise<null> => {
+        const response = await api.delete<ApiResponse<null>>(
+            `/api/v1/comments/${commentId}`
+        );
+
+        return response.data.data;
+    },
 };

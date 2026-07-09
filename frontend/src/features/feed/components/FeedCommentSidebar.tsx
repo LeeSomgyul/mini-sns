@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { usePostComment } from "../../post/hooks/usePostComment";
+import { useDeleteCommentMutation } from "../../post/hooks/useDeleteCommentMutation";
 import { FeedCommentForm } from "./FeedCommentForm";
+import toast from "react-hot-toast";
 
 interface FeedCommentSidebarProps {
     postId: number | null;
@@ -19,6 +21,17 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
         isLoading,
         isFetchingNextPage,
     } = usePostComment(postId);
+
+    // [댓글 삭제 훅 가져오기]
+    const {mutate: deleteComment} = useDeleteCommentMutation({
+        onSuccess: () => {
+            toast.success("댓글이 삭제되었습니다.")
+        },
+        onError: (error: any) => {
+            const errorMessage = error.response?.data?.message || "댓글 삭제에 실패했습니다.";
+            toast.error(errorMessage);
+        },
+    });
 
     // [댓글 자동으로 더 불러오기]
     // 1. 감시카메라 설치
@@ -41,6 +54,13 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
     },[hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if(!postId) return null;
+
+    // [삭제 버튼 클릭 핸들러]
+    const handleDeleteComment = (commentId: number) => {
+        if(window.confirm("정말 이 댓글을 완전히 삭제하시겠습니까?")){
+            deleteComment(commentId);
+        }
+    };
 
     
 
@@ -104,8 +124,19 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                                 {/* 내가 쓴 댓글일 경우에만 수정/삭제 버튼 노출 */}
                                 {comment.isMine && (
                                     <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
-                                        <button style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }} className="outline secondary">수정</button>
-                                        <button style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }} className="outline contrast">삭제</button>
+                                        <button
+                                            style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
+                                            className="outline secondary"
+                                        >
+                                            수정
+                                        </button>
+                                        <button
+                                            style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
+                                            className="outline contrast"
+                                            onClick={() => handleDeleteComment(comment.commentId)}
+                                        >
+                                            삭제
+                                        </button>
                                     </div>
                                 )}
                             </li>
