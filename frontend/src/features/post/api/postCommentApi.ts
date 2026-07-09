@@ -1,6 +1,6 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from "../../../common/types/commonType";
-import type { PostCommentCreateRequest, PostCommentResponse } from '../types/PostCommentType';
+import type { FeedComment, PostCommentCreateRequest, PostCommentResponse } from '../types/PostCommentType';
 
 export const postCommentApi = {
     // 1. 특정 게시물에 댓글 작성
@@ -37,6 +37,17 @@ export const postCommentApi = {
     deletePostComment: async(commentId: number): Promise<null> => {
         const response = await api.delete<ApiResponse<null>>(
             `/api/v1/comments/${commentId}`
+        );
+
+        return response.data.data;
+    },
+
+    // 4. 댓글 수정
+    // @param commentId: 수정 대상 댓글 id
+    updatePostComment: async(commentId: number, request: PostCommentCreateRequest): Promise<FeedComment> => {
+        const response = await api.patch<ApiResponse<FeedComment>>(
+            `/api/v1/comments/${commentId}`,
+            {request}
         );
 
         return response.data.data;

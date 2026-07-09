@@ -16,6 +16,7 @@ export interface FeedComment{
     content: string;
     createdAt: string;
     isMine: boolean;        //내가 쓴 글인지 여부
+    isEdited: boolean;      //댓글 수정 여부
 }
 
 export interface CommentAuthor{
