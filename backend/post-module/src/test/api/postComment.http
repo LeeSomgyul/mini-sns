@@ -1,8 +1,8 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM1NjAwNzUsImV4cCI6MTc4MzU2MTg3NX0.MNbzvANMctE7N3YrpXh658VQU5lmwdRcHEO2UI9ZjuGCFp0lSOM0p_pKiwS1QohQ
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2MDY5MjIsImV4cCI6MTc4MzYwODcyMn0.IlIyorL50gXIigk6oO21VXZ4mg9jWLkUrMNcGVJ-hPUiE2ay3wWkYjIrtLn6xWko
 @postId = 25
-@commentId = 4
+@commentId = 100
 
 ### 1. 정상적인 댓글 작성
 POST {{baseUrl}}/posts/{{postId}}/comments
@@ -45,3 +45,12 @@ Authorization: Bearer {{accessToken}}
 DELETE {{baseUrl}}/comments/{{commentId}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
+
+### 7. 댓글 수정
+PATCH {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "content": "거제 야호~"
+}
