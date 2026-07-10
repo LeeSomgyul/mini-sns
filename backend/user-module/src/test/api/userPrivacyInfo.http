@@ -1,0 +1,9 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2OTQxMTcsImV4cCI6MTc4MzY5NTkxN30.7U9oFw8uOSuVs8PHFbiY-2f4av_lQT2g3UV0XH8xuAB76jP06klPyaycrzKCGX3_
+
+
+### 1. 사용자 프로필 개인정보 조회 
+GET {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
