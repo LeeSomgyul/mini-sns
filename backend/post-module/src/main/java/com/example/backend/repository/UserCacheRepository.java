@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserCacheRepository extends JpaRepository<UserCache, Long> {
 
@@ -16,4 +17,6 @@ public interface UserCacheRepository extends JpaRepository<UserCache, Long> {
         WHERE u.id != :actorId
         """)
     List<Long> findAllIdsExcept(@Param("actorId")Long actorId);
+
+    Optional<UserCache> findByUserId(Long userId);
 }

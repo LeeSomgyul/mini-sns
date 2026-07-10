@@ -35,12 +35,15 @@ export const POST_KEYS = {
     // 각 postId에 해당하는 미디어 데이터
     media: (postId: number) => [...POST_KEYS.detail(postId), 'media'] as const,
 
-    // 각 postId에 해당하는 태그 정보
+    // 각 게시물의 해당하는 태그 정보
     tagUsers: (postId: number, userIds: number[]) => 
         [...POST_KEYS.detail(postId), 'tagUsers', {ids: userIds.join(',')}] as const,
 
     // 각 게시물의 태그 정보를 가져오는 키
     tags: (postId: number) => [...POST_KEYS.detail(postId), 'tags'] as const,
+
+    // 각 게시물의 댓글 목록을 가져오는 키
+    comments: (postId: number) => [...POST_KEYS.detail(postId), 'comments'] as const,
 };
 
 // [사용자 관련]

@@ -1,0 +1,56 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2MDk1NDAsImV4cCI6MTc4MzYxMTM0MH0.aTK7bLndp1DMrnY5emMOsndhnArPMvJ1gpbTr_0Rm_B_AvZfvkAyCgzgdb-18gKq
+@postId = 25
+@commentId = 1
+
+### 1. 정상적인 댓글 작성
+POST {{baseUrl}}/posts/{{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "content": "테스트중이라네"
+}
+
+### 2. 빈 문자열 공백 검증 테스트
+POST {{baseUrl}}/posts/{{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "content": "  "
+}
+
+### 3. 300자 초과 글자수 검증 테스트 
+POST {{baseUrl}}/posts/{{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "content": "이 댓글은 300자를 초과하는 실패 테스트용 댓글입니다. 가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가"
+}
+
+### 4. 댓글 목록 첫 페이지 조회
+GET {{baseUrl}}/posts/{{postId}}/comments?size=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 5. 댓글 목록 다음 페이지 무한스크롤 조회
+GET {{baseUrl}}/posts/{{postId}}/comments?cursor=2&size=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 6. 댓글 삭제 (나의 댓글 삭제 & 타인 댓글 삭제 시도)
+DELETE {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 7. 댓글 수정
+PATCH {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "content": "거제 야호~"
+}
