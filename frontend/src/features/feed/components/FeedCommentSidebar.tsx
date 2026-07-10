@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePostComment } from "../../post/hooks/usePostComment";
 import { useDeleteCommentMutation } from "../../post/hooks/useDeleteCommentMutation";
-import { FeedCommentForm } from "./FeedCommentForm";
+import { FeedCommentForm } from "./FeedCommentCreateForm";
 import toast from "react-hot-toast";
+import { FeedCommentList } from "./FeedCommentList";
 
 interface FeedCommentSidebarProps {
     postId: number | null;
@@ -12,6 +13,9 @@ interface FeedCommentSidebarProps {
 export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) => {
 
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
+    
+    // [상태] 수정중인 댓글 아이디
+    const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
     // [무한스크롤 훅 가져오기]
     const {
@@ -95,51 +99,15 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                     // 댓글 리스트 출력
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {comments.map((comment) => (
-                            <li 
-                                key={comment.commentId} 
-                                style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', alignItems: 'flex-start' }}
-                            >
-                                {/* 작성자 프로필 이미지 */}
-                                <img 
-                                    src={comment.author.profileImageUrl || DEFAULT_PROFILE} 
-                                    alt={`${comment.author.nickname} 프로필`}
-                                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                                />
-                                
-                                {/* 닉네임+날짜 / 내용 */}
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                        <strong style={{ fontSize: '0.9rem', color: 'var(--pico-h1-color)' }}>
-                                            {comment.author.nickname}
-                                        </strong>
-                                        <small style={{ fontSize: '0.75rem', color: 'var(--pico-muted-color)' }}>
-                                            {new Date(comment.createdAt).toLocaleDateString()}
-                                        </small>
-                                    </div>
-                                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.95rem', wordBreak: 'break-word' }}>
-                                        {comment.content}
-                                    </p>
-                                </div>
-
-                                {/* 내가 쓴 댓글일 경우에만 수정/삭제 버튼 노출 */}
-                                {comment.isMine && (
-                                    <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
-                                        <button
-                                            style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
-                                            className="outline secondary"
-                                        >
-                                            수정
-                                        </button>
-                                        <button
-                                            style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
-                                            className="outline contrast"
-                                            onClick={() => handleDeleteComment(comment.commentId)}
-                                        >
-                                            삭제
-                                        </button>
-                                    </div>
-                                )}
-                            </li>
+                            <FeedCommentList
+                                key={comment.commentId}
+                                comment={comment}
+                                DEFAULT_PROFILE={DEFAULT_PROFILE}
+                                isEditing={editingCommentId === comment.commentId}
+                                onEditClick={() => setEditingCommentId(comment.commentId)}
+                                onCancelEdit={() => setEditingCommentId(null)}
+                                onDeleteClick={handleDeleteComment}
+                            />
                         ))}
 
                         {/* 무한 스크롤 더보기 트리거 버튼 */}

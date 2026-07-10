@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCommentStore } from "../../../common/store/useCommentStore";
-import type { PostCommentCreateRequest } from "../types/PostCommentType";
+import type { PostCommentRequest } from "../types/PostCommentType";
 import { postCommentApi } from "../api/postCommentApi";
 import { FEED_KEYS, POST_KEYS } from "../../../constants/queryKey";
 
@@ -16,7 +16,7 @@ export const useCreateCommentMutation = ({onSuccess, onError}: CreateCommentProp
 
     return useMutation({
         // 1. 댓글 추가 api 요청
-        mutationFn: (request: PostCommentCreateRequest) => {
+        mutationFn: (request: PostCommentRequest) => {
             if(!activePostId){
                 return Promise.reject(new Error("활성화된 게시물 id가 없습니다."));
             }

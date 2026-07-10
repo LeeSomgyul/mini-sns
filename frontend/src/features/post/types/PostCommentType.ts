@@ -1,5 +1,5 @@
-// [댓글 생성] 요청
-export interface PostCommentCreateRequest{
+// [댓글 생성 & 수정] 요청
+export interface PostCommentRequest{
     content: string;
 }
 

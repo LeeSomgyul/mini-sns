@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { useCreateCommentMutation } from "../../post/hooks/useCreateCommentMutation";
-import { z } from "zod";
 import toast from "react-hot-toast";
-
-// [Zod 스키마 정의] 폼 검사 관리
-const commentSchema = z.object({
-    content: z.string()
-        .trim()
-        .min(1, "댓글 내용은 필수입니다.")
-        .max(300, "댓글은 최대 300자까지만 입력할 수 있습니다.")
-});
+import { FeedCommentSchema } from "../schemas/FeedCommentSchema";
 
 export const FeedCommentForm = () => {
 
@@ -46,7 +38,7 @@ export const FeedCommentForm = () => {
         if(!commentContent) return;
 
         // Zod 폼 유효성 검사
-        const zodReuslt = commentSchema.safeParse({content: commentContent});
+        const zodReuslt = FeedCommentSchema.safeParse({content: commentContent});
 
         if(!zodReuslt.success){
             const formErrorMessage = zodReuslt.error.message;

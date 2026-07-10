@@ -1,11 +1,11 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from "../../../common/types/commonType";
-import type { FeedComment, PostCommentCreateRequest, PostCommentResponse } from '../types/PostCommentType';
+import type { FeedComment, PostCommentRequest, PostCommentResponse } from '../types/PostCommentType';
 
 export const postCommentApi = {
     // 1. 특정 게시물에 댓글 작성
     // - 백엔드에서 응답: number commentId
-    createComment: async(postId: number, request: PostCommentCreateRequest): Promise<number> => {
+    createComment: async(postId: number, request: PostCommentRequest): Promise<number> => {
         const response = await api.post<ApiResponse<number>>(
             `/api/v1/posts/${postId}/comments`,
             request
@@ -44,10 +44,10 @@ export const postCommentApi = {
 
     // 4. 댓글 수정
     // @param commentId: 수정 대상 댓글 id
-    updatePostComment: async(commentId: number, request: PostCommentCreateRequest): Promise<FeedComment> => {
+    updatePostComment: async(commentId: number, request: PostCommentRequest): Promise<FeedComment> => {
         const response = await api.patch<ApiResponse<FeedComment>>(
             `/api/v1/comments/${commentId}`,
-            {request}
+            request
         );
 
         return response.data.data;
