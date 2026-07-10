@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { UserProfileResponse } from '../types/UserProfileResponse';
 import { formatCount } from '../util/formatCount';
+import { UserPrivacyInfoUpdateModal } from './UserPrivacyInfoUpdateModal';
 
 interface ProfileHeaderProps {
   userData: UserProfileResponse;
@@ -11,10 +13,22 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
   
   const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
+  // [상태]
+  // 1. 개인정보 수정 모달 열림 여부 관리
+  const [ isPrivacyInfoModalOpen, setPrivacyInfoModalOpen] = useState(false);
+
   // 상황에 맞는 버튼을 반환하는 내부 렌더링 함수
   const renderActionButton = () => {
     if (userData.isMe) {
-      return <button className="secondary outline" style={{ padding: '0.5rem 1rem' }}>프로필 편집</button>;
+      return (
+        <button 
+          className="secondary outline"
+          style={{ padding: '0.5rem 1rem' }}
+          onClick={() => setPrivacyInfoModalOpen(true)}
+        >
+          개인정보 수정
+        </button>
+      );
     }
     if (userData.isFollowing) {
       return <button className="contrast outline" style={{ padding: '0.5rem 1rem' }}>친구 삭제</button>;
@@ -80,6 +94,12 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
       <div style={{ width: '100%', marginTop: '0.5rem' }}>
         {renderActionButton()}
       </div>
+
+      {/* [모달] 개인정보 변경 모달 영역 */}
+      <UserPrivacyInfoUpdateModal
+        isOpen={isPrivacyInfoModalOpen}
+        onClose={() => setPrivacyInfoModalOpen(false)}
+      />
 
     </div>
   );
