@@ -1,8 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.request.UserPrivacyInfoUpdateRequest;
 import com.example.backend.dto.response.UserPrivacyInfoResponse;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
+import com.example.backend.exception.InvalidRequestException;
+import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.exception.NotFoundException;
 import com.example.backend.repository.LocalAccountRepository;
 import com.example.backend.repository.SocialAccountRepository;
@@ -61,5 +64,18 @@ public class UserPrivacyInfoService {
                 email,
                 isSocial
         );
+    }
+
+    // [프로필 개인정보 수정]
+    @Transactional
+    public Void updateUserPrivacyInfo(Long userId, UserPrivacyInfoUpdateRequest request){
+        // 1. 사용자 존재 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidTokenException("시간이 만료되어 다시 로그인해주세요."));
+
+        // 2. 사용자 활동 여부 확인 (정상, 탈퇴)
+        if(!"ACTIVE".equals(user.getStatus())){
+            throw new InvalidRequestException("탈퇴하거나 존재하지 않는 사용자입니다.");
+        }
     }
 }

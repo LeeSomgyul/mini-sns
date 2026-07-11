@@ -56,9 +56,11 @@ public class UserController {
             }
         }
 
-        ApiResponse<NicknameCheckResponse> response = userService.checkNicknameDuplicate(nickname, currentUserId);
+        NicknameCheckResponse response = userService.checkNicknameDuplicate(nickname, currentUserId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("닉네임 중복체크를 완료했습니다.", response));
     }
 
     // [게시물 수정: 기존 태그된 사용자의 정보 불러오기]
