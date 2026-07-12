@@ -19,6 +19,10 @@ dependencies {
     // 롬복
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // MiniO
+    implementation platform('software.amazon.awssdk:bom:2.44.4')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 bootJar { enabled = false }
