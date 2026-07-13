@@ -6,10 +6,20 @@ import { useProfileNicknameCheckMutation } from "../hooks/useProfileNicknameChec
 export const NicknameCheckBtn = () => {
 
     // 부모(UserPrivacyInfoUpdateModal)에게서 useForm 가져와서 사용
-    const {register, watch, setError, clearErrors, getValues, formState: {errors}} = useFormContext<UserPrivacyFormValues>();
+    const {
+        register,
+        watch,
+        setError,
+        clearErrors,
+        getValues,
+        trigger,
+        formState: {errors}
+    } = useFormContext<UserPrivacyFormValues>();
 
     const currentNickname = watch('nickname') || '';
     const [successMessage, setSuccessMessage] = useState<string>('');
+    const [localErrorMessage, setLocalErrorMessage] = useState<string>('');
+    const [, setInputValue] = useState<string>('');
     const { mutateAsync: checkNickname, isPending} = useProfileNicknameCheckMutation();
 
     // 유저가 닉네임 중복체크 후 사용가능 받아놓고서, 다시 수정한 경우 성공 상태 초기화
@@ -20,7 +30,20 @@ export const NicknameCheckBtn = () => {
     // [메서드] 닉네임 중복검사 확인
     const handleNicknameDuplicate = async() => {
         const latestNickname = getValues('nickname');
-        if(!latestNickname || errors.nickname) return;
+        if(!latestNickname || latestNickname.trim() === '') return;
+
+        setLocalErrorMessage('');
+        setSuccessMessage('');
+        if(errors.nickname?.type === 'duplicate'){
+            clearErrors('nickname');
+        }
+
+        const isFormatValid = await trigger('nickname');
+
+        if(!isFormatValid) {
+            setLocalErrorMessage('닉네임은 한글, 영문, 숫자만 가능합니다. (자음/모음 단독 입력 불가)');
+            return;
+        }
 
         try{
             const result = await checkNickname(latestNickname);
@@ -29,8 +52,10 @@ export const NicknameCheckBtn = () => {
             // 중복체크 백엔드 결과
             if(isExists){
                 setSuccessMessage('');
-                setError('nickname', {type: 'validate', message: '이미 사용 중인 닉네임입니다.'});
+                setLocalErrorMessage('이미 사용 중인 닉네임입니다.');
+                setError('nickname', {type: 'duplicate', message: '이미 사용 중인 닉네임입니다.'});
             }else{
+                setLocalErrorMessage('');
                 clearErrors('nickname');
                 setSuccessMessage('사용 가능한 닉네임입니다.');
             }
@@ -51,43 +76,48 @@ export const NicknameCheckBtn = () => {
                     aria-invalid={errors.nickname ? "true" : successMessage ? "false" : undefined}
                     {...register('nickname', { 
                         onChange: (e) => {
-                            // 1. 한글 11자 초과 컷팅 로직
+                            // 1. 글자가 1글자라도 바뀌면 성공 메시지 & 기존 에러 초기화
+                            setInputValue(e.target.value);
+                            setSuccessMessage('');
+                            setLocalErrorMessage('');
+                            clearErrors('nickname');
+
+                            // 2. 한글 11자 초과 확인
                             if (e.target.value.length > 10) {
                                 e.target.value = e.target.value.slice(0, 10);
+                                setInputValue(e.target.value);
                             }
-                            
-                            // 2. 글자가 1글자라도 바뀌면 성공 메시지 & 기존 에러 초기화 (버튼 먹통 방어)
-                            setSuccessMessage('');
-                            if (errors.nickname?.type === 'manual') {
-                                clearErrors('nickname');
-                            }
-                            
-                            // 💡 이 함수가 끝나면 RHF가 알아서 변경된 e.target.value를 자기 장부에 0.001초만에 동기화시킵니다!
                         }
                     })}
+                    onKeyDown={(e) => {
+                        // 엔터키 입력 미허용
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                        }
+                    }}
                 />
                 <button 
                     type="button"
                     className="secondary"
                     style={{ whiteSpace: 'nowrap' }}
                     onClick={handleNicknameDuplicate}
-                    disabled={isPending || !currentNickname.trim()}
+                    disabled={!currentNickname.trim()}
                 >
-                    중복확인
+                    {isPending ? '⏳' : '중복확인'}
                 </button>
             </div>
 
             {/* 에러메시지 출력 공간 */}
-            {errors.nickname && (
+            {(errors.nickname?.message || localErrorMessage) && (
                 <small
                     style={{ color: 'var(--pico-form-element-invalid-border-color)' }}
                 >
-                    {errors.nickname.message}
+                    {errors.nickname?.message || localErrorMessage}
                 </small>
             )}
 
             {/* 성공메시지 출력 공간 */}
-            {!errors.nickname && successMessage && (
+            {(!errors.nickname && !localErrorMessage) && successMessage && (
                 <small
                     style={{ color: 'var(--pico-form-element-valid-border-color)' }}
                 >
