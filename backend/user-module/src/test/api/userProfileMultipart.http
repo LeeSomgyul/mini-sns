@@ -1,10 +1,9 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM4NjIwOTgsImV4cCI6MTc4Mzg2Mzg5OH0.5kcDIWgUd0CY5ZahgIHhLHSd11ZksTYFVm295BSv5Kir8OPNqhyq5Z3XX2TlF8R1
-@uploadId = OTZhYTlmZTktNTRhNy00NjBlLWE3YWEtNzQ4MDdjMWNhYTI1LmI0ZjBhMTkxLTBjMjQtNDU0ZC04Y2ZkLTk1NjcwMTNjNmQ0M3gxNzgzODYyMTE2Njc5MTMwNjk3
-@objectKey = profiles/user_1/images/7c3a4dae-7a19-41ca-93f2-de3324b26050.png
-@PresignedURL = http://localhost:9000/mini-sns/profiles/user_1/images/7c3a4dae-7a19-41ca-93f2-de3324b26050.png?partNumber=1&uploadId=OTZhYTlmZTktNTRhNy00NjBlLWE3YWEtNzQ4MDdjMWNhYTI1LmI0ZjBhMTkxLTBjMjQtNDU0ZC04Y2ZkLTk1NjcwMTNjNmQ0M3gxNzgzODYyMTE2Njc5MTMwNjk3&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260712T132247Z&X-Amz-SignedHeaders=host&X-Amz-Credential=somgyul%2F20260712%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Expires=900&X-Amz-Signature=fc4a83bd452b122448f7d10432b4d123f3e211eace554cf2e1a8980f79415881
-@ETag = "\"1a3edc3eacfb5ec76fb89642773ae8b1\""
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM5MDA4ODcsImV4cCI6MTc4MzkwMjY4N30.t6qGFG2hgqmI7GARCRPcHFQhkW5zSiCdMK2dNeQRzCtcnwj9132tUWPk2tcGO01Z
+@uploadId = YjZkZmJkYTQtZWRhMC00MTY4LWFhYTItNzIwYWY0MzViNTdkLmY3OTRhMWYyLTk0M2MtNGJiYi04ZDQyLTBlNTA2NDlhODQwMngxNzgzOTAxNDczMDczODY5NDI2
+@objectKey = profiles/user_1/images/10cb6cdb-bd28-4bc9-8d19-f78742b35c8c.png
+@PresignedURL = http://localhost:9000/mini-sns/profiles/user_1/images/10cb6cdb-bd28-4bc9-8d19-f78742b35c8c.png?partNumber=1&uploadId=YjZkZmJkYTQtZWRhMC00MTY4LWFhYTItNzIwYWY0MzViNTdkLmY3OTRhMWYyLTk0M2MtNGJiYi04ZDQyLTBlNTA2NDlhODQwMngxNzgzOTAxNDczMDczODY5NDI2&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260713T001129Z&X-Amz-SignedHeaders=host&X-Amz-Credential=somgyul%2F20260713%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Expires=900&X-Amz-Signature=c66aa53309973b80f350b2a20b962a328203124b140d50ef359df741875769e4
 
 
 ### [1단계] 프로필 이미지 분할 업로드 시작
@@ -31,9 +30,9 @@ Authorization: Bearer {{accessToken}}
 
 ### [2-2단계] 프론트엔드: 발급받은 Presigned URL로 실제 조각 파일 쏘기
 PUT {{PresignedURL}}
-Content-Type: image/png
+Content-Type: image/jpeg
 
-< C:\Users\rmawl\Downloads\테스트이미지_3.jpg
+< C:\Users\sist-12\Downloads\m3.jpg
 
 
 ### [3단계] 프론트엔드가 MiniO에 Presigned URL로 파일을 잘 저장했는지 리스트 꺼내서 확인
@@ -54,7 +53,7 @@ Authorization: Bearer {{accessToken}}
   "parts": [
     {
       "PartNumber": 1,
-      "ETag": "\"1a3edc3eacfb5ec76fb89642773ae8b1\""
+      "ETag": "\"88d377cc96345a9567d5f3ec267c33de\""
     }
   ]
 }

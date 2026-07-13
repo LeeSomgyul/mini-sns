@@ -59,6 +59,10 @@ export const USER_KEYS = {
 
     // 사용자의 프로필 개인정보 편집용 데이터 
     me: () => [...USER_KEYS.all, "me"] as const,
+
+    // 닉네임 유효성 검증을 위한 데이터 키
+    // 예: ['users', 'checkNickname', '입력한닉네임값']
+    checkNickname: (nickname: string) => [...USER_KEYS.all, 'checkNickname', nickname] as const
 };
 
 // [프로필 관련]

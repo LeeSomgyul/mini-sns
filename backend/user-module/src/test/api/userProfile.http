@@ -1,9 +1,24 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODI4ODQ2NjIsImV4cCI6MTc4Mjg4NjQ2Mn0.tFqLirz9l8vaGuMovEzhjiiEtmt9xEAYyGEbDFnV7XxPD70YDXjcBga0GTrLOdKz
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM5MDA4ODcsImV4cCI6MTc4MzkwMjY4N30.t6qGFG2hgqmI7GARCRPcHFQhkW5zSiCdMK2dNeQRzCtcnwj9132tUWPk2tcGO01Z
 @userId = 4
+@location = profiles/user_1/images/10cb6cdb-bd28-4bc9-8d19-f78742b35c8c.png
 
 ### 1. User 모듈 프로필 조회
 GET {{baseUrl}}/users/{{userId}}/profile
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
+
+### 2. 개인정보 수정 완료 (userProfileMultipart 1~4단계 모두 실행 후 가능)
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "nickname": "코딩냐옹이",
+    "phoneNumber": "01012345678",
+    "profileImageUrl": "{{location}}",
+    "isPasswordChanging": false,
+    "currentPassword": null,
+    "newPassword": null
+}

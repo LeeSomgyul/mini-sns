@@ -6,3 +6,8 @@ export interface UserPrivacyInfoResponse{
     email: string;
     isSocial: boolean;
 }
+
+// 개인정보 변경 닉네임 중복체크
+export interface ProfileNicknameCheck {
+    exists: boolean;
+}
