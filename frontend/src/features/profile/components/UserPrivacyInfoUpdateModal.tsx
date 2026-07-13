@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { userPrivacyInfoSchema, type UserPrivacyFormValues } from "../schema/userPrivacyInfoSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NicknameCheckBtn } from "./NicknameCheckBtn";
+import { ProfileImageUploader } from "./ProfileImageUploader";
 
 interface UserPrivacyInfoUpdateProps{
     isOpen: boolean;
@@ -13,11 +14,12 @@ interface UserPrivacyInfoUpdateProps{
 // [프로필 개인정보 수정 모달]
 export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpdateProps) => {
 
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
     // [상태관리]
     // 1. 비밀번호 변경 토클 오픈 여부 관리
     const [ isPasswordChanging, setIsPasswordChanging ] = useState(false);
+
+    // 2. 미니오 objectKey 저장
+    const [finalProfileKey, setFinalProfileKey] = useState<string | null>(null);
 
     // [훅 관리]
     // 1. 수정용 사용자 개인정보 가져오기 훅
@@ -59,6 +61,7 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
     const handleModalClose = () => {
         reset();
         setIsPasswordChanging(false);
+        setFinalProfileKey(null);
         onClose();
     }
 
@@ -99,15 +102,11 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
                     <FormProvider {...methods}>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             
-                            {/* 프로필 이미지 영역 🚨프로필 수정에서 이미지 업로드 구현🚨*/}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 'var(--pico-spacing)' }}>
-                                <img 
-                                    src={userPrivacy.profileImageUrl || DEFAULT_PROFILE} 
-                                    alt="프로필 미리보기" 
-                                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginBottom: '0.5rem' }}
-                                />
-                                <a href="#/" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>프로필 이미지 바꾸기</a>
-                            </div>
+                            {/* 프로필 이미지 영역*/}
+                            <ProfileImageUploader 
+                                currentProfileImageUrl={userPrivacy.profileImageUrl} 
+                                onProfileKeyChange={(key) => setFinalProfileKey(key)}
+                            />
 
                             {/* 읽기 전용 필드들 (이름, 이메일) */}
                             <div className="grid">
