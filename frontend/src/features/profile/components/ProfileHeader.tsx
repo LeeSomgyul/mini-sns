@@ -10,7 +10,7 @@ interface ProfileHeaderProps {
 
 // [프로필 우측 상단] 유저 정보 및 액션 버튼
 export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
-  
+  const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
   const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
   // [상태]
@@ -36,6 +36,8 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
     return <button style={{ padding: '0.5rem 1rem' }}>친구 추가</button>;
   };
 
+  const finalImage = MINIO_MEDIA_ENDPOINT + userData.profileImageUrl;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
       
@@ -50,7 +52,7 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
         {/* 프로필 이미지 */}
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--pico-muted-color)', overflow: 'hidden', flexShrink: 0 }}>
           <img 
-            src={userData.profileImageUrl || DEFAULT_PROFILE} 
+            src={finalImage || DEFAULT_PROFILE} 
             alt={`${userData.nickname} 프로필 이미지`} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}

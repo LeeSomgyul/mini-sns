@@ -31,13 +31,14 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
     // 2. 프로필 수정 최종 전송 훅
     const { mutate: updatePrivacy, isPending } = useUpdateUserPrivacy();
 
-    // 2. 폼 초기화
+    // 3. 폼 초기화
     const methods = useForm<UserPrivacyFormValues>({
         // zod 유효성 검사 폼 주입
         resolver: zodResolver(userPrivacyInfoSchema),
         // 초기값은 공백으로 셋팅 (비동기로 데이터 가져오는게 느리기 때문)
         defaultValues: {
             nickname: '',
+            isNicknameChecked: false,
             phoneNumber: '',
             isPasswordChanging: false,
             currentPassword: '',
@@ -47,6 +48,7 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
         // 서버에서 비동기로 데이터 가져온 이후 값 채워넣기
         values: {
             nickname: userPrivacy?.nickname || '',
+            isNicknameChecked: true,
             phoneNumber: userPrivacy?.phoneNumber || '',
             isPasswordChanging: false,
             currentPassword: '',
@@ -54,8 +56,9 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
             confirmPassword: '',
         }
     });
-
+    
     const { register, handleSubmit, setValue, formState: {errors}, reset } = methods;
+
 
     // [초기] 비밀번호 토글 열리고 닫힐때마다 상태 변경
     useEffect(() => {

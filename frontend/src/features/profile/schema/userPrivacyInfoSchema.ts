@@ -2,12 +2,17 @@ import { z } from "zod";
 
 // [프로필 개인정보 수정] 폼 유효성 검사
 export const userPrivacyInfoSchema = z.object({
-    // 1. 닉네임: 2~10자, 한글/영문/숫자만 가능
+    // 1-1. 닉네임: 2~10자, 한글/영문/숫자만 가능
     nickname: z
         .string()
         .min(2, '닉네임은 2~10자 이내로 입력해주세요.')
         .max(10, '닉네임은 2~10자 이내로 입력해주세요.')
         .regex(/^[가-힣a-zA-Z0-9]{2,10}$/, '닉네임은 한글, 영문, 숫자만 가능합니다. (자음/모음 단독 입력 불가)'),
+
+    // 1-2. 닉네임 중복체크 여부
+    isNicknameChecked: z.boolean().refine((val) => val === true, {
+        message: "닉네임 중복 확인을 완료해 주세요."
+    }),
 
     // 2. 전화번호: 11자리 숫자 가능, 빈 값 허용
     phoneNumber: z
@@ -24,6 +29,7 @@ export const userPrivacyInfoSchema = z.object({
     confirmPassword: z.string().optional(),
 }).superRefine((data, ctx) => {
 
+
     // 3-3. 사용자가 비밀번호 변경 토글 클릭해서 비밀번호 변경으로 진입하면 superRefine 실행
     if (data.isPasswordChanging) {
     
@@ -31,8 +37,8 @@ export const userPrivacyInfoSchema = z.object({
         if (!data.currentPassword || data.currentPassword.trim() === '') {
             ctx.addIssue({
                 code: "custom",
-                message: '현재 비밀번호를 입력해주세요.',
                 path: ['currentPassword'],
+                message: '현재 비밀번호를 입력해주세요.',
             });
         }
 

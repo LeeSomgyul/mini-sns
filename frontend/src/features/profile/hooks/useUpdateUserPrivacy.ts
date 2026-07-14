@@ -10,10 +10,10 @@ export const useUpdateUserPrivacy = () => {
         mutationFn: (request: UserPrivacyInfoUpdateRequest) => userPrivacyInfoApi.updateUserPrivacyInfo(request),
         onSuccess: () => {
             // 관련 queryKey 업데이트 (사용자, 피드, 게시물상세, 댓글, 전역)
-            queryClient.invalidateQueries({queryKey: USER_KEYS.all});
-            queryClient.invalidateQueries({queryKey: FEED_KEYS.all});
-            queryClient.invalidateQueries({queryKey: POST_KEYS.all});
-            queryClient.invalidateQueries({queryKey: PROFILE_KEYS.all});
+            queryClient.invalidateQueries({queryKey: USER_KEYS.all, refetchType: 'all'});
+            queryClient.invalidateQueries({queryKey: FEED_KEYS.all, refetchType: 'all'});
+            queryClient.invalidateQueries({queryKey: POST_KEYS.all, refetchType: 'all'});
+            queryClient.invalidateQueries({queryKey: PROFILE_KEYS.all, refetchType: 'all'});
 
         },
         onError: (error) => {

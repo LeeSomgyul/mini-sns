@@ -12,6 +12,7 @@ export const NicknameCheckBtn = () => {
         setError,
         clearErrors,
         getValues,
+        setValue,
         trigger,
         formState: {errors}
     } = useFormContext<UserPrivacyFormValues>();
@@ -34,9 +35,8 @@ export const NicknameCheckBtn = () => {
 
         setLocalErrorMessage('');
         setSuccessMessage('');
-        if(errors.nickname?.type === 'duplicate'){
-            clearErrors('nickname');
-        }
+        setValue('isNicknameChecked', false);
+        clearErrors('isNicknameChecked');
 
         const isFormatValid = await trigger('nickname');
 
@@ -54,14 +54,17 @@ export const NicknameCheckBtn = () => {
                 setSuccessMessage('');
                 setLocalErrorMessage('이미 사용 중인 닉네임입니다.');
                 setError('nickname', {type: 'duplicate', message: '이미 사용 중인 닉네임입니다.'});
+                setValue('isNicknameChecked', false);
             }else{
                 setLocalErrorMessage('');
                 clearErrors('nickname');
                 setSuccessMessage('사용 가능한 닉네임입니다.');
+                setValue('isNicknameChecked', true, {shouldValidate: true});
             }
         }catch(error){
             setSuccessMessage('');
             setError('nickname', {type: 'server', message: '닉네임 중복 체크 중 오류가 발생했습니다.'});
+            setValue('isNicknameChecked', false);
         }
     };
 
@@ -77,6 +80,7 @@ export const NicknameCheckBtn = () => {
                     {...register('nickname', { 
                         onChange: (e) => {
                             // 1. 글자가 1글자라도 바뀌면 성공 메시지 & 기존 에러 초기화
+                            setValue('isNicknameChecked', false);
                             setInputValue(e.target.value);
                             setSuccessMessage('');
                             setLocalErrorMessage('');
