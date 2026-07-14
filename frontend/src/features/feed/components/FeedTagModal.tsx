@@ -53,8 +53,13 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                         </div>
                     ) : (
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {taggedUsers.map((user) => (
-                                <li 
+                            {taggedUsers.map((user) => {
+                                const finalImage = user.profileImageUrl !== null
+                                        ? user.profileImageUrl
+                                        : DEFAULT_PROFILE;
+                                console.log("결과", user.profileImageUrl);
+                                return(
+                                    <li 
                                     key={user.userId} 
                                     onClick={() => handleUserClick(user.userId)}
                                     style={{ 
@@ -66,7 +71,7 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                                     }}
                                 >
                                     <img 
-                                        src={user.profileImageUrl || DEFAULT_PROFILE} 
+                                        src={finalImage} 
                                         alt={`${user.nickname} 프로필`} 
                                         style={{ 
                                             width: '44px', 
@@ -85,7 +90,8 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                                         </small>
                                     </div>
                                 </li>
-                            ))}
+                                );
+                            })}
                         </ul>
                     )}
                 </div>

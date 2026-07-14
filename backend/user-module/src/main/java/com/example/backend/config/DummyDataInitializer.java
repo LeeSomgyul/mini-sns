@@ -64,7 +64,7 @@ public class DummyDataInitializer implements ApplicationRunner {
             String name = names[i];
             String nickname = nicknames[i];
             String email = "dummy" + i + "@test.com";
-            String phoneNumber = "010-1234-56" + String.format("%02d", i + 1);
+            String phoneNumber = "010123456" + String.format("%02d", i + 1);
 
             User user = User.builder()
                     .name(name)

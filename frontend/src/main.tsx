@@ -47,9 +47,6 @@ const queryClient = new QueryClient({
       if (mutation.meta?.disableGlobalError) {
         return; 
       }
-
-      //4. 위 조건들에 해당하지 않는 경우
-      toast.error('요청을 처리하지 못했습니다.');
     },
     onSuccess: (_data, _variables, _context, mutation) => {
       if(typeof mutation.meta?.successMessage === 'string'){

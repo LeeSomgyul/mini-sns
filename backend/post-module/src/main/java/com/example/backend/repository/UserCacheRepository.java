@@ -19,4 +19,6 @@ public interface UserCacheRepository extends JpaRepository<UserCache, Long> {
     List<Long> findAllIdsExcept(@Param("actorId")Long actorId);
 
     Optional<UserCache> findByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 }

@@ -11,6 +11,12 @@ interface FeedCommentListProps{
 }
 
 export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClick, onCancelEdit, onDeleteClick}: FeedCommentListProps) => {
+    
+    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
+    const finalImage = comment.author.profileImageUrl !== null
+        ? MINIO_MEDIA_ENDPOINT+comment.author.profileImageUrl
+        : DEFAULT_PROFILE;
+    
     return(
         <li 
             key={comment.commentId} 
@@ -18,7 +24,7 @@ export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClic
         >
             {/* 작성자 프로필 이미지 */}
             <img 
-                src={comment.author.profileImageUrl || DEFAULT_PROFILE} 
+                src={finalImage || DEFAULT_PROFILE} 
                 alt={`${comment.author.nickname} 프로필`}
                 style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
             />

@@ -71,14 +71,36 @@ public class User {
         this.deviceToken = deviceToken;
     }
 
-    //deviceToken 갱신을 위한 메서드(기기마다 token이 다르니까)
+    // deviceToken 갱신을 위한 메서드(기기마다 token이 다르니까)
     public void updateDeviceToken(String deviceToken){
         this.deviceToken = deviceToken;
     }
 
-    //lastLoginAt(마지막 로그인 시간)를 업데이트하는 메서드
+    // lastLoginAt(마지막 로그인 시간)를 업데이트하는 메서드
     public void updateLastLoginAt(){
         this.lastLoginAt = LocalDateTime.now();
     }
 
+    // 닉네임 변경
+    public void updateNickname(String nickname){
+        if(nickname == null || nickname.trim().isEmpty()){
+            throw new IllegalArgumentException("닉네임은 공백일 수 없습니다.");
+        }
+
+        this.nickname = nickname;
+    }
+
+    // 전화번호 변경
+    public void updatePhoneNumber(String phoneNumber){
+        if(phoneNumber == null || phoneNumber.trim().isEmpty()){
+            throw new IllegalArgumentException("전화번호는 공백일 수 없습니다.");
+        }
+
+        this.phoneNumber = phoneNumber;
+    }
+
+    // 프로필 이미지 변경
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }

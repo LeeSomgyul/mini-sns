@@ -56,6 +56,13 @@ export const USER_KEYS = {
 
     // 넘겨받은 userIds 배열을 기반으로 프로필 정보(닉네임, 이름, 프로필사진)를 가져오는 키
     tags: (userIds: number[]) => [...USER_KEYS.all, 'tags', {dis: userIds.join(',')}] as const,
+
+    // 사용자의 프로필 개인정보 편집용 데이터 
+    me: () => [...USER_KEYS.all, "me"] as const,
+
+    // 닉네임 유효성 검증을 위한 데이터 키
+    // 예: ['users', 'checkNickname', '입력한닉네임값']
+    checkNickname: (nickname: string) => [...USER_KEYS.all, 'checkNickname', nickname] as const
 };
 
 // [프로필 관련]

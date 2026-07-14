@@ -25,7 +25,7 @@ public class UserService {
 
     // [닉네임 중복 확인]
     @Transactional(readOnly = true)
-    public ApiResponse<NicknameCheckResponse> checkNicknameDuplicate(String nickname, Long currentUserId){
+    public NicknameCheckResponse checkNicknameDuplicate(String nickname, Long currentUserId){
 
         //1.닉네임으로 유저 객체 조회
         Optional<User> existingUser = userRepository.findByNickname(nickname);
@@ -46,7 +46,7 @@ public class UserService {
         String message = exists ? "이미 사용 중인 닉네임입니다." : "사용 가능한 닉네임입니다.";
 
         //3.결과 반환
-        return ApiResponse.success(message, NicknameCheckResponse.from(exists));
+        return NicknameCheckResponse.from(exists);
     }
 
     // [게시물 수정: 기존 태그된 사용자의 정보 불러오기]

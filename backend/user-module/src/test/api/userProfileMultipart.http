@@ -1,0 +1,65 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM5MDA4ODcsImV4cCI6MTc4MzkwMjY4N30.t6qGFG2hgqmI7GARCRPcHFQhkW5zSiCdMK2dNeQRzCtcnwj9132tUWPk2tcGO01Z
+@uploadId = YjZkZmJkYTQtZWRhMC00MTY4LWFhYTItNzIwYWY0MzViNTdkLmY3OTRhMWYyLTk0M2MtNGJiYi04ZDQyLTBlNTA2NDlhODQwMngxNzgzOTAxNDczMDczODY5NDI2
+@objectKey = profiles/user_1/images/10cb6cdb-bd28-4bc9-8d19-f78742b35c8c.png
+@PresignedURL = http://localhost:9000/mini-sns/profiles/user_1/images/10cb6cdb-bd28-4bc9-8d19-f78742b35c8c.png?partNumber=1&uploadId=YjZkZmJkYTQtZWRhMC00MTY4LWFhYTItNzIwYWY0MzViNTdkLmY3OTRhMWYyLTk0M2MtNGJiYi04ZDQyLTBlNTA2NDlhODQwMngxNzgzOTAxNDczMDczODY5NDI2&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260713T001129Z&X-Amz-SignedHeaders=host&X-Amz-Credential=somgyul%2F20260713%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Expires=900&X-Amz-Signature=c66aa53309973b80f350b2a20b962a328203124b140d50ef359df741875769e4
+
+
+### [1단계] 프로필 이미지 분할 업로드 시작
+POST {{baseUrl}}/users/profile/multipart/create
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "filename": "my_profile_avatar.png",
+  "contentType": "image/png",
+  "fileSize": 5242880
+}
+
+### [2-1단계] 이미지 조각 파일 별 Presigned URL 발급 (서명)
+POST {{baseUrl}}/users/profile/multipart/sign-part
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "uploadId": "{{uploadId}}",
+  "objectKey": "{{objectKey}}",
+  "partNumber": 1
+}
+
+### [2-2단계] 프론트엔드: 발급받은 Presigned URL로 실제 조각 파일 쏘기
+PUT {{PresignedURL}}
+Content-Type: image/jpeg
+
+< C:\Users\sist-12\Downloads\m3.jpg
+
+
+### [3단계] 프론트엔드가 MiniO에 Presigned URL로 파일을 잘 저장했는지 리스트 꺼내서 확인
+GET {{baseUrl}}/users/profile/multipart/list-parts?uploadId={{uploadId}}&objectKey={{objectKey}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+
+
+### [4단계] MiniO에서 분할된 조각들 가져와서 순서대로 합치기
+POST {{baseUrl}}/users/profile/multipart/complete
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "uploadId": "{{uploadId}}",
+  "objectKey": "{{objectKey}}",
+  "parts": [
+    {
+      "PartNumber": 1,
+      "ETag": "\"88d377cc96345a9567d5f3ec267c33de\""
+    }
+  ]
+}
+
+
+### [5단계] 프로필 이미지 분할 업로드 시 사용자가 중간에 취소한 경우, MiniO 서버에 저장된 파편들 제거
+DELETE {{baseUrl}}/users/profile/multipart/abort?uploadId={{uploadId}}&objectKey={{objectKey}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
