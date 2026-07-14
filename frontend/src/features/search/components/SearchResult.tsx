@@ -6,6 +6,7 @@ interface SearchResultProps {
 }
 
 export const SearchResult = ({ keyword }: SearchResultProps) => {
+    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     const {
@@ -68,6 +69,7 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {users.map((user) => {
                     if (!user) return null;
+                    const finalImage = MINIO_MEDIA_ENDPOINT + user.profileImageUrl;
                     return (
                         <div
                             key={user.userId}
@@ -76,7 +78,7 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
                         >
                             <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
                                 <img
-                                    src={user.profileImageUrl || DEFAULT_PROFILE}
+                                    src={finalImage || DEFAULT_PROFILE}
                                     onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}
                                     alt={user.nickname}
                                     style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}

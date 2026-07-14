@@ -8,6 +8,9 @@ import { ProfileImageUploader } from "./ProfileImageUploader";
 import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoDto";
 import { useUpdateUserPrivacy } from "../hooks/useUpdateUserPrivacy";
 import toast from "react-hot-toast";
+import axios from "axios";
+import type { ErrorResponse } from "../../../common/types/commonType";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface UserPrivacyInfoUpdateProps{
     isOpen: boolean;
@@ -23,6 +26,9 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
 
     // 2. 미니오 objectKey 저장
     const [finalProfileKey, setFinalProfileKey] = useState<string | null>(null);
+
+    // 3. 전역 상태
+    const logout = useAuthStore((state) => state.logout);
 
     // [훅 관리]
     // 1. 수정용 사용자 개인정보 가져오기 훅
@@ -97,11 +103,25 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
 
         updatePrivacy(finalSubmitData, {
             onSuccess: () => {
-                toast.success("개인정보가 수정되었습니다.");
+                if(finalSubmitData.isPasswordChanging){
+                    toast.success("비밀번호가 변경되어 보안을 위해 자동 로그아웃됩니다.\n다시 로그인해주세요.");
+                    logout();
+                }
+                
                 handleModalClose();
             },
-            onError: () => {
-                toast.error("개인정보 수정에 실패하였습니다.");
+            onError: (error: unknown) => {
+                // 백엔드에서 응답하는 에러가 존재한다면 그거 사용
+                if(axios.isAxiosError<ErrorResponse>(error)){
+                    const errorMessage = error.response?.data.message ?? "개인정보 수정에 실패했습니다.";
+
+                    methods.setError("currentPassword", {
+                        type: "server",
+                        message: errorMessage
+                    });
+
+                    return;
+                }
             }
         });
     };

@@ -16,4 +16,5 @@ public interface LocalAccountRepository extends JpaRepository<LocalAccount, Long
 
     // [사용자 조회]
     Optional<LocalAccount> findByUser(User user);
+    Optional<LocalAccount> findByUserId(Long userId);
 }

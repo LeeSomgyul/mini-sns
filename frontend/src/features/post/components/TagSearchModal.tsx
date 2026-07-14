@@ -22,6 +22,7 @@ interface TagSearchModalProps{
 //[태그 검색] 모달
 export default function TagSearchModal({isOpen, onComplete, onCloseModal, initialTags}: TagSearchModalProps){
 
+    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     const [tagList, setTagList] = useState<TagUserType[]>([]);//선택한 태그 리스트
@@ -186,6 +187,10 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                                         }]);
                                     }
                                 };
+
+                                const finalImage = user.profileImageUrl !== null
+                                    ? MINIO_MEDIA_ENDPOINT+user.profileImageUrl
+                                    : DEFAULT_PROFILE;
                                 
                                 return(
                                     <article
@@ -202,7 +207,7 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                                         {/* 프로필, 닉네임, 이름 */}
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <img
-                                                src={user.profileImageUrl || DEFAULT_PROFILE}
+                                                src={finalImage}
                                                 alt={`${user.nickname} 프로필`} 
                                                 style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
                                             />

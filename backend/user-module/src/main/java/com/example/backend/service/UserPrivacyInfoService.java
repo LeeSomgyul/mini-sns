@@ -126,7 +126,7 @@ public class UserPrivacyInfoService {
                 throw new InvalidRequestException("소셜 로그인 계정은 비밀번호를 변경할 수 없습니다.");
             }
 
-            LocalAccount localAccount = localAccountRepository.findById(userId)
+            LocalAccount localAccount = localAccountRepository.findByUserId(userId)
                     .orElseThrow(() -> new InvalidRequestException("계정 정보를 찾을 수 없습니다."));
 
             if (!StringUtils.hasText(request.currentPassword()) || !StringUtils.hasText(request.newPassword())) {

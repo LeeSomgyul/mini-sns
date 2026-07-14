@@ -28,8 +28,6 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
     const {openEditModal} = usePostModalStore();
     const finalImage = MINIO_MEDIA_ENDPOINT + author.profileImageUrl;
 
-    console.log(author.profileImageUrl);
-
     // [삭제 버튼 클릭]
     const handleDeletePost = () => {
         const isConfirmed = window.confirm("게시물을 삭제할까요?\n삭제 후 복구할 수 없습니다.");
