@@ -5,6 +5,9 @@ import { userPrivacyInfoSchema, type UserPrivacyFormValues } from "../schema/use
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NicknameCheckBtn } from "./NicknameCheckBtn";
 import { ProfileImageUploader } from "./ProfileImageUploader";
+import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoDto";
+import { useUpdateUserPrivacy } from "../hooks/useUpdateUserPrivacy";
+import toast from "react-hot-toast";
 
 interface UserPrivacyInfoUpdateProps{
     isOpen: boolean;
@@ -24,6 +27,9 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
     // [훅 관리]
     // 1. 수정용 사용자 개인정보 가져오기 훅
     const { data: userPrivacy, isLoading, isError } = useUserPrivacyInfo(isOpen);
+
+    // 2. 프로필 수정 최종 전송 훅
+    const { mutate: updatePrivacy, isPending } = useUpdateUserPrivacy();
 
     // 2. 폼 초기화
     const methods = useForm<UserPrivacyFormValues>({
@@ -51,9 +57,16 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
 
     const { register, handleSubmit, setValue, formState: {errors}, reset } = methods;
 
-    //비밀번호 토글 열리고 닫힐때마다 상태 변경
+    // [초기] 비밀번호 토글 열리고 닫힐때마다 상태 변경
     useEffect(() => {
         setValue('isPasswordChanging', isPasswordChanging);
+
+        // 사용자가 비밀번호 입력하다가 토글을 닫은 경우 RHF 값을 모두 공백으로 초기화
+        if(!isPasswordChanging){
+            setValue('currentPassword', '');
+            setValue('newPassword', '');
+            setValue('confirmPassword', '');
+        }
     },[isPasswordChanging, setValue]);
 
     // [핸들러]
@@ -65,10 +78,29 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
         onClose();
     }
 
-    // 2. 프로필 수정 요청
-    // 🚨프로필 개인정보 수정 시 작성🚨
+    // 2. 프로필 수정 완료 요청
     const onSubmit = (values: UserPrivacyFormValues) => {
-        console.log('서버로 보낼 수정 최종 데이터: ', values);
+        // 백엔드에 넣기 위한 완료 값 조립
+        const finalSubmitData: UserPrivacyInfoUpdateRequest = {
+            nickname: values.nickname,
+            phoneNumber: values.phoneNumber,
+            profileImageUrl: finalProfileKey,
+            isPasswordChanging: values.isPasswordChanging,
+
+            // 비밀번호 입력 토클이 열려있을 때만 비밀번호 데이터를 추가
+            currentPassword: values.isPasswordChanging ? (values.currentPassword || '') : '',
+            newPassword: values.isPasswordChanging ? (values.newPassword || '') : '', 
+        };
+
+        updatePrivacy(finalSubmitData, {
+            onSuccess: () => {
+                toast.success("개인정보가 수정되었습니다.");
+                handleModalClose();
+            },
+            onError: () => {
+                toast.error("개인정보 수정에 실패하였습니다.");
+            }
+        });
     };
 
     // 모달이 닫혀있으면 아무것도 렌더링하지 않음
@@ -178,7 +210,13 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
 
                             {/* 최종 제출 버튼 */}
                             <footer>
-                                <button type="submit" style={{ width: '100%', margin: 0 }}>저장</button>
+                                <button
+                                    type="submit"
+                                    disabled={isPending}
+                                    style={{ width: '100%', margin: 0 }}
+                                >
+                                    저장
+                                </button>
                             </footer>
                         </form>
                     </FormProvider>
