@@ -7,6 +7,7 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.exception.NotFoundException;
+import com.example.backend.kafka.UserUpdatedPublisher;
 import com.example.backend.repository.LocalAccountRepository;
 import com.example.backend.repository.SocialAccountRepository;
 import com.example.backend.repository.UserRepository;
@@ -32,6 +33,7 @@ public class UserPrivacyInfoService {
     private final SocialAccountRepository socialAccountRepository;
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate stringRedisTemplate;
+    private final UserUpdatedPublisher userUpdatedPublisher;
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
 
@@ -151,5 +153,15 @@ public class UserPrivacyInfoService {
             // 비밀번호 변경 후 보안으로 기기 토큰도 null로 변경
             user.updateDeviceToken(null);
         }
+
+        // 모듈들에게 카프카 이벤트 발행
+        // - 대상 모듈: post, usersearch
+        userUpdatedPublisher.publisherUserUpdated(
+                user.getId(),
+                user.getName(),
+                user.getNickname(),
+                user.getProfileImageUrl(),
+                user.getStatus()
+        );
     }
 }

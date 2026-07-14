@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -21,20 +22,29 @@ public class UserUpdatedConsumer {
             groupId = KafkaGroupId.GROUP_POST_USER_UPDATE,
             containerFactory = "kafkaListenerContainerFactory"
     )
+    @Transactional
     public void consumerUserUpdated(UserUpdatedEvent event){
         log.info("[post-module] 사용자 계정 정보 업데이트 이벤트 수신 완료: userId={}", event.userId());
 
-        // 1. UserCache 엔티티 생성
-        UserCache userCache = UserCache.builder()
-                .userId(event.userId())
-                .nickname(event.nickname())
-                .profileImageUrl(event.profileImageUrl())
-                .status(event.status())
-                .build();
+        try{
+            // 기존 데이터가 존재한다면 행 삭제
+            userCacheRepository.deleteByUserId(event.userId());
 
-        // 2. post_db에 저장
-        userCacheRepository.save(userCache);
+            // 1. UserCache 엔티티 생성
+            UserCache userCache = UserCache.builder()
+                    .userId(event.userId())
+                    .nickname(event.nickname())
+                    .profileImageUrl(event.profileImageUrl())
+                    .status(event.status())
+                    .build();
 
-        log.info("[post-module] post_db 사용자 정보 저장 완료");
+            // 2. post_db에 저장
+            userCacheRepository.save(userCache);
+
+            log.info("[consumer] post_db 사용자 정보 저장 완료");
+        }catch(Exception e){
+            log.error("[consumer] 사용자 캐시 갱신 중 에러 발생: userId={}", event.userId(), e);
+            throw e;
+        }
     }
 }
