@@ -1,7 +1,9 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.request.FollowRequest;
+import com.example.backend.dto.request.UnfollowRequest;
 import com.example.backend.dto.response.FollowResponse;
+import com.example.backend.dto.response.UnfollowResponse;
 import com.example.backend.entity.Follow;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.NotFoundException;
@@ -54,6 +56,35 @@ public class FollowService {
         FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "FOLLOW");
         followCountUpdatedPublisher.publish(event);
 
-        return FollowResponse.of(userId, targetUserId, "FOLLOWED");
+        return FollowResponse.of(userId, targetUserId);
+    }
+
+    // [언팔로우]
+    @Transactional
+    public UnfollowResponse unfollow (Long userId, UnfollowRequest request){
+        Long targetUserId = request.targetUserId();
+
+        // [예외] 자기 자신 언팔로우 불가 예외 처리
+        if(userId.equals(targetUserId)){
+            throw new InvalidRequestException("자기 자신은 언팔로우할 수 없습니다.");
+        }
+
+        // [예외] 타겟 사용자가 실제로 존재하는지 검증
+        if(!userRepository.existsById(targetUserId)){
+            throw new NotFoundException("존재하지 않는 사용자입니다.");
+        }
+
+        // [예외 & DB 조회] 팔로우 관계 존재 확인
+        Follow follow = followRepository.findByFollowerIdAndFolloweeId(userId, targetUserId)
+                .orElseThrow(() -> new InvalidRequestException("팔로우하지 않은 사용자입니다."));
+
+        // [DB] 관계 삭제
+        followRepository.delete(follow);
+
+        // [카프카] 이벤트 발생
+        FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "UNFOLLOW");
+        followCountUpdatedPublisher.publish(event);
+
+        return UnfollowResponse.of(userId, targetUserId);
     }
 }

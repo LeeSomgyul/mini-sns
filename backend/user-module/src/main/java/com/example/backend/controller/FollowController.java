@@ -2,7 +2,9 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.request.FollowRequest;
+import com.example.backend.dto.request.UnfollowRequest;
 import com.example.backend.dto.response.FollowResponse;
+import com.example.backend.dto.response.UnfollowResponse;
 import com.example.backend.jwt.JwtUser;
 import com.example.backend.service.FollowService;
 import jakarta.validation.Valid;
@@ -23,7 +25,7 @@ public class FollowController {
     private final FollowService followService;
 
     // [팔로우]
-    @PostMapping
+    @PostMapping("/creat")
     public ResponseEntity<ApiResponse<FollowResponse>> follow(
             @AuthenticationPrincipal JwtUser jwtUser,
             @RequestBody @Valid FollowRequest request
@@ -33,5 +35,18 @@ public class FollowController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success("팔로우 하였습니다.", response));
+    }
+
+    // [언팔로우]
+    @PostMapping("/destroy")
+    public ResponseEntity<ApiResponse<UnfollowResponse>> unfollow(
+            @AuthenticationPrincipal JwtUser jwtUser,
+            @RequestBody @Valid UnfollowRequest request
+    ){
+        UnfollowResponse response = followService.unfollow(jwtUser.userId(), request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("언팔로우 하였습니다.", response));
     }
 }

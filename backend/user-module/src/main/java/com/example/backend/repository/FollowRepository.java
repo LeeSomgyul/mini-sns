@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
@@ -25,4 +26,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     // 나를 팔로우하는 사람들의 id 목록 조회
     @Query("SELECT f.followerId FROM Follow f WHERE f.followeeId = :followeeId")
     List<Long> findFollowerIdsByFolloweeId(@Param("followeeId") Long followeeId);
+
+    // Follows 테이블에서 나(follower)와 상대방(followee)의 관계 객체 전달
+    Optional<Follow> findByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 }
