@@ -1,7 +1,9 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQwODYzOTYsImV4cCI6MTc4NDA4ODE5Nn0.VrQcNfWCRwfSh0Dqp_qy2DTymNqHlw4aO7sW9unL_ZTLJAm3X1JjKHQiXzrcBfvn
-
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyIiwibmlja25hbWUiOiLsg4jrsr3rp6TtgazroZwiLCJpYXQiOjE3ODQxMjUzNzgsImV4cCI6MTc4NDEyNzE3OH0.1PT84I5Rw_OqJ1sGELeifd3zQ0cGjWLNxp6HFl3QhpZaAlVrfvmKV0dXgEy0mn69
+@targetUserId = 2
+@size = 2
+@nextCursor = 2
 
 ### 1. 팔로우 성공 (나 1번 -> 2번 유저) 
 POST {{baseUrl}}/follows/creat
@@ -9,7 +11,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "targetUserId": 2
+    "targetUserId": 4
 }
 
 ### 2. 자기 자신과 팔로우 예외 테스트 (나 1번 -> 1번)
@@ -67,3 +69,20 @@ Authorization: Bearer {{accessToken}}
 {
     "targetUserId": 999
 }
+
+// -------------------------------------------------------
+
+### 1-1. 특정 유저의 팔로잉 목록 조회 (첫 페이지: cursor 없음)
+GET {{baseUrl}}/users/{{targetUserId}}/followings?size={{size}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 1-2. 특정 유저의 팔로잉 목록 조회 (두번째 페이지: cursor 있음)
+GET {{baseUrl}}/users/{{targetUserId}}/followings?cursor={{nextCursor}}&size={{size}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2-1. 특정 유저의 팔로워 목록 조회 (첫 페이지: cursor 없음)
+GET {{baseUrl}}/users/{{targetUserId}}/followers?size={{size}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
