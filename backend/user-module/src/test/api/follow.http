@@ -1,0 +1,40 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQwODAyMTcsImV4cCI6MTc4NDA4MjAxN30.-ZO-v390NR_XYviDmu_8yOGBy4XrAoEM0YEA7N0WDqeftrEQ--SVBwTTax_SMKAu
+
+
+### 1. 팔로우 성공 (나 1번 -> 2번 유저) 
+POST {{baseUrl}}/follows
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "targetUserId": 2
+}
+
+### 2. 자기 자신과 팔로우 예외 테스트 (나 1번 -> 1번)
+POST {{baseUrl}}/follows
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "targetUserId": 1
+}
+
+### 3. 존재하지 않는 유저에게 팔로우 (나 1번 -> 999번)
+POST {{baseUrl}}/follows
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "targetUserId": 999
+}
+
+### 4. 중복 팔로우 (나 1번 -> 2번, 이후에 또 2번에게 팔로우)
+POST {{baseUrl}}/follows
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "targetUserId": 2
+}

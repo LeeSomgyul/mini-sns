@@ -16,7 +16,7 @@ import java.util.stream.LongStream;
 // 🚨개발 완료 후 제거하기🚨
 @Slf4j
 @Component
-@Profile("local") // 로컬 개발 환경에서만 작동
+@Profile("dummy") // 로컬 개발 환경에서만 작동
 @RequiredArgsConstructor
 public class DummyFollowInitializer implements ApplicationRunner {
 
