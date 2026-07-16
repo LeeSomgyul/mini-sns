@@ -4,6 +4,7 @@ import type { ErrorResponse } from "react-router-dom";
 import type { FollowRequest, FollowResponse } from "../types/FollowType";
 import { followApi } from "../api/followApi";
 import { FOLLOW_KEYS, PROFILE_KEYS } from "../../../constants/queryKey";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface FollowMutationProps{
     onSuccess?: (data: FollowResponse) => void;
@@ -12,6 +13,7 @@ interface FollowMutationProps{
 
 export const useFollowMutation = ({onSuccess, onError}: FollowMutationProps) => {
     const queryClient = useQueryClient();
+    const myUserId = useAuthStore((state) => state.myUserId);
 
     return useMutation({
         // [api] 팔로우 요청 
@@ -23,10 +25,15 @@ export const useFollowMutation = ({onSuccess, onError}: FollowMutationProps) => 
         onSuccess: (data, variables) => {
             const {targetUserId} = variables;
 
-            // 캐시 무효화 (내 팔로잉 목록, 상대방 프로필, 내 프로필 전체)
-            queryClient.invalidateQueries({queryKey: FOLLOW_KEYS.followingsAll()});
-            queryClient.invalidateQueries({queryKey: PROFILE_KEYS.user(targetUserId)});
-            queryClient.invalidateQueries({queryKey: PROFILE_KEYS.users()});
+            // 캐시 무효화 (내 팔로잉 목록, 상대방 팔로워 목록, 상대방 프로필 ㅋ, 내 프로필 전체)
+            setTimeout(() => {
+                if (myUserId) {
+                    queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followings(myUserId) });
+                    queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.user(myUserId) });
+                }
+                queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followers(targetUserId) });
+                queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.user(targetUserId) });
+            }, 100);
 
             // 컴포넌트에게 백엔드에서 전달받은 FollowResponse 전달
             if(onSuccess) onSuccess(data);

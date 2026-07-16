@@ -117,5 +117,5 @@ export const FOLLOW_KEYS = {
 
     // 특정 사용자의 팔로워 목록 (무한스크롤)
     // 예: ['follows', 'followers', 10]
-    follosers: (userId: number) => [...FOLLOW_KEYS.followersAll(), userId] as const,
+    followers: (userId: number) => [...FOLLOW_KEYS.followersAll(), userId] as const,
 }

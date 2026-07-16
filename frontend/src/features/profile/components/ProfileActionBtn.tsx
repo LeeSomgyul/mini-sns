@@ -1,7 +1,7 @@
 import { useFollowMutation } from "../hooks/useFollowMutation";
 import { useUnfollowMutation } from "../hooks/useUnfollowMutation";
 
-// [부모인 ProfileHeader에서 상속]
+// [부모인 ProfileHeader > ProfilePage 에서 상속]
 interface ProfileActionBtnProps{
     targetUserId: number;
     isMe: boolean;
