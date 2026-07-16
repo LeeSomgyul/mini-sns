@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFollowListInfiniteQuery } from "../hooks/useFollowListInfiniteQuery";
+import { useFollowMutation } from "../hooks/useFollowMutation";
+import { useUnfollowMutation } from "../hooks/useUnfollowMutation";
 
 interface FollowListModalProps{
     type: 'followings' | 'followers';
@@ -13,7 +15,12 @@ export const FollowListModal = ({type, userId, onClose}: FollowListModalProps) =
     const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
+    // [상태]
+    // 1. 리스트에서 '언팔로우' 요청한 사람들 리스트
+    const [ unfollowUserIds, setUnfollowUserIds ] = useState<number[]>([]);
+
     // [훅 호출]
+    // 1. 리스트 무한스크롤 조회
     const {
         data,
         fetchNextPage,
@@ -21,6 +28,18 @@ export const FollowListModal = ({type, userId, onClose}: FollowListModalProps) =
         isFetchingNextPage,
         isLoading
     } = useFollowListInfiniteQuery({type, userId});
+
+    // 2. 팔로우 & 언팔로우 
+    const {mutate: follow} = useFollowMutation({
+        onSuccess: () => {
+            
+        },
+        onError: () => {}
+    });
+    const {mutate: unfollow} = useUnfollowMutation({
+        onSuccess: () => {},
+        onError: () => {}
+    });
 
     // [무한스크롤] 스크롤 감시 div 생성
     const observerRef = useRef<HTMLDivElement | null>(null);
@@ -79,12 +98,12 @@ export const FollowListModal = ({type, userId, onClose}: FollowListModalProps) =
                     <div style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                             {followList.map((user) => {
-                                 const finalImage = user.profileImageUrl !== null
+                                const finalImage = user.profileImageUrl !== null
                                     ? MINIO_MEDIA_ENDPOINT+user.profileImageUrl
                                     : DEFAULT_PROFILE;
                 
                                 return(
-                                    <li 
+                                <li 
                                     key={user.userId} 
                                     style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--pico-border-color)' }}
                                 >
