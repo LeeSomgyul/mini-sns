@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postApi } from "../api/postApi";
 import toast from 'react-hot-toast';
 import { FEED_KEYS, PROFILE_KEYS } from "../../../constants/queryKey";
-import { type PostUserProfileResponse } from "../../profile/types/PostUserProfileResponse";
+import { type PostUserProfileResponse } from "../../profile/types/PostUserProfileType";
 
 interface DeletePostVariables {
     postId: number;

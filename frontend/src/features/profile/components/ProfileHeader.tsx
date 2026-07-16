@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import type { UserProfileResponse } from '../types/UserProfileResponse';
+import type { UserProfileResponse } from '../types/UserProfileType';
 import { formatCount } from '../util/formatCount';
 import { UserPrivacyInfoUpdateModal } from './UserPrivacyInfoUpdateModal';
+import { ProfileActionBtn } from './ProfileActionBtn';
 
 interface ProfileHeaderProps {
   userData: UserProfileResponse;
@@ -16,25 +17,6 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
   // [상태]
   // 1. 개인정보 수정 모달 열림 여부 관리
   const [ isPrivacyInfoModalOpen, setPrivacyInfoModalOpen] = useState(false);
-
-  // 상황에 맞는 버튼을 반환하는 내부 렌더링 함수
-  const renderActionButton = () => {
-    if (userData.isMe) {
-      return (
-        <button 
-          className="secondary outline"
-          style={{ padding: '0.5rem 1rem' }}
-          onClick={() => setPrivacyInfoModalOpen(true)}
-        >
-          개인정보 수정
-        </button>
-      );
-    }
-    if (userData.isFollowing) {
-      return <button className="contrast outline" style={{ padding: '0.5rem 1rem' }}>친구 삭제</button>;
-    }
-    return <button style={{ padding: '0.5rem 1rem' }}>친구 추가</button>;
-  };
 
   const finalImage = MINIO_MEDIA_ENDPOINT + userData.profileImageUrl;
 
@@ -94,7 +76,12 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
 
       {/* [하단] 가로로 길게 채워지는 액션 버튼 영역 */}
       <div style={{ width: '100%', marginTop: '0.5rem' }}>
-        {renderActionButton()}
+        <ProfileActionBtn
+          targetUserId={userData.userId}
+          isMe={userData.isMe}
+          isFollowing={userData.isFollowing}
+          onOpenPrivacyInfoModal={() => setPrivacyInfoModalOpen(true)}
+        />
       </div>
 
       {/* [모달] 개인정보 변경 모달 영역 */}

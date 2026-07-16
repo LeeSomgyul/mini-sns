@@ -1,6 +1,6 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from "../../../common/types/commonType";
-import type { ProfileNicknameCheck, UserPrivacyInfoResponse, UserPrivacyInfoUpdateRequest } from '../types/UserPrivacyInfoDto';
+import type { ProfileNicknameCheck, UserPrivacyInfoResponse, UserPrivacyInfoUpdateRequest } from '../types/UserPrivacyInfoType';
 
 export const userPrivacyInfoApi = {
     // 1. 사용자의 프로필 개인정보 가져오기

@@ -24,7 +24,7 @@ public class FollowController {
 
     private final FollowService followService;
 
-    // [팔로우]
+    // [팔로우 요청]
     @PostMapping("/creat")
     public ResponseEntity<ApiResponse<FollowResponse>> follow(
             @AuthenticationPrincipal JwtUser jwtUser,
@@ -37,7 +37,7 @@ public class FollowController {
                 .body(ApiResponse.success("팔로우 하였습니다.", response));
     }
 
-    // [언팔로우]
+    // [언팔로우 요청]
     @PostMapping("/destroy")
     public ResponseEntity<ApiResponse<UnfollowResponse>> unfollow(
             @AuthenticationPrincipal JwtUser jwtUser,
