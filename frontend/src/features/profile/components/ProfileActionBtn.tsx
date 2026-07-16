@@ -45,7 +45,7 @@ export const ProfileActionBtn = ({targetUserId, isMe, isFollowing, onOpenPrivacy
                 disabled={isUnfollowPending}
                 onClick={() => unfollow({targetUserId: targetUserId})}
             >
-                팔로우 삭제
+                팔로우 취소
             </button>
         );
     }

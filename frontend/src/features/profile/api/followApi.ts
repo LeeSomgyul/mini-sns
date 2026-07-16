@@ -3,7 +3,8 @@ import type { ApiResponse } from "../../../common/types/commonType";
 import type {
     FollowRequest, FollowResponse,
     UnfollowRequest, UnfollowResponse,
-    FollowUserResponse
+    FollowUserResponse,
+    FollowUserRequest
 } from '../types/FollowType';
 
 export const followApi = {
@@ -28,7 +29,7 @@ export const followApi = {
     },
 
     // [팔로잉 목록 조회] ID 가 userId인 사용자의 팔로잉 목록 조회
-    getFollowings: async (userId: number, cursor: number, size: number = 20): Promise<FollowUserResponse> => {
+    getFollowings: async ({userId, cursor, size = 20}: FollowUserRequest): Promise<FollowUserResponse> => {
         const response = await api.get<ApiResponse<FollowUserResponse>>(
             `/api/v1/users/${userId}/followings`,
             {params: {cursor, size}}
@@ -38,7 +39,7 @@ export const followApi = {
     },
 
     // [팔로우 목록 조회] ID 가 userId인 사용자의 팔로우 목록 조회
-    getFollowers: async (userId: number, cursor: number, size: number = 20): Promise<FollowUserResponse> => {
+    getFollowers: async ({userId, cursor, size}: FollowUserRequest): Promise<FollowUserResponse> => {
         const response = await api.get<ApiResponse<FollowUserResponse>>(
             `/api/v1/users/${userId}/followers`,
             {params: {cursor, size}}
