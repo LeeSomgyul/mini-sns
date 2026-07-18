@@ -95,6 +95,7 @@ export const FollowListModal = ({type, userId, onClose}: FollowListModalProps) =
                                     type={type}
                                     isCurrentlyUnfollowed={unfollowUserIds.includes(user.userId)}
                                     onToggleUnfollow={handleToggletUnfollow}
+                                    onCloseModal={onClose}
                                 />
                             ))}
                         </ul>
