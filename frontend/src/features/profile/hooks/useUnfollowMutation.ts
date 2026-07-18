@@ -7,11 +7,12 @@ import { FOLLOW_KEYS, PROFILE_KEYS } from "../../../constants/queryKey";
 import { useAuthStore } from "../../auth/store/authStore";
 
 interface UnfollowMutationProps{
-    onSuccess?: (data: UnfollowResponse) => void;
+    isModalOpen?: boolean;
+    onSuccess?: (data: UnfollowResponse, variables: UnfollowRequest) => void;
     onError?: (error: AxiosError<ErrorResponse>) => void;
 }
 
-export const useUnfollowMutation = ({onSuccess, onError}: UnfollowMutationProps) => {
+export const useUnfollowMutation = ({isModalOpen ,onSuccess, onError}: UnfollowMutationProps) => {
     const queryClient = useQueryClient();
     const myUserId = useAuthStore((state) => state.myUserId);
 
@@ -29,15 +30,20 @@ export const useUnfollowMutation = ({onSuccess, onError}: UnfollowMutationProps)
             // 캐시 무효화 (내 팔로잉 목록, 상대방 팔로워 목록, 상대방 프로필 카운트, 내 프로필 전체)
             setTimeout(() => {
                 if (myUserId) {
-                    queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followings(myUserId) });
+                    if(!isModalOpen){
+                        queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followings(myUserId) });
+                    }
                     queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.user(myUserId) });
                 }
-                queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followers(targetUserId) });
+
+                if(!isModalOpen){
+                    queryClient.invalidateQueries({ queryKey: FOLLOW_KEYS.followers(targetUserId) });
+                }
                 queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.user(targetUserId) });
             }, 100);
 
             // 컴포넌트에게 백엔드에서 전달받은 FollowResponse 전달
-            if(onSuccess) onSuccess(data);
+            if(onSuccess) onSuccess(data, variables);
         },
 
         // [실패 시 실행]

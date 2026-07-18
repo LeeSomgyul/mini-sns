@@ -4,6 +4,9 @@ import { formatCount } from '../util/formatCount';
 import { UserPrivacyInfoUpdateModal } from './UserPrivacyInfoUpdateModal';
 import { ProfileActionBtn } from './ProfileActionBtn';
 import { FollowListModal } from './FollowListModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { FOLLOW_KEYS } from '../../../constants/queryKey';
+import { useAuthStore } from '../../auth/store/authStore';
 
 interface ProfileHeaderProps {
   userData: UserProfileResponse;
@@ -15,6 +18,10 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
   const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
   const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
   const finalImage = MINIO_MEDIA_ENDPOINT + userData.profileImageUrl;
+
+  const queryClient = useQueryClient();
+
+  const myUserId = useAuthStore((state) => state.myUserId);
 
   // [상태]
   // 1. 개인정보 수정 모달 열림 여부 관리
@@ -39,6 +46,9 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
 
   // 3. '팔로워' & '팔로잉' 목록 닫을 때
   const handleCloseModal = () => {
+    if(myUserId){
+      queryClient.invalidateQueries({queryKey: FOLLOW_KEYS.followings(myUserId)});
+    }
     setIsFollowListModalOpen(false);
   }
   
