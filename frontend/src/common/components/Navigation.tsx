@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import type { NavItemType, ModalType } from "../../types/navItemType";
 import { ROUTES } from "../../constants/routes";
-import SettingsModal from "../../pages/SettingsModal";
+import {SettingsModal} from "../../pages/SettingsModal";
 import {PostFormModal} from "../../features/post/pages/PostFormModal";
 import { useAuthStore } from "../../features/auth/store/authStore";
 

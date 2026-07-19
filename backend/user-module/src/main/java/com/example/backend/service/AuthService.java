@@ -136,7 +136,7 @@ public class AuthService {
         return ApiResponse.success("회원가입이 완료되었습니다.", JoinResponse.of(user, localAccount));
     }
 
-    //로그아웃
+    // [로그아웃]
     @Transactional
     public ApiResponse<Void> logout(String accessToken, Long userId){
         //이미 로그아웃 되어있는 사용자 처리
