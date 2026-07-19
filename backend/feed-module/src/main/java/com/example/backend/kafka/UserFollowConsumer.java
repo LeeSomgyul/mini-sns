@@ -20,6 +20,8 @@ public class UserFollowConsumer {
     private static final String REDIS_FOLLOWERS_KEY_PREFIX = "feed:followers:";
     // 2. A라는 유저가 팔로우하는 사람들 명단 (userId)
     private static final String REDIS_FOLLOWINGS_KEY_PREFIX = "feed:followings:";
+    // 3. A라는 유저가 피드에서 보는 게시물 목록
+    private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
     @KafkaListener(
             topics = KafkaTopics.USER_FOLLOW_COUNT_UPDATED_TOPIC,
@@ -44,6 +46,11 @@ public class UserFollowConsumer {
         }else if("UNFOLLOW".equalsIgnoreCase(action)){
             stringRedisTemplate.opsForSet().remove(followersKey, followerId);
             stringRedisTemplate.opsForSet().remove(followingsKey, followeeId);
+
+            // 게시물 타임라인에서도 삭제
+            String myTimeLineKey = REDIS_FEED_KEY_PREFIX + followerId;
+
+            // 🚨 7/20까지 완료 (언팔로우 시 상대방 postid를 내 redis feed목록에서 제거)
             log.info("[카프카 컨수머 완료] {} -> {} 제거 / {} -> {} 제거", followersKey, followerId, followingsKey, followeeId);
         }
     }
