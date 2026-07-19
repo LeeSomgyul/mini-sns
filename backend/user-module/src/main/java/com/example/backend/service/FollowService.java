@@ -5,10 +5,13 @@ import com.example.backend.dto.request.UnfollowRequest;
 import com.example.backend.dto.response.FollowResponse;
 import com.example.backend.dto.response.UnfollowResponse;
 import com.example.backend.entity.Follow;
+import com.example.backend.entity.User;
 import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.NotFoundException;
 import com.example.backend.kafka.FollowCountUpdatedEvent;
 import com.example.backend.kafka.FollowCountUpdatedPublisher;
+import com.example.backend.kafka.UserCelebrityChangedEvent;
+import com.example.backend.kafka.UserCelebrityChangedPublisher;
 import com.example.backend.repository.FollowRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class FollowService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final FollowCountUpdatedPublisher followCountUpdatedPublisher;
+    private final UserCelebrityChangedPublisher userCelebrityChangedPublisher;
 
     // [팔로우]
     @Transactional
@@ -56,6 +60,17 @@ public class FollowService {
         FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "FOLLOW");
         followCountUpdatedPublisher.publish(event);
 
+        // [카프카] 이벤트 발생: 유저 팔로잉 수 확인 후 인플루언서로 변경
+        Long followerCount = followRepository.countByFolloweeId(targetUserId);
+
+        if(followerCount == 3){
+            User followee = userRepository.findById(targetUserId).orElseThrow();
+            followee.changeCelebrityStatus(true);
+
+            UserCelebrityChangedEvent celebrityEvent = new UserCelebrityChangedEvent(targetUserId, true);
+            userCelebrityChangedPublisher.publish(celebrityEvent);
+        }
+
         return FollowResponse.of(userId, targetUserId);
     }
 
@@ -84,6 +99,17 @@ public class FollowService {
         // [카프카] 이벤트 발생
         FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "UNFOLLOW");
         followCountUpdatedPublisher.publish(event);
+
+        // [카프카] 이벤트 발생: 유저 팔로잉 수 확인 후 일반 인플루언서 -> 일반 사용자로 변경
+        Long followerCount = followRepository.countByFolloweeId(targetUserId);
+
+        if(followerCount == 2){
+            User followee = userRepository.findById(targetUserId).orElseThrow();
+            followee.changeCelebrityStatus(false);
+
+            UserCelebrityChangedEvent celebrityEvent = new UserCelebrityChangedEvent(targetUserId, false);
+            userCelebrityChangedPublisher.publish(celebrityEvent);
+        }
 
         return UnfollowResponse.of(userId, targetUserId);
     }

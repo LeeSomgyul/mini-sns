@@ -61,17 +61,22 @@ public class FriendshipTargetConnection implements FeedTargetConnection{
      * - 실행 시점: 사용자가 자신의 피드를 새로고침 하는 순간
      * - 시스템 내 인플루언서 userId 목록을 Redis Set에서 조회
      * @param currentUserId: 피드를 조회하고 있는 현재 로그인한 사용자의 고유 ID
-     * @return 내가 팔로우 중인 인플루언서들의 ID 리스트(🚨현재는 모든 ID 반환중🚨)
+     * @return 내가 팔로우 중인 인플루언서들의 ID 리스트
      */
     @Override
     public List<Long> feedPullTargetIds(Long currentUserId) {
-        Set<String> celebrities = stringRedisTemplate.opsForSet().members(REDIS_CELEBRITY_KEY);
+        // 내가 팔로우하는 사람들 명단
+        String myFollowingsKey = REDIS_FOLLOWINGS_KEY_PREFIX + currentUserId;
 
-        if(celebrities == null || celebrities.isEmpty()){
+        // 내가 팔로우하는 사람들 명단과 인플루언서 전체 명단 교집합 저장
+        Set<String> myCelebrities = stringRedisTemplate.opsForSet().intersect(myFollowingsKey, REDIS_CELEBRITY_KEY);
+
+        if(myCelebrities == null || myCelebrities.isEmpty()){
+            log.info("[Pull 대상 조회] 유저({})가 팔로우하는 인플루언서가 Redis에 존재하지 않습니다.", currentUserId);
             return Collections.emptyList();
         }
 
-        return celebrities.stream()
+        return myCelebrities.stream()
                 .map(Long::valueOf)
                 .toList();
     }
