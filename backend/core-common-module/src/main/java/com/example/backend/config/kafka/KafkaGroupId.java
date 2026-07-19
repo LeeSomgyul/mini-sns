@@ -17,4 +17,5 @@ public final class KafkaGroupId {
 
     public static final String GROUP_FEED_POST_CREATE = "minisns-feed-post-create";
     public static final String GROUP_FEED_POST_DELETE = "minisns-feed-post-delete";
+    public static final String GROUP_FEED_FOLLOW_UPDATE = "minisns-feed-follow-update";
 }
