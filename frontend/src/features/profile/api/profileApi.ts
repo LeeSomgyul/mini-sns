@@ -1,7 +1,7 @@
 import api from '../../../common/api/axios';
 import type { ApiResponse } from "../../../common/types/commonType";
-import type { PostUserProfileResponse } from '../types/PostUserProfileResponse'; 
-import type { UserProfileResponse } from '../types/UserProfileResponse';
+import type { PostUserProfileResponse } from '../types/PostUserProfileType'; 
+import type { UserProfileResponse } from '../types/UserProfileType';
 
 export const profileApi = {
     // 1. user 모듈에서 사용자 정보 가져오기

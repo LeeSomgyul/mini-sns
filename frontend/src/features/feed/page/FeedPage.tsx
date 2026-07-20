@@ -25,7 +25,7 @@ export const FeedPage = ({onRefreshScroll}: FeedPageProps) => {
 
         //캐시 파괴 및 새로고침
         await queryClient.invalidateQueries({
-            queryKey: FEED_KEYS.lists(20),
+            queryKey: FEED_KEYS.all,
         });        
     }
 

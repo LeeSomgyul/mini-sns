@@ -12,7 +12,7 @@ export interface PostDto{
     author: AuthorDto;
     content: string;
     media: MediaDto[];
-    commentCount?: number; //🚨댓글, 좋아요 기능 완료 후 '?' 제거하기🚨
+    commentCount?: number;
     likeCount: number;
     isLiked?: boolean;
     isAuthor: boolean;

@@ -57,7 +57,6 @@ public class EmailService {
         //인증번호 6자리 난수 생성
         String verificationCode = String.format("%06d", new Random().nextInt(1000000));
 
-        //🚨🚨api 테스트용🚨🚨
         log.info("테스트용 이메일 인증 코드 [{}] 발송 대상: {}", verificationCode, request.email());
 
         //메일 발송

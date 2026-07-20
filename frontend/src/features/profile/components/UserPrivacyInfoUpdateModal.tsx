@@ -5,7 +5,7 @@ import { userPrivacyInfoSchema, type UserPrivacyFormValues } from "../schema/use
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NicknameCheckBtn } from "./NicknameCheckBtn";
 import { ProfileImageUploader } from "./ProfileImageUploader";
-import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoDto";
+import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoType";
 import { useUpdateUserPrivacy } from "../hooks/useUpdateUserPrivacy";
 import toast from "react-hot-toast";
 import axios from "axios";

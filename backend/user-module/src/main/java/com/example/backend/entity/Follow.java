@@ -14,7 +14,10 @@ import java.time.Instant;
 @Table(
         name = "follows",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"follower_id", "followee_id"})
+                @UniqueConstraint(
+                        name = "uk_feed_follower_following",
+                        columnNames = {"follower_id", "followee_id",
+                })
         }
 )
 @Getter

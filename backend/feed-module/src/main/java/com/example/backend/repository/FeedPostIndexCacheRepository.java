@@ -1,5 +1,6 @@
 package com.example.backend.repository;
 
+import com.example.backend.dto.FeedPostIndexCacheDto;
 import com.example.backend.entity.FeedPostIndexCache;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,4 +44,7 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
     void deleteByPostId(
             @Param("postId") Long postId
     );
+
+    // 내가 팔로우하는 작성자들의 최근 게시글 ID 리스트를 Pageable 크기만큼 가져오기
+    List<FeedPostIndexCacheDto> findByAuthorIdInOrderByPostIdDesc(List<Long> authorId, Pageable pageable);
 }

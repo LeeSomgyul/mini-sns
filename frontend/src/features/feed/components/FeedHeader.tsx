@@ -2,6 +2,8 @@ import type {AuthorDto} from "../types/feedResponseType";
 import { formatFeedDate } from "../hooks/formatFeedDate";
 import { useDeletePost } from "../../post/hooks/useDeletePost";
 import { usePostModalStore } from "../../../common/store/usePostModalStore";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../constants/routes";
 
 interface FeedHeaderProps {
     postId: number;
@@ -18,6 +20,7 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
     const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
     const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
+    const navigate = useNavigate();
     const {mutate: deletePost, isPending} = useDeletePost({
         onDeleteSuccess: () => {
             if(onDeleteSuccess){
@@ -42,7 +45,7 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
             {/* 왼쪽: 프로필 및 정보 */}
             <div
                 style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
-                onClick={() => alert(`${author.userId} 프로필로 이동`)} //🚨프로필 기능 완성 후 링크 연결🚨
+                onClick={() => navigate(ROUTES.PROFILE.LINK(author.userId))}
             >
                 <img
                     src={finalImage || DEFAULT_PROFILE}

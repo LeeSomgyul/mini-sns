@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoDto";
+import type { UserPrivacyInfoUpdateRequest } from "../types/UserPrivacyInfoType";
 import { userPrivacyInfoApi } from "../api/userPrivacyInfoApi";
 import { FEED_KEYS, POST_KEYS, PROFILE_KEYS, USER_KEYS } from "../../../constants/queryKey";
 

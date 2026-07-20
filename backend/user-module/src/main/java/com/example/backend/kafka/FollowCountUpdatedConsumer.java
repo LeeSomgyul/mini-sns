@@ -41,18 +41,26 @@ public class FollowCountUpdatedConsumer {
     public void consume(FollowCountUpdatedEvent event){
         Long followerId = event.followerId(); // 팔로우를 한 사람 (나)
         Long followeeId = event.followeeId(); // 팔로우를 받은 사람 (상대방)
+        String action = event.action(); // FOLLOW 또는 UNFOLLOW
 
         String followingCountKey = generateKey(RedisKeyType.FOLLOWING_COUNT, followerId);
         String followerCountKey = generateKey(RedisKeyType.FOLLOWER_COUNT, followeeId);
         String followingSetKey = generateKey(RedisKeyType.FOLLOWING_SET, followerId);
         String followerSetKey = generateKey(RedisKeyType.FOLLOWER_SET, followeeId);
 
-        //🚨친구 삭제(언팔로우) 기능 구현 후 count 감소 및 set 제거 구현하기🚨
-        stringRedisTemplate.opsForValue().increment(followingCountKey);
-        stringRedisTemplate.opsForValue().increment(followerCountKey);
-        stringRedisTemplate.opsForSet().add(followingSetKey, String.valueOf(followeeId));
-        stringRedisTemplate.opsForSet().add(followerSetKey, String.valueOf(followerId));
+        if("FOLLOW".equalsIgnoreCase(action)){
+            stringRedisTemplate.opsForValue().increment(followingCountKey);
+            stringRedisTemplate.opsForValue().increment(followerCountKey);
+            stringRedisTemplate.opsForSet().add(followingSetKey, String.valueOf(followeeId));
+            stringRedisTemplate.opsForSet().add(followerSetKey, String.valueOf(followerId));
+            log.info("[카프카 컨수머 실행 완료] 팔로우 완료 - topics: {} / Redis follower: [{}] -> followee: [{}]", KafkaTopics.USER_FOLLOW_COUNT_UPDATED_TOPIC, followerId, followeeId);
+        } else if ("UNFOLLOW".equalsIgnoreCase(action)) {
+            stringRedisTemplate.opsForValue().decrement(followingCountKey);
+            stringRedisTemplate.opsForValue().decrement(followerCountKey);
+            stringRedisTemplate.opsForSet().remove(followingSetKey, String.valueOf(followeeId));
+            stringRedisTemplate.opsForSet().remove(followerSetKey, String.valueOf(followerId));
+            log.info("[카프카 컨수머 실행 완료] 언팔로우 완료 - topics: {} / Redis follower: [{}] -> followee: [{}]", KafkaTopics.USER_FOLLOW_COUNT_UPDATED_TOPIC, followerId, followeeId);
+        }
 
-        log.info("[카프카 컨수머 실행 완료] topics: {} / Redis follower: [{}] -> followee: [{}]", KafkaTopics.USER_FOLLOW_COUNT_UPDATED_TOPIC, followerId, followeeId);
     }
 }

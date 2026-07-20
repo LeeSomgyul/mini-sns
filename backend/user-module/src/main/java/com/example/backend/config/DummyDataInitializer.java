@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 // [user모듈 서버 실행 시 유저 더미데이터 10명 생성]
 // 🚨개발 완료 후 제거하기🚨
@@ -50,6 +51,12 @@ public class DummyDataInitializer implements ApplicationRunner {
 
         entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER TABLE follows ALTER COLUMN id RESTART WITH 1").executeUpdate();
+
+        Set<String> userKeys = stringRedisTemplate.keys("user:*");
+        if(userKeys != null && !userKeys.isEmpty()){
+            stringRedisTemplate.delete(userKeys);
+            log.info("[Redis 초기화] 기존 유저 캐시 키 {}개 삭제 완료", userKeys.size());
+        }
 
         // 2. 더미유저 생성 시작 (DB 갱신)
         log.info("[더미데이터 생성 시작] 테스트를 위한 더미 유저 10명 생성을 시작합니다...");
@@ -89,34 +96,6 @@ public class DummyDataInitializer implements ApplicationRunner {
                     null,
                     user.getStatus()
             );
-        }
-
-        for(int i=0; i<savedUsers.size(); i++){
-            User follower = savedUsers.get(i);
-
-            for (int j = 0; j < savedUsers.size(); j++) {
-                if (i == j) continue; // 본인 제외
-
-                if (Math.abs(i - j) <= 2) {
-                    User followee = savedUsers.get(j);
-
-                    Follow follow = Follow.builder()
-                            .followerId(follower.getId()) // 나
-                            .followeeId(followee.getId()) // 상대방
-                            .build();
-                    followRepository.save(follow);
-                }
-            }
-        }
-
-        // 3. 더미 팔로우 추가
-        for(User user : savedUsers){
-            // 본인을 제외한 9명과 맞팔했다고 가정
-            String followerKey = String.format("user:%d:follower_count", user.getId());
-            String followingKey = String.format("user:%d:following_count", user.getId());
-
-            stringRedisTemplate.opsForValue().set(followerKey, "9");
-            stringRedisTemplate.opsForValue().set(followingKey, "9");
         }
 
         log.info("[더미데이터 생성 완료] 더미 유저 10명 / 엘라스틱서치 / 팔로우 레디스");

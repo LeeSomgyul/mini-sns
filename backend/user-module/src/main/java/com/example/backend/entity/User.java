@@ -103,4 +103,9 @@ public class User {
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
+
+    // 일반 -> 인플루언서 변경
+    public void changeCelebrityStatus(boolean isCelebrity){
+        this.isCelebrity = isCelebrity;
+    }
 }

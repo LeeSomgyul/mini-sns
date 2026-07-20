@@ -14,7 +14,6 @@ public interface SseRepository {
     // 3. userId 유저의 SseMitter 객체 가져오기
     SseEmitter get(Long userId);
 
-    //🚨친구 기능 만들면 모든x 친구 기반으로 수정하기🚨
     // 4. 우리 서버에 연결되어있는 모든 SseEmitter 가져오기
     Map<Long, SseEmitter> findAll();
 }

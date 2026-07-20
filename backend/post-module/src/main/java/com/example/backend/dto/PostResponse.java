@@ -8,7 +8,6 @@ import lombok.Builder;
 import java.util.List;
 import java.util.Map;
 
-@Builder
 public record PostResponse (
         Long postId,
         Long authorId,
@@ -17,7 +16,6 @@ public record PostResponse (
         String content,
         List<TagUserResponse> tagUsers
 ){
-    @Builder
     public record MediaResponse(
             Long mediaId,
             String type,
@@ -36,7 +34,6 @@ public record PostResponse (
         }
     }
 
-    @Builder
     public record TagUserResponse(
             Long userId,
             String nickname
@@ -49,7 +46,7 @@ public record PostResponse (
         }
     }
 
-    public static PostResponse of (Post post, Long authorId){
+    public static PostResponse of (Post post, Long authorId, Map<Long, String> nicknames){
         return new PostResponse(
                 post.getId(),
                 authorId,
@@ -58,9 +55,8 @@ public record PostResponse (
                 post.getContent(),
                 post.getTags().stream()
                         .map(tag -> {
-                            //🚨아직 닉네임을 모르니, 임시로 "사용자_숫자ID"로 프론트에 던져줍니다.🚨
-                            String tempNickname = "사용자_" + tag.getUserId();
-                            return TagUserResponse.of(tag, tempNickname);
+                            String nickname = nicknames.get(tag.getId());
+                            return TagUserResponse.of(tag, nickname);
                         })
                         .toList()
         );

@@ -1,54 +1,34 @@
 import { useState, type MouseEventHandler } from "react";
-import { useNavigate } from "react-router-dom";
+import {useAuthStore} from "../features/auth/store/authStore";
+import { useLogoutMutation } from "../features/auth/hooks/useLogoutMutation";
 
-import api from "../api/axios";
-import {useAuthStore} from "../../features/auth/store/authStore";
-import type { SettingsModalProps, SettingsTabType } from '../../types/modalType';
-import { ROUTES } from "../../constants/routes";
+interface SettingsModalProps{
+    closeModal: () => void;
+}
 
-const SettingsModal = ({closeModal} : SettingsModalProps) => {
+export const SettingsModal = ({closeModal} : SettingsModalProps) => {
 
     const accessToken = useAuthStore((state) => (state.accessToken));
-    const logout = useAuthStore((state) => state.logout);
+    const {mutate: handleLogout, isPending} = useLogoutMutation({closeModal});
 
-    const navigate = useNavigate();
-    const [selectedTab, setSelectedTab] = useState<SettingsTabType>('logout');
+    const [selectedTab, setSelectedTab] = useState('logout');
+    
 
-    const handleCloseModal: MouseEventHandler<HTMLButtonElement> = (e) => {
+    // [메서드] 모달 닫기
+    const handleCloseModal: MouseEventHandler<HTMLButtonElement> = () => {
         closeModal();
     };
 
-    const handleClickLogoutTab: MouseEventHandler<HTMLLIElement> = (e) => {
+    // [메서드] 로그아웃 탭 클릭
+    const handleClickLogoutTab: MouseEventHandler<HTMLLIElement> = () => {
         setSelectedTab('logout');
     };
 
-    const handleClickWithdrawTab: MouseEventHandler<HTMLLIElement> = (e) => {
+    // [메서드] 회원탈퇴 탭 클릭
+    const handleClickWithdrawTab: MouseEventHandler<HTMLLIElement> = () => {
         setSelectedTab('withdraw');
     };
 
-    const handleRunLogout: MouseEventHandler<HTMLButtonElement> = async(e) => {
-        if(!accessToken) return;
-
-        try{
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            };
-
-            //axios.post(주소, 데이터, 설정) 순서로 보내야 한다. 헤더 데이터를 전송하기 때문에 데이터(body)는 {}
-            await api.post('/api/v1/auth/logout', {}, config);
-
-            logout();
-            closeModal();
-            navigate(ROUTES.LOGIN, {replace: true});
-        }catch(error){
-            console.log("로그아웃 실패: ", error);
-            logout();
-            closeModal();
-            navigate(ROUTES.LOGIN, {replace: true});
-        }
-    };
 
     return(
         <dialog open>
@@ -74,7 +54,15 @@ const SettingsModal = ({closeModal} : SettingsModalProps) => {
                             <h3>로그아웃 하시겠습니까?</h3>
                             <div>
                                 <button onClick={handleCloseModal}>취소</button>
-                                <button onClick={handleRunLogout}>로그아웃</button>
+                                <button
+                                    onClick={() => {
+                                        if(!accessToken) return;
+                                        handleLogout();
+                                    }}
+                                    disabled={isPending}
+                                >
+                                    로그아웃
+                                </button>
                             </div>
                         </div>
                     )}
@@ -89,5 +77,3 @@ const SettingsModal = ({closeModal} : SettingsModalProps) => {
         </dialog>
     );
 };
-
-export default SettingsModal;

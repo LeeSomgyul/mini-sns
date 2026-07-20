@@ -7,6 +7,7 @@ public final class KafkaGroupId {
 
     public static final String GROUP_USER_SEARCH = "minisns-user-search-es";
     public static final String GROUP_USER_PROFILE = "minisns-user-profile";
+    public static final String GROUP_USER_CELEBRITY_UPDATE = "minisns-user-celebrity-update";
 
     public static final String GROUP_POST_MEDIA_COMPLETED = "minisis-post-media-completed";
     public static final String GROUP_POST_CREATE = "minisns-post-create";
@@ -17,4 +18,5 @@ public final class KafkaGroupId {
 
     public static final String GROUP_FEED_POST_CREATE = "minisns-feed-post-create";
     public static final String GROUP_FEED_POST_DELETE = "minisns-feed-post-delete";
+    public static final String GROUP_FEED_FOLLOW_UPDATE = "minisns-feed-follow-update";
 }
