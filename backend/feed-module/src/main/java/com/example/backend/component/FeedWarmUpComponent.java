@@ -1,6 +1,7 @@
 package com.example.backend.component;
 
 import com.example.backend.connection.FeedTargetConnection;
+import com.example.backend.dto.FeedPostIndexCacheDto;
 import com.example.backend.repository.FeedPostIndexCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +52,9 @@ public class FeedWarmUpComponent {
         }
 
         //2.[DB 복구] 일반 팔로워들이 작성한 postId 500개를 DB에서 가져옴
-        List<Long> recentNormalPosts = feedPostIndexCacheRepository.findRecentPostIdsByAuthorIds(
-                followingsIds,
-                PageRequest.of(0, MAX_WARMUP_SIZE)
+        List<FeedPostIndexCacheDto> recentNormalPosts = feedPostIndexCacheRepository.findByAuthorIdInOrderByPostIdDesc(
+            followingsIds,
+            PageRequest.of(0, MAX_WARMUP_SIZE)
         );
 
         if(recentNormalPosts == null || recentNormalPosts.isEmpty()){
@@ -67,9 +68,12 @@ public class FeedWarmUpComponent {
          */
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             for(int i = recentNormalPosts.size() - 1; i>=0; i--){
-                Long postId = recentNormalPosts.get(i);
+                FeedPostIndexCacheDto indexCache = recentNormalPosts.get(i);
+
+                String combinedValue = indexCache.authorId() + ":" + indexCache.postId();
                 double score = System.currentTimeMillis() + i;
-                stringRedisTemplate.opsForZSet().add(key, String.valueOf(postId), score);
+
+                stringRedisTemplate.opsForZSet().add(key, combinedValue, score);
             }
             return null;
         });

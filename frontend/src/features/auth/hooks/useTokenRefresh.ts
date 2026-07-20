@@ -29,6 +29,7 @@ export const useTokenRefresh = () => {
                 const data = await reissueTokenApi.reissueToken();
                 setAccessToken(data.accessToken);
             }catch(error){
+                console.log(error);
                 logout();
             }finally{
                 setIsLoading(false);

@@ -8,6 +8,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class UserFollowConsumer {
 
         String followersKey = REDIS_FOLLOWERS_KEY_PREFIX + followeeId;
         String followingsKey = REDIS_FOLLOWINGS_KEY_PREFIX + followerId;
+        String myTimelineKey = REDIS_FEED_KEY_PREFIX + followerId;
 
         // 팔로우 & 언팔로우에 따른 분기 실행
         if("FOLLOW".equalsIgnoreCase(action)){
@@ -47,10 +51,23 @@ public class UserFollowConsumer {
             stringRedisTemplate.opsForSet().remove(followersKey, followerId);
             stringRedisTemplate.opsForSet().remove(followingsKey, followeeId);
 
-            // 게시물 타임라인에서도 삭제
-            String myTimeLineKey = REDIS_FEED_KEY_PREFIX + followerId;
+            // [레디스 청소] 내 게시물 타임라인에서 언팔로우한 유저의 게시물 삭제
+            // 1. 내 타임라인(feed:timeline:userid)의 모든 글 가져오기
+            Set<String> myTimelineValues = stringRedisTemplate.opsForZSet().range(myTimelineKey, 0, -1);
 
-            // 🚨 7/20까지 완료 (언팔로우 시 상대방 postid를 내 redis feed목록에서 제거)
+            if(myTimelineValues != null && !myTimelineValues.isEmpty()){
+                // 2. 내가 언팔로우한 유저의 글만 찾아내기
+                String targetPrefix = followeeId + ":";
+
+                List<String> removeTargets = myTimelineValues.stream()
+                        .filter(value -> value.startsWith(targetPrefix))
+                        .toList();
+
+                // 3. 제거
+                if(!removeTargets.isEmpty()){
+                    stringRedisTemplate.opsForZSet().remove(myTimelineKey, removeTargets.toArray());
+                }
+            }
             log.info("[카프카 컨수머 완료] {} -> {} 제거 / {} -> {} 제거", followersKey, followerId, followingsKey, followeeId);
         }
     }

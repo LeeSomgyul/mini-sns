@@ -60,7 +60,15 @@ public class FeedService {
         // 2-3. 최적화: 500개를 다 가져오는게 아니라, 조금씩 잘라서 가져오기
         List<Long> normalPostIds = (rawPostIds != null && !rawPostIds.isEmpty())?
                 rawPostIds.stream()
-                    .map(Long::parseLong)
+                    .map(raw -> {
+                        // feed:timeline 키에서 "1:8" 형식일 경우 : 뒤의 "8"(postId)만 추출
+                        if(raw.contains(":")){
+                            return Long.parseLong(raw.split(":")[1]);
+                        }
+                        // "8" -> 8로 변환
+                        return Long.parseLong(raw);
+                    })
+                    // 무한스크롤: cursorId보다 더 작은(과거) id만 필터링
                     .filter(id -> cursorId == null || id < cursorId)
                     .limit(size + 1)
                     .toList()

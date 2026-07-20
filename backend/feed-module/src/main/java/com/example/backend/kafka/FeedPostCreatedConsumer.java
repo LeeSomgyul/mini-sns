@@ -71,7 +71,11 @@ public class FeedPostCreatedConsumer {
 
                 double score = System.currentTimeMillis();
 
-                stringRedisTemplate.opsForZSet().add(key, postIdStr, score);
+                // "작성자ID:게시물ID" 형식으로 저장
+                // 예: feed:timeline:userId:"작성자ID:게시물ID"
+                String combinedValue = event.authorId() + ":" + event.postId();
+
+                stringRedisTemplate.opsForZSet().add(key, combinedValue, score);
                 stringRedisTemplate.opsForZSet().removeRange(key, 0, - (MAX_TIMELINE_SIZE + 1));
             }
             return null;
