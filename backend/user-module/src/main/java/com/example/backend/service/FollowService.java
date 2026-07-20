@@ -57,7 +57,7 @@ public class FollowService {
         followRepository.save(follow);
 
         // [카프카] 이벤트 발생: profile의 팔로우 수 업데이트
-        FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "FOLLOW");
+        FollowCountUpdatedEvent event = FollowCountUpdatedEvent.of(userId, targetUserId, "FOLLOW");
         followCountUpdatedPublisher.publish(event);
 
         // [카프카] 이벤트 발생: 유저 팔로잉 수 확인 후 인플루언서로 변경
@@ -96,8 +96,8 @@ public class FollowService {
         // [DB] 관계 삭제
         followRepository.delete(follow);
 
-        // [카프카] 이벤트 발생
-        FollowCountUpdatedEvent event = new FollowCountUpdatedEvent(userId, targetUserId, "UNFOLLOW");
+        // [카프카] 이벤트 발생: feed 모듈 & userSearch 모듈에 전달
+        FollowCountUpdatedEvent event = FollowCountUpdatedEvent.of(userId, targetUserId, "UNFOLLOW");
         followCountUpdatedPublisher.publish(event);
 
         // [카프카] 이벤트 발생: 유저 팔로잉 수 확인 후 일반 인플루언서 -> 일반 사용자로 변경
