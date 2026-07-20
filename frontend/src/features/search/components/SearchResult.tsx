@@ -1,5 +1,7 @@
 import { useUserSearchQuery } from '../hooks/useUserSearchQuery';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../constants/routes';
 
 interface SearchResultProps {
     keyword: string;
@@ -25,6 +27,8 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
         fetchNextPage,
         rootMargin: '200px'
     });
+
+    const navigate = useNavigate();
 
 
     if (!keyword) {
@@ -74,7 +78,7 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
                         <div
                             key={user.userId}
                             style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', cursor: 'pointer', borderBottom: '1px solid var(--pico-muted-border-color)' }}
-                            onClick={() => console.log(`${user.userId}번 프로필로 이동`)} // 🚨🚨 프로필 구현 후 연결 🚨🚨
+                            onClick={() => navigate(ROUTES.PROFILE.LINK(user.userId))} 
                         >
                             <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
                                 <img

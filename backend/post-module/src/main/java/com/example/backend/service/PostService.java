@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostCreatedPublisher postCreatedPublisher;
-    private final NotificationFeedPublisher notificationFeedPublisher;
     private final PostDeletedPublisher postDeletedPublisher;
     private final MediaEventPublisher mediaEventPublisher;
     private final ObjectMapper objectMapper;
@@ -182,23 +181,6 @@ public class PostService {
         //[Feed Kafka publisher] FeedPushEvent 전송
         PostCreatedEvent postCreatedEvent = PostCreatedEvent.of(post.getId(), authorId);
         postCreatedPublisher.publish(postCreatedEvent);
-
-        //[Notifation feed Kafka publisher] NotificationEvent 전송
-        // 1. 알림 받아야 하는 대상 id 목록
-        //🚨현재는 모든 사용자를 조회하지만, 친구 기능 완료 후 수정하기🚨
-        List<Long> targetUserIds = userCacheRepository.findAllIdsExcept(authorId);
-
-        // 2. 이벤트 메시지 발송
-        for(Long targetUserId : targetUserIds){
-            NotificationFeedEvent notificationFeedEvent = NotificationFeedEvent.builder()
-                    .type("NEW_POST")
-                    .receiverUserId(targetUserId)   //알람 받을 사람
-                    .triggerUserId(authorId)        //알람 보내는 사람 (글 작성자)
-                    .targerPostId(post.getId())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            notificationFeedPublisher.publish(notificationFeedEvent);
-        }
 
         return PostResponse.of(post, authorId);
     }

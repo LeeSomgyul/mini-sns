@@ -22,18 +22,18 @@ public class NotificationFeedPublisher {
         kafkaTemplate.send(KafkaTopics.NOTIFICATION_FEED_TOPIC, key, event)
                 .whenComplete((result, ex) -> {
                     if(ex == null){
-                        log.info("[noti 모듈] 새 게시물 kafka 알림 성공: Topic: {}, Receiver: {}, TargetPost: {}",
-                            KafkaTopics.NOTIFICATION_FEED_TOPIC,
-                            event.receiverUserId(),
-                            event.targerPostId()
+                        log.info("[카프카 퍼블리셔] feed모듈로 알림 보내기 완료 Topic: {}, Receiver: {}, TargetPost: {}",
+                                KafkaTopics.NOTIFICATION_FEED_TOPIC,
+                                event.receiverUserId(),
+                                event.targerPostId()
                         );
                     }else{
-                        log.error("[noti 모듈] 새 게시물 kafka 알림 실패: Topic: {}, Receiver: {}, TargetPost: {}, Reason: {}",
-                            KafkaTopics.NOTIFICATION_FEED_TOPIC,
-                            event.receiverUserId(),
-                            event.targerPostId(),
-                            ex.getMessage(),
-                            ex
+                        log.error("[카프카 퍼블리셔] feed모듈로 알림 보내기 실패 Topic: {}, Receiver: {}, TargetPost: {}, Reason: {}",
+                                KafkaTopics.NOTIFICATION_FEED_TOPIC,
+                                event.receiverUserId(),
+                                event.targerPostId(),
+                                ex.getMessage(),
+                                ex
                         );
                     }
                 });
