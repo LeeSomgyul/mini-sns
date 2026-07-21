@@ -1,5 +1,7 @@
 package com.example.backend.dto;
 
+import com.example.backend.document.UserDocument;
+
 import java.util.List;
 
 public record TagUserSearchResponse(
@@ -16,5 +18,14 @@ public record TagUserSearchResponse(
             String nickname,
             String name,
             String profileImageUrl
-    ){}
+    ){
+        public static UserSearchDto from(UserDocument document){
+            return new UserSearchDto(
+                    document.id(),
+                    document.nickname(),
+                    document.name(),
+                    document.profileImageUrl()
+            );
+        }
+    }
 }
