@@ -30,7 +30,7 @@ public class UserFollowCacheService {
         // 언팔로우: UserFollowCache의 팔로우 관계 삭제
         if("FOLLOW".equalsIgnoreCase(action)){
             // 이미 팔로우 관계가 DB에 존재하는지 확인
-            if(userFollowCacheRepository.findByFollowerIdAndFollowingId(followerId, followeeId).isEmpty()){
+            if(userFollowCacheRepository.findByFollowerIdAndFolloweeId(followerId, followeeId).isEmpty()){
                 UserFollowCache userFollowCache = UserFollowCache.builder()
                         .followerId(followerId)
                         .followeeId(followeeId)
@@ -40,7 +40,7 @@ public class UserFollowCacheService {
                 log.info("[UserFollowCache에 팔로우 관계 추가 성공] {} -> {}", followerId, followeeId);
             }
         }else if("UNFOLLOW".equalsIgnoreCase(action)){
-            userFollowCacheRepository.deleteByFollowerIdAndFollowingId(followerId, followeeId);
+            userFollowCacheRepository.deleteByFollowerIdAndFolloweeId(followerId, followeeId);
             log.info("[UserFollowCache에 언팔로우 삭제 성공] {} -> {}", followerId, followeeId);
         }
 

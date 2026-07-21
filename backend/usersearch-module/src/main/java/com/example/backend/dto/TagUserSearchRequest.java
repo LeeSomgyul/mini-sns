@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import java.util.Collections;
 import java.util.List;
 
 // [엘라스틱 서치의 Search After Cursor 사용]
@@ -11,6 +12,10 @@ public record TagUserSearchRequest(
     public TagUserSearchRequest{
         if(size == null || size <= 0){
             size = 10; // 기본값 10개
+        }
+
+        if(searchAfter == null){
+            searchAfter = Collections.emptyList();
         }
     }
 }

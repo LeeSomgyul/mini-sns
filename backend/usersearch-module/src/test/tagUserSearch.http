@@ -1,0 +1,16 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQ1OTg2MTEsImV4cCI6MTc4NDYwMDQxMX0.luFpZkeRcZs9iPxZ0PqtDKfjcfCOtCssdG8AFiokD29i0N2LsOXaEEevWKVtc3xC
+@keyword = 
+@size = 2
+@searchAfter = 3
+
+### 1. 게시물 태그용 팔로워 사용자 검색 (첫 페이지)
+GET {{baseUrl}}/search/tagUsers?keyword={{keyword}}&size={{size}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2. 게시물 태그용 팔로워 사용자 검색 (다음 페이지: 무한스크롤)
+GET {{baseUrl}}/search/tagUsers?keyword={{keyword}}&size={{size}}&searchAfter={{searchAfter}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

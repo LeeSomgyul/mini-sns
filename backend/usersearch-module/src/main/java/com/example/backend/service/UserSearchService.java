@@ -90,10 +90,10 @@ public class UserSearchService {
                 .withQuery(query -> query.bool(bool -> {
                     // 2-2. 필터링: 팔로잉 유저 id 목록으로 필터링
                     bool.filter(filter -> filter.terms(terms -> terms
-                            .field("userId")
+                            .field("id")
                             .terms(termsValue -> termsValue.value(
                                     followeeIds.stream()
-                                            .map(id -> FieldValue.of(id.toString()))
+                                            .map(FieldValue::of)
                                             .toList()
                             ))
                     ));
@@ -106,16 +106,15 @@ public class UserSearchService {
                     }
                     return bool;
                 }))
-                // 2-4. 정렬: 닉네임 오름차순, userId 오름차순
+                // 2-4. 정렬: userId 오름차순
                 .withSort(Sort.by(
-                        Sort.Order.asc("nickname.keyword"),
-                        Sort.Order.asc("userId")
+                        Sort.Order.asc("id")
                 ))
                 .withMaxResults(querySize)
                 .build();
 
         // 3. 프론트에서 가져온 searchAfter 커서 적용
-        if(request.searchAfter() != null || !request.searchAfter().isEmpty()){
+        if(request.searchAfter() != null && !request.searchAfter().isEmpty()){
             nativeQuery.setSearchAfter(request.searchAfter());
         }
 
@@ -127,6 +126,7 @@ public class UserSearchService {
 
         // 6. [무한스크롤] 다음 페이지 존재 여부 확인 및 size만큼 슬라이싱
         boolean hasNextPage = searchHitList.size() > request.size();
+
         List<SearchHit<UserDocument>> resultHitList = hasNextPage
                 ? searchHitList.subList(0, request.size())
                 : searchHitList;
@@ -139,8 +139,8 @@ public class UserSearchService {
 
         // 8. 다음 페이지 요청에 사용할 search after 추출
         List<Object> nextSearchAfter = null;
-        if(hasNextPage && !searchHitList.isEmpty()){
-            SearchHit<UserDocument> lastHit = searchHitList.get(searchHitList.size() - 1);
+        if(hasNextPage && !resultHitList.isEmpty()){
+            SearchHit<UserDocument> lastHit = resultHitList.getLast();
             nextSearchAfter = lastHit.getSortValues();
         }
 
