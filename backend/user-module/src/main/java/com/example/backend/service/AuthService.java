@@ -26,9 +26,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class AuthService {
 
-//🔥카프카를 이용한 비동기 이벤트 발행 방식으로 개선
-//    private final UserSearchRepository userSearchRepository;
-
     private final LocalAccountRepository localAccountRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,7 +37,7 @@ public class AuthService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
     private static final String REFRESH_BLACKLIST_PREFIX = "blacklist:";
 
-    //로그인
+    // [로그인]
     @Transactional
     public TokenResponse login(LoginRequest request){
 

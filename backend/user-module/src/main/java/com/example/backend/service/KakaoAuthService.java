@@ -35,9 +35,6 @@ public class KakaoAuthService {
     @Value("${kakao.redirect-uri}")
     private String kakaoRedirectUrl;
 
-//🔥카프카를 이용한 비동기 이벤트 발행 방식으로 개선
-//    private final UserSearchRepository userSearchRepository;
-
     private final RestClient restClient = RestClient.create();
     private final SocialAccountRepository socialAccountRepository;
     private final UserRepository userRepository;
@@ -47,7 +44,7 @@ public class KakaoAuthService {
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
 
-    //카카오 로그인
+    // [카카오 로그인]
     @Transactional
     public TokenResponse kakaoLogin(KakaoLoginRequest request){
 

@@ -24,7 +24,7 @@ export const useLoginMutation = () => {
 
                return loginApi.login(request);
           },
-          //로그인 성공 시: accessToken 저장 및 홈 이동
+          //로그인 성공 시 유저 정보 전역 저장
           onSuccess: (response) => {                  
                if(response.userId) setMyUserId(response.userId);
                if(response.nickname) setMyNickname(response.nickname);
