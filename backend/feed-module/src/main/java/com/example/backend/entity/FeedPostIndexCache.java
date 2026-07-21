@@ -8,12 +8,15 @@ import java.time.LocalDateTime;
 // [웜업 시 특정 작성자들의 최신 글을 빠르게 가져오기 위한 인덱스]
 // - FeedWarmUpComponent에서 사용
 @Entity
-@Table(name = "feed_post_index_cache", indexes = {
-    @Index(
-            name = "idx_author_created",
-            columnList = "author_id, created_at DESC"
-    )
-})
+@Table(
+        name = "feed_post_index_cache",
+        indexes = {
+            @Index(
+                    name = "idx_author_created",
+                    columnList = "author_id, created_at DESC"
+            )
+        }
+)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

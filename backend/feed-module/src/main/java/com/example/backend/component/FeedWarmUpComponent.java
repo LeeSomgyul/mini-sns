@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //[Redis가 비어있을때 방어 작동]
@@ -44,20 +45,26 @@ public class FeedWarmUpComponent {
 
         log.warn("[Redis 캐시 비어있음 감지] Warm-Up 시작 userId: {}", currentUserId);
 
-        //1.[네트워크 복구] 내가 팔로우하는 모든 친구들의 ID 목록 추출
+        //1.[네트워크 복구] 내 게시물 + 내가 팔로우하는 모든 친구들의 ID 목록 추출
+        List<Long> targetUserIds = new ArrayList<>();
         List<Long> followingsIds = feedTargetConnection.feedFollowingIds(currentUserId);
 
-        if(followingsIds == null || followingsIds.isEmpty()){
-            return;
+        if(followingsIds != null && !followingsIds.isEmpty()){
+            targetUserIds.addAll(followingsIds);
         }
 
-        //2.[DB 복구] 일반 팔로워들이 작성한 postId 500개를 DB에서 가져옴
+        if(!targetUserIds.contains(currentUserId)){
+            targetUserIds.add(currentUserId);
+        }
+
+        //2.[DB 복구] 나 + 일반 팔로워들이 작성한 postId 500개를 DB에서 가져옴
         List<FeedPostIndexCacheDto> recentNormalPosts = feedPostIndexCacheRepository.findByAuthorIdInOrderByPostIdDesc(
-            followingsIds,
+            targetUserIds,
             PageRequest.of(0, MAX_WARMUP_SIZE)
         );
 
         if(recentNormalPosts == null || recentNormalPosts.isEmpty()){
+            log.info("[Warm-Up 완료] 복구할 게시글이 없어 빈 피드 출력");
             return;
         }
 
@@ -71,7 +78,7 @@ public class FeedWarmUpComponent {
                 FeedPostIndexCacheDto indexCache = recentNormalPosts.get(i);
 
                 String combinedValue = indexCache.authorId() + ":" + indexCache.postId();
-                double score = System.currentTimeMillis() + i;
+                double score = indexCache.postId().doubleValue();
 
                 stringRedisTemplate.opsForZSet().add(key, combinedValue, score);
             }

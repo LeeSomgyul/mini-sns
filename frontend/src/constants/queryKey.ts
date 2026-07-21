@@ -59,12 +59,18 @@ export const POST_KEYS = {
 // [사용자]
 export const USER_KEYS = {
     all: ['users'] as const,
-    
-    // 키워드 및 타입별 사용자 검색
-    // 예: ['users', 'search', 'friends', '홍길동']
-    search: (keyword: string, type: 'all' | 'friends' = 'all') => 
-        [...USER_KEYS.all, 'search', type, keyword] as const,
 
+    // [검색]
+    // 1. 검색 관련 기본 Root 키 (예: ['users','search'])
+    search: () => [...USER_KEYS.all, 'search'] as const,
+
+    // 2. 전체 사용자 검색 (예: ['users','search','all', '홍길동'])
+    searchAll: (keyword: string) => [...USER_KEYS.search(), 'all', keyword] as const,
+
+    // 3. 팔로우 사용자 검색 (예: ['users', 'search', 'following', '홍길동'])
+    searchFollowings: (keyword: string) => [...USER_KEYS.search(), 'following', keyword] as const,
+
+    // [프로필]
     // 전달받은 userIds 기반 프로필 요약 정보 (태그용)
     // 예: ['users', 'tags', { ids: '1,2,3' }]
     tags: (userIds: number[]) => [...USER_KEYS.all, 'tags', {dis: userIds.join(',')}] as const,

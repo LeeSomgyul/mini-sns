@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import { useDebounce } from "../../../common/hook/useDebounce";
 import type { UserInfo } from "../../search/types/userSearchType";
-import { useUserSearchQuery } from "../../search/hooks/useUserSearchQuery";
+import { useTagUserSearchInfiniteQuery } from "../../search/hooks/useTagUserSearchInfiniteQuery";
 
 
 interface TagSearchModalProps{
@@ -29,13 +29,18 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
     const [keyword, setKeyword] = useState('');//사용자가 실시간으로 검색하는 값
     const debouncedKeyword = useDebounce(keyword, 500);//디바운스 적용 후 검색되는 값
 
+    // [훅] 팔로잉 기반 사용자 검색
     const {
         data: searchResponse,
-        isLoading, 
-        fetchNextPage,  //다음 페이지를 불러오는 함수
-        hasNextPage,    //다음 페이지 존재 여부
-        isFetchingNextPage//다음 페이지를 가져오는 중인지 상태
-    } = useUserSearchQuery(debouncedKeyword, 'friends');
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useTagUserSearchInfiniteQuery({
+        keyword: debouncedKeyword,
+        size: 10,
+        enabled: debouncedKeyword.trim().length > 0 // 유저가 검색어를 입력했을 때만 api 실행
+    });
 
     // 1. 무한스크롤
     // 1-1. 바닥 감지 센서

@@ -20,6 +20,7 @@ export const useFollowListInfiniteQuery = ({type, userId, size = 20}: FollowList
             : FOLLOW_KEYS.followers(userId),
 
         // 2. api 호출하여 데이터 가져오기
+        // pageParam: initialPageParam 및 getNextPageParam로 자동 주입
         queryFn: async ({pageParam}) => {
             const requestParams: FollowUserRequest = {
                 userId: userId,
