@@ -17,7 +17,11 @@ interface ProfileHeaderProps {
 export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
   const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
   const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-  const finalImage = MINIO_MEDIA_ENDPOINT + userData.profileImageUrl;
+  const finalImage = userData.profileImageUrl !== null
+      ? MINIO_MEDIA_ENDPOINT + userData.profileImageUrl
+      : DEFAULT_PROFILE;
+
+  console.log(finalImage);
 
   const queryClient = useQueryClient();
 
@@ -67,7 +71,7 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
         {/* 프로필 이미지 */}
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--pico-muted-color)', overflow: 'hidden', flexShrink: 0 }}>
           <img 
-            src={finalImage || DEFAULT_PROFILE} 
+            src={finalImage} 
             alt={`${userData.nickname} 프로필 이미지`} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}

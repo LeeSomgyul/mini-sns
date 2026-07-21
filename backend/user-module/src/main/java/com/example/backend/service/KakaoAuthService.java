@@ -12,6 +12,7 @@ import com.example.backend.repository.SocialAccountRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ import org.springframework.http.MediaType;
 import java.time.Duration;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoAuthService {
@@ -47,6 +49,9 @@ public class KakaoAuthService {
     // [카카오 로그인]
     @Transactional
     public TokenResponse kakaoLogin(KakaoLoginRequest request){
+
+        log.info("RestAPIKey: {}", kakaoRestAPIKey);
+        log.info("RedirectUrl: {}", kakaoRedirectUrl);
 
         //카카오 서버 통신(토큰 및 유저 정보 획득)
         String kakaoAccessToken = getKakaoAccessToken(request.authorizationCode());//1단계: 토큰 획득
