@@ -30,7 +30,9 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
     @Query("""
         SELECT pt
         FROM PostTag pt
+        JOIN UserCache u ON pt.userId = u.userId
         WHERE pt.post.id = :postId
+            AND u.status = 'ACTIVE'
         ORDER BY pt.tagOrder ASC
     """)
     List<PostTag> findTagsByPostId(@Param("postId") Long postId);

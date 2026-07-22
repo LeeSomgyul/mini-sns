@@ -15,7 +15,9 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
         SELECT c
         FROM PostComment c
         JOIN UserCache u ON c.authorId = u.userId
-        WHERE c.post.id = :postId AND (:cursor IS NULL OR c.id < :cursor)
+        WHERE c.post.id = :postId
+            AND u.status = 'ACTIVE'
+            AND (:cursor IS NULL OR c.id < :cursor)
         ORDER BY c.id DESC
     """)
     Slice<PostComment> findCommentsWithSlice(

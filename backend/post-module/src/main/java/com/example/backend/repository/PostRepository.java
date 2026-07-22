@@ -14,12 +14,14 @@ import java.util.Optional;
 
 public interface PostRepository  extends JpaRepository<Post, Long> {
 
-    // [게시물의 미디어 파일을 한번에 가져오는 코드]
+    // [게시물 + 게시물의 미디어 파일을 한번에 가져오는 코드]
     @Query("""
         SELECT DISTINCT p 
         FROM Post p 
         LEFT JOIN FETCH p.mediaList 
+        JOIN UserCache u ON p.authorId = u.userId
         WHERE p.id IN :postIds
+            AND u.status = 'ACTIVE'
     """)
     List<Post> findPostsWithAuthorAndMediaByIdIn(@Param("postIds") List<Long> postIds);
 

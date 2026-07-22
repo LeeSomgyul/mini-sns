@@ -20,6 +20,7 @@ public class PostTagService {
     private final PostRepository postRepository;
     private final PostTagRepository postTagRepository;
 
+    // [게시물의 태그 리스트 조회]
     public List<PostTagResponse> getTagsByPostId(Long postId){
         // [예외] 게시물이 없거나 이미 삭제되었는지 확인
         if(!postRepository.existsById(postId)){

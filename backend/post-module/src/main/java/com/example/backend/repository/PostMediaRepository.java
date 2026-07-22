@@ -27,8 +27,12 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long> {
     // userId로, sortOrder가 0번째인 게시물에 대한 게시물 생성일 최신순으로 가져오기
     @Query("""
         SELECT pm
-        FROM PostMedia pm JOIN pm.post p
-        WHERE p.authorId = :userId AND pm.sortOrder = 0
+        FROM PostMedia pm
+        JOIN pm.post p
+        JOIN UserCache u ON p.authorId = u.userId
+        WHERE p.authorId = :userId
+            AND pm.sortOrder = 0
+            AND u.status = 'ACTIVE'
         ORDER BY p.createdAt DESC
     """)
     Slice<PostMedia> findTopMediaByUserId(@Param("userId") Long userId, Pageable pageable);
