@@ -12,7 +12,7 @@ import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.jwt.JwtUser;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.KakaoAuthService;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +31,7 @@ public class AuthController {
     private final AuthService authService;
     private final KakaoAuthService kakaoAuthService;
 
-    //로그인 요청
+    // [로그인]
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
 
@@ -41,21 +42,21 @@ public class AuthController {
         return createTokenResponse(tokenResponse);
     }
 
-    //회원가입 요청
+    // [회원가입]
     @PostMapping("/join")
     public ResponseEntity<ApiResponse<JoinResponse>> join(@Valid @RequestBody JoinRequest request){
         ApiResponse<JoinResponse> response = authService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //카카오 로그인 요청
+    // [카카오 로그인]
     @PostMapping("/kakao")
     public ResponseEntity<ApiResponse<LoginResponse>> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request){
         TokenResponse tokenResponse = kakaoAuthService.kakaoLogin(request);
         return createTokenResponse(tokenResponse);
     }
 
-    //토큰 재발급
+    // [토큰 재발급]
     @PostMapping("/reissue")
     public ResponseEntity<ApiResponse<LoginResponse>> tokenReissue(
             @CookieValue(value = "refreshToken", required = false)
@@ -71,37 +72,46 @@ public class AuthController {
         return createTokenResponse(tokenResponse);
     }
 
-    //로그아웃 요청
+    // [로그아웃]
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
-            HttpServletRequest request,//헤더 데이터 가져오기(토큰, 쿠키정보 등)
-            @AuthenticationPrincipal JwtUser jwtUser
-            ){
-        //헤더에서 accessToken 추출
-        String bearerToken = request.getHeader("Authorization");
-        String accessToken = "";
-        if(bearerToken != null && bearerToken.startsWith("Bearer ")){
-            accessToken = bearerToken.substring(7);
-        }
+            @AuthenticationPrincipal JwtUser jwtUser,
+            @RequestHeader(value = "Authorization", required = true) String bearerToken
+    ){
+        // 1. 헤더에서 accessToken 추출
+        String accessToken = extractAccessToken(bearerToken);
 
-        //로그아웃 실행
-        ApiResponse<Void> logoutResponse = authService.logout(accessToken, jwtUser.userId());
+        // 2. 로그아웃 실행
+        ResponseCookie response = authService.logout(jwtUser.userId(), accessToken);
 
-        //쿠키에서 refreshToken 제거
-        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .maxAge(0)//쿠키 만료시간을 0으로 만들어서 제거
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
-                .body(logoutResponse);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, response.toString())
+                .body(ApiResponse.success("로그아웃이 완료되었습니다.", null));
     }
 
-    //[공동 로직]: login과 tokenReissue 모두 사용
+    // [회원탈퇴] 유저 소프트 삭제
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> softDeleteUser(
+            @AuthenticationPrincipal JwtUser jwtUser,
+            @RequestHeader(value = "Authorization", required = true) String bearerToken
+    ){
+        // 1. 헤더에서 accessToken 추출
+        String accessToken = extractAccessToken(bearerToken);
+
+        // 2. 회원탈퇴 실행
+        ResponseCookie response = authService.softDeleteUser(jwtUser.userId(), accessToken);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, response.toString())
+                .body(ApiResponse.success("회원탈퇴가 완료되었습니다.", null));
+    }
+
+
+
+    // ==================== [메서드] ====================
+    // [공동 로직]: login과 tokenReissue 모두 사용
     private ResponseEntity<ApiResponse<LoginResponse>> createTokenResponse(TokenResponse response){
 
         //RefreshToken을 HttpOnly 쿠키로 굽기
@@ -118,4 +128,13 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(ApiResponse.success("토큰 발급 완료", LoginResponse.from(response)));
     }
+
+    // [AccessToken 추출]
+    private String extractAccessToken(String bearerToken){
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
 }

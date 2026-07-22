@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.client.KakaoApiClient;
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.dto.request.JoinRequest;
 import com.example.backend.dto.request.LoginRequest;
@@ -7,13 +8,19 @@ import com.example.backend.dto.response.JoinResponse;
 import com.example.backend.dto.response.TokenResponse;
 import com.example.backend.entity.LocalAccount;
 import com.example.backend.entity.User;
+import com.example.backend.exception.InvalidRequestException;
 import com.example.backend.exception.InvalidTokenException;
+import com.example.backend.exception.NotFoundException;
 import com.example.backend.jwt.JwtTokenProvider;
+import com.example.backend.kafka.UserSoftDeleteEvent;
+import com.example.backend.kafka.UserSoftDeletePublisher;
 import com.example.backend.kafka.UserUpdatedPublisher;
 import com.example.backend.repository.LocalAccountRepository;
+import com.example.backend.repository.SocialAccountRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.DuplicateResourceException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +34,16 @@ import java.util.concurrent.TimeUnit;
 public class AuthService {
 
     private final LocalAccountRepository localAccountRepository;
+    private final SocialAccountRepository socialAccountRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final UserUpdatedPublisher userUpdatedPublisher;
+    private final UserSoftDeletePublisher userSoftDeletePublisher;
+    private final KakaoApiClient kakaoApiClient;
 
-    private static final String REDIS_TOKEN_PREFIX = "email:verify:token:";//인증 완료 토큰 저장 헤더
+    private static final String REDIS_TOKEN_PREFIX = "email:verify:token:"; //인증 완료 토큰 저장 헤더
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
     private static final String REFRESH_BLACKLIST_PREFIX = "blacklist:";
 
@@ -135,32 +145,54 @@ public class AuthService {
 
     // [로그아웃]
     @Transactional
-    public ApiResponse<Void> logout(String accessToken, Long userId){
-        //이미 로그아웃 되어있는 사용자 처리
+    public ResponseCookie logout(Long userId, String accessToken){
+        // 1. 이미 로그아웃 되어있는 사용자 처리
         if(!jwtTokenProvider.validateToken(accessToken)){
-            return ApiResponse.success("이미 로그아웃된 상태입니다.", null);
+            throw new InvalidRequestException("이미 로그아웃되었거나 유효하지 않은 토큰입니다.");
         }
 
-        //Redis에서 refreshToken 삭제
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + userId;
-        if(redisTemplate.opsForValue().get(refreshTokenKey) != null){
-            redisTemplate.delete(refreshTokenKey);
-        }
-
-        //accessToken의 남은 시간 계산 후 블랙리스트에 추가(블랙리스트에서 남은 시간 만료되면 알아서 제거됨)
-        Long expiration = jwtTokenProvider.getExpiration(accessToken);
-        String blacklistKey = REFRESH_BLACKLIST_PREFIX + accessToken;
-        redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS);
-
-        //DB에서 deviceToken 삭제
+        // 2. DB에서 deviceToken 삭제
         userRepository.findById(userId).ifPresent(user -> {
             user.updateDeviceToken(null);
         });
 
-        return ApiResponse.success("로그아웃되었습니다", null);
+        // 3. [레디스 & 쿠키] RefreshToken 삭제 및 쿠키 정리
+        return removeRefreshToken(userId, accessToken);
     }
 
-    //페이지 이동 or 새로고침 시 AccessToken, RefreshToken 재발급
+    // [회원탈퇴] 유저 소프트 삭제
+    @Transactional
+    public ResponseCookie softDeleteUser(Long userId, String accessToken){
+        // 1. [예외 & 조회] 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+        if("WITHDRAWN".equals(user.getStatus())){
+            throw new InvalidRequestException("이미 탈퇴한 사용자입니다.");
+        }
+
+        // 2. [외부 api 연동] 카카오 가입 유저인 경우 카카오 연동 해제 실행
+        socialAccountRepository.findByUserId(userId).ifPresent(socialAccount -> {
+            if("KAKAO".equalsIgnoreCase(socialAccount.getProvider())){
+                kakaoApiClient.unlink(socialAccount.getProviderUserId());
+            }
+        });
+
+        // 3. [DB] 소프트 삭제
+        user.userSoftDelete();
+
+        // 4. [카프카] 이벤트 발생: 탈퇴 (소트프 삭제)
+        UserSoftDeleteEvent event = UserSoftDeleteEvent.of(userId);
+        userSoftDeletePublisher.publish(event);
+
+        // 5. [레디스 & 쿠키] RefreshToken 삭제 및 쿠키 정리
+        return removeRefreshToken(userId, accessToken);
+    }
+
+
+
+    // ==================== [메서드] ====================
+    // 페이지 이동 or 새로고침 시 AccessToken, RefreshToken 재발급
     @Transactional
     public TokenResponse tokenReissue(String refreshToken){
 
@@ -193,5 +225,28 @@ public class AuthService {
         );
 
         return TokenResponse.of(user, newAccessToken, newRefreshToken);
+    }
+
+    // [RefreshToken 삭제 & 쿠키 만료] 로그아웃, 회원탈퇴 에서 사용
+    public ResponseCookie removeRefreshToken(Long userId, String accessToken){
+        // 1. Redis에서 RefreshToken 삭제
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + userId;
+        if(redisTemplate.opsForValue().get(refreshTokenKey) != null){
+            redisTemplate.delete(refreshTokenKey);
+        }
+
+        // 2. AccessToken의 남은 시간 계산 후 블랙리스트에 추가 (블랙리스트에서 남은 시간 만료되면 알아서 제거됨)
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        String blacklistKey = REFRESH_BLACKLIST_PREFIX + accessToken;
+        redisTemplate.opsForValue().set(blacklistKey, "invalidated", expiration, TimeUnit.MILLISECONDS);
+
+        // 3. 쿠키에서 RefreshToken 제거
+        return ResponseCookie.from("refreshToken", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .maxAge(0) //쿠키 만료시간을 0으로 만들어서 제거
+                .build();
     }
 }

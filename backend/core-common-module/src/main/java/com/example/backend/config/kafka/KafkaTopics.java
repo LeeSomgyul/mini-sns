@@ -31,4 +31,6 @@ public final class KafkaTopics {
     // 팔로우 추가(친구 추가) 시 팔로우 갯수 갱신을 위한 이벤트 토픽
     public static final String USER_FOLLOW_COUNT_UPDATED_TOPIC = "user.follow.count.updated";
 
+    // [회원 탈퇴] 유저 소프트 삭제
+    public static final String USER_SOFT_DELETED_TOPIC = "user.soft.deleted";
 }

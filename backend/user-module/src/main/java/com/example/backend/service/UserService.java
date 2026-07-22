@@ -49,7 +49,7 @@ public class UserService {
         return NicknameCheckResponse.from(exists);
     }
 
-    // [게시물 수정: 기존 태그된 사용자의 정보 불러오기]
+    // [게시물 수정] 기존 태그된 사용자의 정보 불러오기
     public List<TagUserProfileResponse> getTagUserProfile(List<Long> userIds){
         // 결과: http://localhost:9000/mini-sns/
         String minioBaseUrl = minioEndpoint + "/" + minioBucket + "/";
