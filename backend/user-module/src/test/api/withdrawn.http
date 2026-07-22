@@ -1,0 +1,19 @@
+### 변수 설정 
+@baseUrl = http://localhost/api/v1
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQ2OTI0ODUsImV4cCI6MTc4NDY5NDI4NX0.c3QFX0DkfNhpsDYvRppCY5iMNwkuhvZlW5pcxjoY58bt3g5y3jw1Xd4aPKz5osDn
+
+### 1. 일반 유저 정상 회원탈퇴
+DELETE {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 2. 이미 탈퇴한 사용자 재탈퇴 시도
+DELETE {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 3. 존재하지 않거나 만료된 토큰으로 시도
+DELETE {{baseUrl}}/auth/me
+Authorization: Bearer false_token_12345
+
+### 4. 카카오 유저 정상 회원탈퇴
+DELETE {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}

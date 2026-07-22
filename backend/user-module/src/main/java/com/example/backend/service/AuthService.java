@@ -63,7 +63,7 @@ public class AuthService {
         //3.정상 활동중인 사용자 인지?
         User user = localAccount.getUser();
         if(!"ACTIVE".equals(user.getStatus())){
-            throw new IllegalStateException("탈퇴한 사용자입니다.");
+            throw new InvalidTokenException("이미 탈퇴한 사용자입니다.");
         }
         
         user.updateDeviceToken(request.deviceToken());//기기 토큰 업데이트

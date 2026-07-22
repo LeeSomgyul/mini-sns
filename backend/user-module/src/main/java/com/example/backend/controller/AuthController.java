@@ -12,7 +12,6 @@ import com.example.backend.exception.InvalidTokenException;
 import com.example.backend.jwt.JwtUser;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.KakaoAuthService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
