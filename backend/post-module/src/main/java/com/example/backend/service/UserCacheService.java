@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
+import com.example.backend.config.PostRedisKeyManager;
 import com.example.backend.entity.UserCache;
 import com.example.backend.exception.NotFoundException;
 import com.example.backend.repository.UserCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserCacheService {
 
     private final UserCacheRepository userCacheRepository;
+    private final StringRedisTemplate stringRedisTemplate;
 
     // [user 모듈의 유저 탈퇴]
     @Transactional
@@ -24,5 +27,17 @@ public class UserCacheService {
 
         // 2. status = 'WITHDRAWN'(탈퇴) 상태로 변경
         userCache.userSoftDelete();
+
+        // 3. [레디스] 게시물 개수 "user:%d:post_count" 키 삭제
+        try{
+            String postCountKey = PostRedisKeyManager.generateKey(PostRedisKeyManager.RedisKeyType.POST_COUNT, userId);
+            Boolean deleted = stringRedisTemplate.delete(postCountKey);
+
+            if(Boolean.TRUE.equals(deleted)){
+                log.info("[비동기 레디스 청소 완료] userId: {}", userId);
+            }
+        } catch (Exception e) {
+            log.info("[비동기 레디스 청소 실패] userId: {}", userId, e);
+        }
     }
 }

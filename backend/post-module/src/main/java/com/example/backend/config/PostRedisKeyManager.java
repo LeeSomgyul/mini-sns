@@ -1,6 +1,5 @@
 package com.example.backend.config;
 
-import com.example.backend.kafka.PostCreatedConsumer;
 
 public class PostRedisKeyManager {
 
