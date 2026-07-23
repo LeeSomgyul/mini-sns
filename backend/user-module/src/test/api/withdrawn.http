@@ -1,7 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI1Iiwibmlja25hbWUiOiLsu6TtlLzspJHrj4XsnpAiLCJpYXQiOjE3ODQ3NDIyNDUsImV4cCI6MTc4NDc0NDA0NX0.ZwXPMHLjeZbI9i_6ngLot0b_ZljrbnghLwc3SUPa5rE0fUbgqKrEhzo0X8XluPLU
-
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQ3NzA1NDAsImV4cCI6MTc4NDc3MjM0MH0.XDzBG12If769sljiB0uLRBaqT6IhmyeTJnsf29O-6LB9VwJLiKON3pc2jOyAgB0G
 ### 1. 일반 유저 정상 회원탈퇴
 DELETE {{baseUrl}}/auth/me
 Authorization: Bearer {{accessToken}}

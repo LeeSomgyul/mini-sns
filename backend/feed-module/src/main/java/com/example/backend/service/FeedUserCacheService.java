@@ -22,6 +22,7 @@ public class FeedUserCacheService {
 
     private final FeedPostIndexCacheRepository feedPostIndexCacheRepository;
     private final StringRedisTemplate stringRedisTemplate;
+    private final FeedUserCacheAsyncService feedUserCacheAsyncService;
 
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
     private static final String REDIS_FOLLOWERS_KEY_PREFIX = "feed:followers:";
@@ -33,33 +34,34 @@ public class FeedUserCacheService {
     public void  softDeleteFeedUserCache(Long userId){
         String strUserId = String.valueOf(userId); // 탈퇴자(B)
         String followersKey = REDIS_FOLLOWERS_KEY_PREFIX + userId; // 탈퇴자(B)를 팔로워하는 사람들(A)
-
-        // 1. 탈퇴자(B)를 팔로우하던 사람들(A) 목록 가져오기
-        Set<String> followers = stringRedisTemplate.opsForSet().members(followersKey);
-
-        if(followers != null && !followers.isEmpty()){
-            // 2. 일반 사용자들(A)의 레디스에서 탈퇴자(B) 데이터만 삭제
-            for(String followerId : followers){
-                // 2-1. A의 팔로잉 목록에서 B만 제거
-                String followerFollowingsKey = REDIS_FOLLOWINGS_KEY_PREFIX + followerId;
-                stringRedisTemplate.opsForSet().remove(followerFollowingsKey, strUserId);
-
-                // 2-2. A의 피드 타임라인에서 B의 게시물 제거
-                String followerTimeLineKey = REDIS_FEED_KEY_PREFIX + followerId;
-                removeUserPostsFromTimeline(followerTimeLineKey, strUserId);
-            }
-        }
-
-        // 3. 탈퇴자(B) 본인의 키 삭제
         String followingsKey = REDIS_FOLLOWINGS_KEY_PREFIX + userId;
         String timelineKey = REDIS_FEED_KEY_PREFIX + userId;
 
+
+        // 1. 탈퇴자(B)가 인플루언서인지 확인
+        Boolean isCelebrity = stringRedisTemplate.opsForSet().isMember(REDIS_CELEBRITY_KEY, strUserId);
+
+        if(Boolean.TRUE.equals(isCelebrity)){
+            log.info("[회원 탈퇴] 탈퇴자가 인플루언서입니다. 비동기 팔로우 청소를 건너뜁니다. userId: {}", userId);
+
+            // 인플루언서 목록에서 탈퇴자(B) 제거
+            stringRedisTemplate.opsForSet().remove(REDIS_CELEBRITY_KEY, strUserId);
+        }else{
+            // 탈퇴자(B)를 팔로우하던 사람들(A) 목록 가져오기
+            Set<String> followers = stringRedisTemplate.opsForSet().members(followersKey);
+
+            // 탈퇴자(B)가 팔로우하던 사람들(A) 목록 가져오기
+            Set<String> followings = stringRedisTemplate.opsForSet().members(followingsKey);
+
+            // 비동기 팔로우 청소
+            // (탈퇴자(B)의 팔로워수가 많을 수 있기 때문에 스레드를 별개로 하여 비동기로 처리)
+            feedUserCacheAsyncService.cleanupFollowersTimelineAsync(followers, followings, strUserId);
+        }
+
+        // 2. 탈퇴자(B) 본인의 키 삭제
         stringRedisTemplate.delete(Arrays.asList(followersKey, followingsKey, timelineKey));
 
-        // 4. 인플루언서 목록에서 탈퇴자(B) 제거
-        stringRedisTemplate.opsForSet().remove(REDIS_CELEBRITY_KEY, strUserId);
-
-        // 5. feed_post_index_cache DB 하드 삭제
+        // 3. feed_post_index_cache DB 하드 삭제
         feedPostIndexCacheRepository.deleteByAuthorId(userId);
 
         log.info("[회원 탈퇴] 관련 DB 및 Redis Key 삭제 완료. userId: {}", userId);
