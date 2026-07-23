@@ -50,4 +50,5 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
 
     // 탈퇴한 사용자 삭제
     void deleteByAuthorId(Long authorId);
+
 }

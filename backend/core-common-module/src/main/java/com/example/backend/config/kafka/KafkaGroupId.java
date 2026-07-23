@@ -23,4 +23,5 @@ public final class KafkaGroupId {
     public static final String GROUP_FEED_USER_SOFT_DELETE = "minisns-feed-user-soft-delete";
 
     public static final String GROUP_USERSEARCH_FOLLOW_UPDATE = "minisns-usersearch-follow-update";
+    public static final String GROUP_USERSEARCH_USER_SOFT_DELETE = "minisns-usersearch-user-soft-delete";
 }
