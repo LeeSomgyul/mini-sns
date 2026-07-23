@@ -55,7 +55,7 @@ public class FeedUserCacheService {
 
             // 비동기 팔로우 청소
             // (탈퇴자(B)의 팔로워수가 많을 수 있기 때문에 스레드를 별개로 하여 비동기로 처리)
-            feedUserCacheAsyncService.cleanupFollowersTimelineAsync(followers, followings, strUserId);
+            feedUserCacheAsyncService.cleanupFeedDataAsync(followers, followings, strUserId);
         }
 
         // 2. 탈퇴자(B) 본인의 키 삭제

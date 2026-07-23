@@ -42,6 +42,7 @@ public class AuthService {
     private final UserUpdatedPublisher userUpdatedPublisher;
     private final UserSoftDeletePublisher userSoftDeletePublisher;
     private final KakaoApiClient kakaoApiClient;
+    private final AuthAsyncService authAsyncService;
 
     private static final String REDIS_TOKEN_PREFIX = "email:verify:token:"; //인증 완료 토큰 저장 헤더
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
@@ -184,6 +185,9 @@ public class AuthService {
         // 4. [카프카] 이벤트 발생: 탈퇴 (소트프 삭제)
         UserSoftDeleteEvent event = UserSoftDeleteEvent.of(userId);
         userSoftDeletePublisher.publish(event);
+
+        // 5. [레디스] 관련 레디스 키 수정 및 삭제
+        authAsyncService.cleanupUserDataAsync(userId);
 
         // 5. [레디스 & 쿠키] RefreshToken 삭제 및 쿠키 정리
         return removeRefreshToken(userId, accessToken);

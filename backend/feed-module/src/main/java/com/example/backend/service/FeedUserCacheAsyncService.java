@@ -25,8 +25,8 @@ public class FeedUserCacheAsyncService {
     private static final String REDIS_FEED_KEY_PREFIX = "feed:timeline:";
 
     @Async("feedCleanupExecutor")
-    public void cleanupFollowersTimelineAsync(Set<String> followers, Set<String> followings,String targetUserId){
-        log.info("[비동기 레디스 청소 시작] 팔로워 {}명의 캐시 정리 시작. targetUserId: {}", followers.size(), targetUserId);
+    public void cleanupFeedDataAsync(Set<String> followers, Set<String> followings, String targetUserId){
+        log.info("[비동기 레디스 청소 시작] targetUserId: {}", targetUserId);
 
         // 1. 탈퇴자(B)를 팔로우하던 사람들(A)의 캐시 정리
         if(followers != null && !followers.isEmpty()){
