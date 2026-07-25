@@ -1,6 +1,7 @@
 import { useState, type MouseEventHandler } from "react";
 import {useAuthStore} from "../features/auth/store/authStore";
 import { useLogoutMutation } from "../features/auth/hooks/useLogoutMutation";
+import { WithdrawTap } from "../features/auth/components/WithdrawTab";
 
 interface SettingsModalProps{
     closeModal: () => void;
@@ -47,7 +48,7 @@ export const SettingsModal = ({closeModal} : SettingsModalProps) => {
                         <li onClick={handleClickWithdrawTab}>회원탈퇴</li>
                     </ul>
                 </aside>
-                {/*오른쪽: 선택 영역 */}
+                {/*오른쪽: 로그아웃 & 회원탈퇴 탭 */}
                 <section style={{ width: '70%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     {selectedTab === 'logout' && (
                         <div>
@@ -66,12 +67,7 @@ export const SettingsModal = ({closeModal} : SettingsModalProps) => {
                             </div>
                         </div>
                     )}
-                    {selectedTab === 'withdraw' && (
-                        <div>
-                            <h3>정말 탈퇴하시겠습니까?</h3>
-                            {/*작성하기*/}
-                        </div>
-                    )}
+                    {selectedTab === 'withdraw' && <WithdrawTap/>}
                 </section>
             </article>
         </dialog>
