@@ -5,6 +5,7 @@ import com.example.backend.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -58,4 +59,21 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             @Param("cursor") Long cursor,
             Pageable pageable
     );
+
+    // [회원 탈퇴 - 하드삭제]
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM Follow f
+        WHERE f.followerId IN :userIds
+    """)
+    void deleteByFollowerIdIn(@Param("userIds") List<Long> userIds);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM Follow f
+        WHERE f.followeeId IN :userIds
+    """)
+    void deleteByFolloweeIdIn(@Param("userIds") List<Long> userIds);
 }
