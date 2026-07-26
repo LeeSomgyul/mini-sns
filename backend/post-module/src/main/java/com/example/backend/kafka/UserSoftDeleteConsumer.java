@@ -24,7 +24,7 @@ public class UserSoftDeleteConsumer {
         log.info("[카프카 컨수머 수신] topics: {}", KafkaTopics.USER_SOFT_DELETED_TOPIC);
 
         try{
-            userCacheService.softDeleteUserCache(event.userId());
+            userCacheService.softDeleteUserCache(event);
             log.info("[카프카 컨수머 처리 성공] topics: {}", KafkaTopics.USER_SOFT_DELETED_TOPIC);
         }catch(Exception e){
             log.info("[카프카 컨수머 처리 실패] topics: {}", KafkaTopics.USER_SOFT_DELETED_TOPIC, e);

@@ -16,7 +16,8 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
     @Query(value = "DELETE FROM post_tags WHERE post_id IN (:postIds)", nativeQuery = true)
     void deleteByPostIdIn(@Param("postIds")List<Long> postIds);
 
-    // 특정 게시물의 모든 태그를 한 번에 삭제
+    // [태그 삭제] 특정 게시물의 모든 태그를 한 번에 삭제
+    // [회원 탈퇴] 탈퇴자가 작성한 게시물의 태그 삭제
     @Modifying(clearAutomatically = true)
     @Query("""
         DELETE
@@ -36,4 +37,14 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
         ORDER BY pt.tagOrder ASC
     """)
     List<PostTag> findTagsByPostId(@Param("postId") Long postId);
+
+    // [회원탈퇴 - 하드 삭제] 탈퇴한 유저가 일반사용자 게시물에 태그된 경우 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM PostTag pt
+        WHERE pt.userId IN :userIds
+    """)
+    void deleteByUserIdIn(@Param("userIds") List<Long> userIds);
+
 }

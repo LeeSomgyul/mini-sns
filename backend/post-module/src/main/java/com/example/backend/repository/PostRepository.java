@@ -60,26 +60,21 @@ public interface PostRepository  extends JpaRepository<Post, Long> {
         """)
     void incrementCommentCount(@Param("postId") Long postId);
 
+    // [회원탈퇴 - 하드 삭제]
+    // 1. 소프트 삭제 30일이 경과된 탈퇴자의 게시물 id slice 목록 조회
+    @Query("""
+        SELECT p.id
+        FROM Post p
+        WHERE p.authorId IN :userIds
+    """)
+    List<Long> findPostIdsByAuthorIdIn(@Param("userIds") List<Long> userIds);
 
-//🔥카프카 연동 후 수정
-//    //[인플루언서 사용자의 글만 추출]
-//    /*
-//    * 일반 사용자가 피드를 열 때, Redis에 저장되지 않은 인플루언서의 글을 DB에서 실시간으로 가져오기 위해 사용.
-//    * @Param authorIds: 게시물을 작성한 인플루언서 사용자 ID
-//    * @Param cursorId: 다음 페이지 요청(무한 스크롤)을 위해 어디까지 봤는지 게시물의 postId
-//    * @Param pageable: 한 페이지 당 몇개의 게시물을 가져올 것인지
-//    * @Query 특정 인플루언서가 작성한 글 중에서, 내가 마지막으로 본 글보다 더 과거의 글을 최신순으로 가져오기
-//    */
-//    @Query(
-//            "SELECT p FROM Post p " +
-//            "WHERE p.author.id IN :authorIds " +
-//            "AND p.author.isCelebrity = true " +
-//            "AND (:cursorId IS NULL OR p.id < :cursorId) " +
-//            "ORDER BY p.id DESC"
-//    )
-//    List<Post> findCelebrityPosts(
-//        @Param("authorIds") List<Long> authorIds,
-//        @Param("cursorId") Long cursorId,
-//        Pageable pageable
-//    );
+    // 2. 게시글 삭제 (본인 post, comment, like, tag, media 포함)
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM Post p
+        WHERE p.authorId IN :userIds
+    """)
+    void deleteByAuthorIdIn(@Param("userIds") List<Long> userIds);
 }

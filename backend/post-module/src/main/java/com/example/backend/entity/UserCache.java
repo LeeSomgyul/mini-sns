@@ -7,6 +7,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Table(name = "user_cache")
@@ -28,14 +31,18 @@ public class UserCache {
     @Column(nullable = false, length = 20)
     private String status = "ACTIVE";
 
+    @Column(name = "withdrawn_at")
+    private Instant withdrawnAt;
+
 
     // ================================[메서드]================================
     // [회원탈퇴] 유저 소프트 삭제
-    public void userSoftDelete(){
+    public void userSoftDelete(Instant withdrawnAt){
         if("WITHDRAWN".equals(this.status)){
             throw new InvalidRequestException("UserCache에 사용자가 존재하지 않습니다.");
         }
 
         this.status = "WITHDRAWN";
+        this.withdrawnAt = withdrawnAt;
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
 
     // [댓글 목록 조회] 특정 게시물의 댓글 목록을 최신순으로 Slice (무한 스크롤) 조회
@@ -43,4 +45,23 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
         WHERE p.id = :postId AND p.commentCount > 0
     """)
     void decreaseCommentCount(@Param("postId") Long postId);
+
+    // [회원탈퇴 - 하드 삭제]
+    // 1. 탈퇴 유저가 일반 유저의 게시물에 달아놓은 댓글 모두 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM PostComment pc
+        WHERE pc.authorId IN :userIds
+    """)
+    void deleteByUserIdIn(@Param("userIds") List<Long> userIds);
+
+    // 2. 일반 유저가 탈퇴 유저의 게시물에 달아놓은 댓글 모두 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        DELETE
+        FROM PostComment pc
+        WHERE pc.post.id IN :postIds
+    """)
+    void deleteByPostIdIn(@Param("postIds") List<Long> postIds);
 }
