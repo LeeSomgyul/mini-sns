@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@email = dummy0@test.com
+@email = dummy1@test.com
 @password = password123!
 
 

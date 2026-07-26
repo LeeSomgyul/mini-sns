@@ -18,7 +18,7 @@ export const userPrivacyInfoSchema = z.object({
     phoneNumber: z
         .string()
         .regex(/^[0-9]{11}$/, '전화번호는 11자리 숫자만 가능합니다.')
-        .or(z.literal('')),
+        .or(z.literal('')).transform((val) => (val === '' ? null : val)),
     
     // 3-1. 비밀번호 변경 토글이 켜져있는지 여부
     isPasswordChanging: z.boolean(),

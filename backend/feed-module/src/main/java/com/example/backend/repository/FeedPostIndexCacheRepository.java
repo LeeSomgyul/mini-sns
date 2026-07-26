@@ -38,7 +38,7 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
             Pageable pageable
     );
 
-    // 삭제
+    // 피드 삭제
     @Modifying(clearAutomatically = true) // DB 삭제 후 JPA 자체 메모리에서도 삭제
     @Query("DELETE FROM FeedPostIndexCache f WHERE f.postId = :postId")
     void deleteByPostId(
@@ -47,4 +47,8 @@ public interface FeedPostIndexCacheRepository extends JpaRepository<FeedPostInde
 
     // 내가 팔로우하는 작성자들의 최근 게시글 ID 리스트를 Pageable 크기만큼 가져오기
     List<FeedPostIndexCacheDto> findByAuthorIdInOrderByPostIdDesc(List<Long> authorId, Pageable pageable);
+
+    // 탈퇴한 사용자 삭제
+    void deleteByAuthorId(Long authorId);
+
 }

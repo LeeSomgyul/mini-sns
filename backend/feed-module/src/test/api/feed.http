@@ -1,6 +1,6 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODMyNjY5ODYsImV4cCI6MTc4MzI2ODc4Nn0.K7S39UDJ9qud985l-KS5koeq0Zp3Moy6D0jXELRnF96V9Sto378XFsv5hL1v04sM
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyIiwibmlja25hbWUiOiLsg4jrsr3rp6TtgazroZwiLCJpYXQiOjE3ODQ3MzQ1NzcsImV4cCI6MTc4NDczNjM3N30.qN0Jpcitk681r4vk0avKPAL-xJ-7SbbVWrtUaxUK88X1kL3PaJ1jJ6_JiitzsSIV
 @postId = 23
 
 

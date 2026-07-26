@@ -106,19 +106,12 @@ public class UserPrivacyInfoService {
             throw new InvalidRequestException("닉네임은 공백일 수 없습니다.");
         }
 
-        // 4. 전화번호 변경
-        if(StringUtils.hasText(request.phoneNumber())){
-            user.updatePhoneNumber(request.phoneNumber().trim());
-        }else{
-            throw new InvalidRequestException("전화번호는 공백일 수 없습니다.");
-        }
-
-        // 5. 프로필 이미지 url 변경 (프론트 uppy에서 넘어온 최종 object key)
+        // 4. 프로필 이미지 url 변경 (프론트 uppy에서 넘어온 최종 object key)
         if(StringUtils.hasText(request.profileImageUrl())){
             user.updateProfileImageUrl(request.profileImageUrl().trim());
         }
 
-        // 6. 비밀번호 변경 검증 (비밀번호 변경 토글이 열리면 실행)
+        // 5. 비밀번호 변경 검증 (비밀번호 변경 토글이 열리면 실행)
         if(Boolean.TRUE.equals(request.isPasswordChanging())){
             boolean isSocial = socialAccountRepository.existsById(userId);
 

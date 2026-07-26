@@ -39,7 +39,7 @@ public class UserSearchService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final ObjectMapper objectMapper;
 
-    private static final String REDIS_USERSEARCH_FOLLOW_CACHE_PREFIX = "usersearch:following";
+    private static final String REDIS_USERSEARCH_FOLLOW_CACHE_PREFIX = "usersearch:following:";
 
     // [사용자 전체 검색]
     // keyword: 사용자의 검색어 (예: '홍길동')

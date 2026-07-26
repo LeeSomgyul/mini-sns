@@ -1,7 +1,7 @@
 ### 변수 설정 
 @baseUrl = http://localhost/api/v1
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODM2MDk1NDAsImV4cCI6MTc4MzYxMTM0MH0.aTK7bLndp1DMrnY5emMOsndhnArPMvJ1gpbTr_0Rm_B_AvZfvkAyCgzgdb-18gKq
-@postId = 25
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwibmlja25hbWUiOiLsvoztmZztlZzqs7AiLCJpYXQiOjE3ODQ3MDQ3MjIsImV4cCI6MTc4NDcwNjUyMn0.KsYqQa9QUHVt6lUo33mGgKUrHP1KA8EiVwtgOOHRdf0YBTSSAIiflWjm7y_6liWu
+@postId = 8
 @commentId = 1
 
 ### 1. 정상적인 댓글 작성

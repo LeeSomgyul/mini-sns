@@ -13,7 +13,7 @@ public class UserUpdatedPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    // [회원가입, 프로필 변경, 회원 탈퇴]
+    // [회원가입, 프로필 변경]
     public void publisherUserUpdated(
             Long userId,
             String name,

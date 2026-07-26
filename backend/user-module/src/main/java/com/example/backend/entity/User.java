@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import com.example.backend.exception.InvalidRequestException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -60,7 +61,7 @@ public class User {
     @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
-    //초기 객체 생성 빌더
+    // 빌더
     @Builder
     public User(String name, String nickname, String phoneNumber, String profileImageUrl, String deviceToken){
         this.name = name;
@@ -71,17 +72,18 @@ public class User {
         this.deviceToken = deviceToken;
     }
 
-    // deviceToken 갱신을 위한 메서드(기기마다 token이 다르니까)
+    // ================================[메서드]================================
+    // [deviceToken 갱신] 기기마다 token이 다르니까
     public void updateDeviceToken(String deviceToken){
         this.deviceToken = deviceToken;
     }
 
-    // lastLoginAt(마지막 로그인 시간)를 업데이트하는 메서드
+    // [lastLoginAt(마지막 로그인 시간) 업데이트]
     public void updateLastLoginAt(){
         this.lastLoginAt = LocalDateTime.now();
     }
 
-    // 닉네임 변경
+    // [닉네임 변경]
     public void updateNickname(String nickname){
         if(nickname == null || nickname.trim().isEmpty()){
             throw new IllegalArgumentException("닉네임은 공백일 수 없습니다.");
@@ -90,22 +92,23 @@ public class User {
         this.nickname = nickname;
     }
 
-    // 전화번호 변경
-    public void updatePhoneNumber(String phoneNumber){
-        if(phoneNumber == null || phoneNumber.trim().isEmpty()){
-            throw new IllegalArgumentException("전화번호는 공백일 수 없습니다.");
-        }
-
-        this.phoneNumber = phoneNumber;
-    }
-
-    // 프로필 이미지 변경
+    // [프로필 이미지 변경]
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
 
-    // 일반 -> 인플루언서 변경
+    // [일반 -> 인플루언서 변경]
     public void changeCelebrityStatus(boolean isCelebrity){
         this.isCelebrity = isCelebrity;
+    }
+
+    // [회원탈퇴] 유저 소프트 삭제
+    public void userSoftDelete(){
+        if("WITHDRAWN".equals(this.status)){
+            throw new InvalidRequestException("이미 탈퇴한 회원입니다.");
+        }
+
+        this.status = "WITHDRAWN";
+        this.withdrawnAt = LocalDateTime.now();
     }
 }

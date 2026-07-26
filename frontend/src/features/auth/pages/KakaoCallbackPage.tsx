@@ -14,6 +14,7 @@ const KakaoCallbackPage = () => {
 
         // URL에서 카카오가 제공하는 ?code=어쩌고저쩌고 추출
         const code = searchParams.get("code");
+        console.log("1. Callback 진입 - Code 존재 여부:", code);
 
         if (!code) {
             alert("카카오 로그인 코드를 찾을 수 없습니다.");
@@ -22,6 +23,7 @@ const KakaoCallbackPage = () => {
         }
 
         isProcessed.current = true;
+        console.log("2. mutate(code) 실행 직전!");
         
         mutate(code);
 

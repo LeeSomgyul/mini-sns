@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.config.PostRedisKeyManager;
 import com.example.backend.dto.PostUserProfileResponse;
 import com.example.backend.entity.PostMedia;
+import com.example.backend.entity.UserCache;
 import com.example.backend.exception.NotFoundException;
 import com.example.backend.exception.RedisLockTimeoutException;
 import com.example.backend.repository.PostMediaRepository;
@@ -41,7 +42,8 @@ public class PostUserProfileService {
     // - userId: 가져올 프로필 대상
     public PostUserProfileResponse getPostUserProfile(Long userId, int page, int size){
 
-        userCacheRepository.findById(userId)
+        UserCache userCache =  userCacheRepository.findById(userId)
+                .filter(u -> "ACTIVE".equals(u.getStatus()))
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
 
         // 1-1. 게시물 수 캐시 조회 (분산 락)

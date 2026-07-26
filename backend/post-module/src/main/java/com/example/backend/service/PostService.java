@@ -15,10 +15,7 @@ import com.example.backend.exception.UnauthorizedException;
 import com.example.backend.kafka.*;
 import com.example.backend.kafka.media.MediaEventPublisher;
 import com.example.backend.kafka.media.MediaProcessEvent;
-import com.example.backend.repository.PostMediaRepository;
-import com.example.backend.repository.PostRepository;
-import com.example.backend.repository.PostTagRepository;
-import com.example.backend.repository.UserCacheRepository;
+import com.example.backend.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +27,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +46,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
     private final PostTagRepository postTagRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final PostCommentRepository postCommentRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
@@ -236,7 +236,7 @@ public class PostService {
         postDeletedPublisher.publishPostDeleted(event);
     }
 
-    // [게시물 하드(실제) 삭제]
+    // [게시물 삭제 - 하드 삭제]
     // baselineDate: 프로그램 전체적으로 DB 및 MiniO 삭제가 실행되는 시간
     @Transactional
     public void cleanupExpiredPosts(LocalDateTime baselineDate){
@@ -268,33 +268,81 @@ public class PostService {
             List<Long> postIds = expriedPosts.stream().map(Post::getId).toList();
             totalDeletedPostCount += postIds.size();
 
-            // 5. Post_Media 테이블의 삭제 대상 데이터 가져오기
-            List<PostMedia> mediaList = postMediaRepository.findByPostIdIn(postIds);
-
-            // 6. MiniO에서 삭제할 대상 postid 및 해당 url추출
-            // - Long: postId
-            // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
-            Map<Long, List<String>> deletedTargerUrls = extractDeletePaths(mediaList);
-
-            // 7. DB 테이블 삭제
-            // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
-            postTagRepository.deleteByPostIdIn(postIds);
-            postMediaRepository.hardDeleteByPostIdIn(postIds);
-            postRepository.hardDeleteByIdIn(postIds);
-
-            postRepository.flush();
-
-            // 8. DB에서 데이터 삭제 후 스프링 리스너 이벤트 발송
-            applicationEventPublisher.publishEvent(
-                    new PostHardDeleteCompletedEvent(postIds, deletedTargerUrls)
-            );
+            // DB 삭제 + MiniO 삭제
+            deletePostsWithMedia(postIds);
 
         }while(postSlice.hasNext());
 
         log.info("[DB 삭제 완료] 총 {}건의 데이터가 영구 제거되었습니다.", totalDeletedPostCount);
     }
 
-    // [cleanupExpiredPosts의 자식 메서드] MiniO에서 삭제할 대상 url추출
+    // [회원 탈퇴 - 게시물, 유저 하드 삭제]
+    @Transactional
+    public void cleanupWithdrawnUsers(Instant withdrawnAt){
+        // 1. 100개 데이터씩 요청
+        Pageable pageable = PageRequest.of(0, 100);
+
+        // 2. 회원탈퇴 신청 후 30일 지난 회원 100명 가져오기
+        Slice<Long> withdrawnUserIdsSlice = userCacheRepository.findExpiredWithdrawnUserIds(
+                "WITHDRAWN",
+                withdrawnAt,
+                pageable
+        );
+
+        if(withdrawnUserIdsSlice.isEmpty()){
+            log.info("[회원 탈퇴] 조건에 맞는 탈퇴 유저가 0명이므로 청소를 종료합니다.");
+            return;
+        }
+
+        List<Long> userIds = withdrawnUserIdsSlice.getContent();
+        log.info("[회원 탈퇴] 조회된 탈퇴 대상 유저 수: {}명, 유저 IDs: {}", userIds.size(), userIds);
+
+        // 3. 탈퇴 유저들이 작성한 postId 가져오기
+        List<Long> postIds = postRepository.findPostIdsByAuthorIdIn(userIds);
+        log.info("[회원 탈퇴] 삭제 대상 게시글 수: {}건, 게시글 IDs: {}", postIds.size(), postIds);
+
+        // 4. 탈퇴자가 다른 사람의 게시물에 남긴 댓글, 좋아요, 태그 지우기
+        postCommentRepository.deleteByUserIdIn(userIds);
+        postLikeRepository.deleteByUserIdIn(userIds);
+        postTagRepository.deleteByUserIdIn(userIds);
+        userCacheRepository.deleteByIdIn(userIds);
+
+        // 5. 탈퇴자 DB + MiniO 삭제
+        deletePostsWithMedia(postIds);
+
+        log.info("[회원 탈퇴] DB 및 MiniO 정리 클린 완료.");
+    }
+
+
+    // [메서드] 게시물 id 받아서 DB삭제 + MiniO 삭제
+    public void deletePostsWithMedia(List<Long> postIds){
+        if(postIds == null || postIds.isEmpty()) return;
+
+        // 1. Post_Media 테이블의 삭제 대상 데이터 가져오기
+        List<PostMedia> mediaList = postMediaRepository.findByPostIdIn(postIds);
+
+        // 2. MiniO에서 삭제할 대상 postid 및 해당 url추출
+        // - Long: postId
+        // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
+        Map<Long, List<String>> deletedTargerUrls = extractDeletePaths(mediaList);
+
+        // 3. DB 테이블 삭제
+        // - 외래키 참조 문제로 tag -> media -> post 테이블 순으로 삭제
+        postLikeRepository.deleteByPostIdIn(postIds);
+        postCommentRepository.deleteByPostIdIn(postIds);
+        postTagRepository.deleteByPostIdIn(postIds);
+        postMediaRepository.hardDeleteByPostIdIn(postIds);
+
+        postRepository.hardDeleteByIdIn(postIds);
+        postRepository.flush();
+
+        // 4. DB에서 데이터 삭제 후 스프링 리스너 이벤트 발송
+        applicationEventPublisher.publishEvent(
+                new PostHardDeleteCompletedEvent(postIds, deletedTargerUrls)
+        );
+    }
+
+    // [메서드] MiniO에서 삭제할 대상 url추출
     // - Long: postId
     // - List<String>: 위 postId에 속하는 제거해야 하는 url 리스트들
     private Map<Long, List<String>> extractDeletePaths(List<PostMedia> mediaList){

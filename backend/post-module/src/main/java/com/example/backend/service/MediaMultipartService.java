@@ -28,6 +28,7 @@ public class MediaMultipartService {
     @Value("${minio.bucket}")
     private String bucket;
 
+
     //1.업로드 시작: minio에게 uploadId를 받아와서 objectKey와 함께 프론트에게 전달
     public CreateMultipartResponse createUpload (Long authorId, CreateMultipartRequest request){
 
@@ -193,6 +194,7 @@ public class MediaMultipartService {
             throw new FileProcessException("업로드 취소에 실패했습니다.");
         }
     }
+
 
 
     //[메서드]-----------------------
