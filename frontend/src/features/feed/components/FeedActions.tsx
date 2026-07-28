@@ -29,7 +29,7 @@ export const FeedActions = ({
     const isCurrentCommentOpen = activePostId === postId;
     
     return(
-        <footer style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0', borderTop: '1px solid var(--pico-table-border-color)' }}>
+        <footer className="flex items-center gap-2 pt-1">
             {/* 좋아요 버튼 */}
             <LikeButton
                 postId={postId}
@@ -38,18 +38,18 @@ export const FeedActions = ({
             />
 
             {/* 댓글 버튼 */}
-            <button 
-                className={isCurrentCommentOpen ? "" : "outline secondary"} 
-                style={{ padding: '0.4rem 0.8rem' }}
+            <button
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm cursor-pointer transition-colors ${
+                    isCurrentCommentOpen ? 'bg-[#f4f4f6] text-[#2b2b31]' : 'text-[#8b8b92] hover:bg-[#f4f4f6]'
+                }`}
                 onClick={() => toggleCommentSide(postId)}
             >
-                💬 댓글 {commentCount}
+                💬 {commentCount}
             </button>
 
             {/* 태그 버튼 */}
             <button
-                className="outline secondary"
-                style={{ padding: '0.4rem 0.8rem' }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-[#8b8b92] hover:bg-[#f4f4f6] cursor-pointer transition-colors"
                 onClick={() => setIsTagModalOpen(true)}
             >
                 🏷️ 태그

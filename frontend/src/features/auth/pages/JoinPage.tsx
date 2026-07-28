@@ -138,7 +138,7 @@ const JoinPage = () => {
         );
     };
 
-    const textInputClass = "h-[60px] w-full rounded-[14px] border-none bg-white px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400";
+    const textInputClass = "h-[60px] w-full rounded-[14px] border border-transparent focus:border-black bg-white px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400";
     const labelClass = "mb-1.5 block text-base font-bold text-gray-900";
     const sideButtonClass = "w-[118px] shrink-0 rounded-[14px] bg-[#595959] hover:bg-[#6b6b6b] text-[13.5px] font-normal text-[#ffffff] cursor-pointer disabled:opacity-60";
     const fieldErrorClass = "mt-1 block text-xs text-red-500";

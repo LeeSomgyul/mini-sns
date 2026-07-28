@@ -58,7 +58,7 @@ export const HlsVideoPlayer = ({videoUrl, thumbnailUrl}: HlsVideoPlayerProps) =>
     };
 
     return(
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div className="relative w-full h-full">
             <video
                 ref={videoRef}
                 poster={thumbnailUrl || undefined}
@@ -66,16 +66,16 @@ export const HlsVideoPlayer = ({videoUrl, thumbnailUrl}: HlsVideoPlayerProps) =>
                 onClick={handleVideoClick}
                 playsInline
                 loop
-                style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
+                className="w-full h-full object-cover cursor-pointer"
             />
 
             {/* 우측 하단 음소거 해제 버튼 */}
-            <button 
-                onClick={(e) => { 
+            <button
+                onClick={(e) => {
                     e.stopPropagation();
                     setIsMuted(!isMuted);
                 }}
-                style={{ position: 'absolute', bottom: '10px', right: '10px', padding: '0.2rem 0.5rem', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '4px' }}
+                className="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-md bg-black/60 text-white text-xs cursor-pointer hover:bg-black/80 transition-colors"
             >
                 {isMuted ? '🔇 음소거' : '🔊 소리 켬'}
             </button>

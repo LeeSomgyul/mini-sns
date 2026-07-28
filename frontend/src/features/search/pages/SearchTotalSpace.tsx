@@ -13,18 +13,18 @@ export const SearchTotalSpace = () => {
     } = useSearchManager(500);
 
     return (
-        <article className="search-sidebar-container" style={{ height: '100%' }}>
+        <article className="flex flex-col h-full">
             {/* 상단: 검색 바 */}
-            <header className="sticky-search-header">
+            <header className="p-5 pb-3">
                 <SearchInput
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
             </header>
-            
+
             {/* 하단: 검색 결과 리스트 */}
-            <div>
+            <div className="flex-1 overflow-y-auto p-5 pb-5">
                 <SearchResult
                     keyword={searchKeyword}
                 />

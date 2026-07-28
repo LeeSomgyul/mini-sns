@@ -34,7 +34,7 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
     if (!keyword) {
         return (
             <div>
-                <p style={{ textAlign: 'center', color: 'gray' }}>
+                <p className="text-center text-sm text-[#a7a7ae]">
                     사용자의 이름이나 닉네임을 입력해주세요.
                 </p>
             </div>
@@ -43,17 +43,22 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
 
     if (isLoading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                <button aria-busy="true" className="secondary" disabled>검색 중...</button>
+            <div className="flex justify-center py-8">
+                <button aria-busy="true" disabled className="text-sm text-[#a7a7ae] bg-transparent border-0">검색 중...</button>
             </div>
         );
     }
 
     if (isError) {
         return (
-            <article className="error">
-                <p>검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
-                <button onClick={() => refetch()}>재시도</button>
+            <article className="text-center py-8">
+                <p className="text-sm text-[#d93526]">검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+                <button
+                    onClick={() => refetch()}
+                    className="mt-2 px-4 py-1.5 rounded-full bg-[#f4f4f6] text-sm text-[#7a7a82] cursor-pointer hover:bg-[#eaeaed] transition-colors"
+                >
+                    재시도
+                </button>
             </article>
         );
     }
@@ -63,42 +68,40 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
     if (users.length === 0) {
         return (
             <article>
-                <p style={{ textAlign: 'center' }}>검색 결과가 없습니다.</p>
+                <p className="text-center text-sm text-[#a7a7ae]">검색 결과가 없습니다.</p>
             </article>
         );
     }
 
     return (
         <section>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex flex-col gap-3">
                 {users.map((user) => {
                     if (!user) return null;
                     const finalImage = MINIO_MEDIA_ENDPOINT + user.profileImageUrl;
                     return (
                         <div
                             key={user.userId}
-                            style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', cursor: 'pointer', borderBottom: '1px solid var(--pico-muted-border-color)' }}
-                            onClick={() => navigate(ROUTES.PROFILE.LINK(user.userId))} 
+                            className="flex items-center gap-3 cursor-pointer rounded-2xl px-2 py-2 hover:bg-[#f4f4f6] transition-colors"
+                            onClick={() => navigate(ROUTES.PROFILE.LINK(user.userId))}
                         >
-                            <div style={{ width: '50px', height: '50px', marginRight: '1rem' }}>
-                                <img
-                                    src={finalImage || DEFAULT_PROFILE}
-                                    onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}
-                                    alt={user.nickname}
-                                    style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ fontSize: '1rem' }}>{user.nickname}</strong>
-                                <small style={{ color: 'var(--pico-muted-color)' }}>{user.name}</small>
+                            <img
+                                src={finalImage || DEFAULT_PROFILE}
+                                onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}
+                                alt={user.nickname}
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                            />
+                            <div className="flex flex-col">
+                                <strong className="text-sm font-semibold text-[#3a3a41]">{user.nickname}</strong>
+                                <small className="text-xs text-[#a7a7ae]">{user.name}</small>
                             </div>
                         </div>
                     );
                 })}
             </div>
-            
-            <div ref={observerRef} style={{ height: '40px', marginTop: '1rem', textAlign: 'center' }}>
-                {isFetchingNextPage && <span aria-busy="true">불러오는 중...</span>}
+
+            <div ref={observerRef} className="h-10 mt-4 text-center">
+                {isFetchingNextPage && <span aria-busy="true" className="text-xs text-[#a7a7ae]">불러오는 중...</span>}
             </div>
         </section>
     );

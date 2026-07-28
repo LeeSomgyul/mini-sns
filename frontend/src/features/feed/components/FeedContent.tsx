@@ -26,15 +26,13 @@ export const FeedContent = ({content}: {content: string}) => {
     },[content]);
 
     return(
-        <div style={{ padding: '1rem 0' }}>
-            <p 
+        <div className="text-sm leading-[1.55] text-[#54545c]">
+            <p
                 ref={textRef}
+                className="m-0 whitespace-pre-wrap break-all"
                 style={{
-                    margin: 0,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-all',
                     display: isExpanded ? 'block' : '-webkit-box',
-                    WebkitLineClamp: isExpanded ? 'none' : 2, //'더보기' 접혀 있을때 2줄만 표시 
+                    WebkitLineClamp: isExpanded ? 'none' : 2, //'더보기' 접혀 있을때 2줄만 표시
                     WebkitBoxOrient: 'vertical',
                     overflow: isExpanded ? "visible" : 'hidden',
                 }}
@@ -45,16 +43,7 @@ export const FeedContent = ({content}: {content: string}) => {
             {/* '더보기' 제공, 접기는 미제공 */}
             {isTextOverflowing && !isExpanded && (
                 <button
-                    style={{
-                        border: 'none',
-                        padding: 0,
-                        background: 'none',
-                        fontSize: '0.9rem',
-                        color: 'var(--pico-muted-color)',
-                        cursor: 'pointer',
-                        marginTop: '4px',
-                        display: 'block'
-                    }}
+                    className="block mt-1 border-0 bg-transparent p-0 text-sm text-[#a7a7ae] cursor-pointer hover:text-[#8b8b92]"
                     onClick={() => setIsExpanded(true)}
                 >
                     ...더보기

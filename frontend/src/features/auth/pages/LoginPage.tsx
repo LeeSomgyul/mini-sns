@@ -56,7 +56,7 @@ const LoginPage = () => {
                             type="email"
                             placeholder="이메일"
                             aria-invalid={errors.email ? "true" : "false"}
-                            className="h-[52px] rounded-[14px] border-none bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
+                            className="h-[52px] rounded-[14px] border border-transparent focus:border-black bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
                             {...register("email")}
                         />
                         {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
@@ -66,7 +66,7 @@ const LoginPage = () => {
                             type="password"
                             placeholder="비밀번호"
                             aria-invalid={errors.password ? "true" : "false"}
-                            className="h-[52px] rounded-[14px] border-none bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
+                            className="h-[52px] rounded-[14px] border border-transparent focus:border-black bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
                             {...register("password")}
                         />
                         {errors.password && <span className="text-xs text-red-500">{errors.password.message}</span>}

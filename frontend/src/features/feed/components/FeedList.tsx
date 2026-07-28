@@ -114,12 +114,12 @@ export const FeedList = () => {
     if(allPosts.length === 0) return <FeedEmpty/>;
 
     return(
-        <section style={{ position: 'relative', maxWidth: '600px', margin: '0 auto', paddingTop: '3rem' }}>
+        <section className="relative flex flex-col gap-6 pt-6">
             {/* 조립된 FeedCard 배치 */}
             {allPosts.map((post) => (
-                <div 
-                    key={post.postId} 
-                    className="feed-card-item" 
+                <div
+                    key={post.postId}
+                    className="feed-card-item"
                     data-post-id={post.postId}
                 >
                     <FeedCard post={post} />
@@ -127,7 +127,7 @@ export const FeedList = () => {
             ))}
 
             {/* 무한 스크롤 바닥 센서 */}
-            <div ref={observerRef} style={{ height: '50px', marginBottom: '2rem' }}>
+            <div ref={observerRef} className="h-[50px] mb-8">
                 {isFetchingNextPage && <FeedBottomLoading/>}
             </div>
         </section>

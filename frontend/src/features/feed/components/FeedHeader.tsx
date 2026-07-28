@@ -41,43 +41,41 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
     };
 
     return(
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <header className="flex justify-between items-center">
             {/* 왼쪽: 프로필 및 정보 */}
             <div
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
+                className="flex items-center gap-3 cursor-pointer"
                 onClick={() => navigate(ROUTES.PROFILE.LINK(author.userId))}
             >
                 <img
                     src={finalImage || DEFAULT_PROFILE}
                     alt={`${author.nickname} 프로필`}
-                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                    className="w-11 h-11 rounded-full object-cover flex-shrink-0"
                     onError={(e) => {e.currentTarget.src = DEFAULT_PROFILE}}
                 />
-                <div>
-                    <div style={{ display: 'block', lineHeight: 1.2 }}>
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-[15px] font-semibold text-[#2b2b31] leading-tight">
                         {author.nickname}
-                    </div>
-                    <div style={{ color: 'var(--pico-muted-color)' }}>
+                    </span>
+                    <span className="text-xs text-[#a7a7ae]">
                         {formatFeedDate(createdAt)}
-                    </div>
+                    </span>
                 </div>
             </div>
 
             {/* 오른쪽: 내 글일 경우에만 수정 and 삭제 버튼 노출 */}
             {isAuthor && (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="flex gap-2">
                     <button
-                        className="outline secondary"
-                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                        className="px-3 py-1.5 rounded-lg bg-[#f4f4f6] text-xs text-[#7a7a82] hover:bg-[#eaeaed] cursor-pointer transition-colors"
                         onClick={() => openEditModal(postId)}
                     >
                         수정
                     </button>
                     <button
-                        className="outline secondary"
+                        className="px-3 py-1.5 rounded-lg bg-[#f4f4f6] text-xs text-[#7a7a82] hover:bg-[#eaeaed] cursor-pointer transition-colors disabled:opacity-50"
                         onClick={handleDeletePost}
                         disabled={isPending}
-                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
                     >
                         {isPending ? '⌛' : '삭제'}
                     </button>

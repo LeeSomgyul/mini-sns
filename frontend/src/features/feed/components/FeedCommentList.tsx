@@ -18,22 +18,22 @@ export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClic
         : DEFAULT_PROFILE;
     
     return(
-        <li 
-            key={comment.commentId} 
-            style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', alignItems: 'flex-start' }}
+        <li
+            key={comment.commentId}
+            className="flex gap-3 items-start mb-6"
         >
             {/* 작성자 프로필 이미지 */}
-            <img 
-                src={finalImage || DEFAULT_PROFILE} 
+            <img
+                src={finalImage || DEFAULT_PROFILE}
                 alt={`${comment.author.nickname} 프로필`}
-                style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             />
-            
+
             {/* [조건부 렌더링] 댓글 수정 모드 & 일반 조회 모드 */}
             {isEditing ? (
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.3rem' }}>
-                    <strong style={{ fontSize: '0.9rem', color: 'var(--pico-h1-color)' }}>
+                <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-1">
+                    <strong className="text-sm font-semibold text-[#2b2b31]">
                         {comment.author.nickname}
                     </strong>
                 </div>
@@ -46,19 +46,19 @@ export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClic
             ) : (
                 <>
                     {/* 일반 댓글 보기 */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                            <strong style={{ fontSize: '0.9rem', color: 'var(--pico-h1-color)' }}>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-baseline">
+                            <strong className="text-sm font-semibold text-[#2b2b31]">
                                 {comment.author.nickname}
                             </strong>
-                            <small style={{ fontSize: '0.75rem', color: 'var(--pico-muted-color)' }}>
+                            <small className="text-xs text-[#a7a7ae]">
                                 {new Date(comment.createdAt).toLocaleDateString()}
                             </small>
                         </div>
-                        <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.95rem', wordBreak: 'break-word' }}>
+                        <p className="mt-1 mb-0 text-[0.95rem] text-[#54545c] break-words">
                             {comment.content}
                             {comment.isEdited && (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--pico-muted-color)', marginLeft: '0.4rem' }}>
+                                <span className="text-xs text-[#a7a7ae] ml-1.5">
                                     (수정됨)
                                 </span>
                             )}
@@ -67,17 +67,15 @@ export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClic
 
                     {/* [조건부 렌더링] 내가 쓴 댓글일 경우에만 수정/삭제 버튼 노출 */}
                     {comment.isMine && (
-                        <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
+                        <div className="flex gap-1 flex-shrink-0">
                             <button
-                                style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
-                                className="outline secondary"
+                                className="m-0 px-2 py-0.5 rounded-md text-xs text-[#8b8b92] hover:bg-[#f4f4f6] cursor-pointer transition-colors"
                                 onClick={onEditClick}
                             >
                                 수정
                             </button>
                             <button
-                                style={{ margin: 0, padding: '0.1rem 0.3rem', fontSize: '0.75rem', width: 'auto' }}
-                                className="outline contrast"
+                                className="m-0 px-2 py-0.5 rounded-md text-xs text-[#d93526] hover:bg-[#fdeceb] cursor-pointer transition-colors"
                                 onClick={() => onDeleteClick(comment.commentId)}
                             >
                                 삭제

@@ -64,53 +64,40 @@ export const FeedCommentUpdateForm = ({ onClose, commentId, initialContent }: Fe
     return(
         <form
             action={handleCommentSubmit}
-            style={{ margin: 0, padding: '0.5rem 0', width: '100%', background: 'var(--pico-background-color)' }}
+            className="m-0 py-2 w-full"
         >
-            <div style={{ width: '100%', marginBottom: '0.5rem' }}>
-                <input 
-                    type="text" 
+            <div className="w-full mb-2">
+                <input
+                    type="text"
                     name="content"
                     defaultValue={initialContent}
-                    placeholder="수정할 내용을 입력하세요." 
-                    required 
+                    placeholder="수정할 내용을 입력하세요."
+                    required
                     disabled={isPending}
                     maxLength={300}
                     onChange={handleInputChange}
-                    style={{ margin: 0, flex: 1 }}
+                    className="m-0 mb-2 w-full rounded-full border border-black/10 bg-[#f4f4f6] px-4 py-2 text-sm outline-none focus:border-[#5cc8f1] disabled:opacity-60"
                 />
                 {/* 수정 시 입력창 +  취소/저장 버튼 */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', width: '100%' }}>
+                <div className="flex justify-end gap-2 w-full">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isPending}
-                        style={{ 
-                            margin: 0, 
-                            width: 'auto', 
-                            padding: '0.4rem 1.2rem', 
-                            fontSize: '0.85rem',
-                            background: 'var(--pico-secondary-background-color)', 
-                            border: 'none',
-                            color: 'var(--pico-secondary-color)'
-                        }}
+                        className="m-0 w-auto rounded-full bg-[#f4f4f6] text-[#7a7a82] px-4 py-1.5 text-[0.85rem] border-0 cursor-pointer hover:bg-[#eaeaed] transition-colors disabled:opacity-60"
                     >
                         취소
                     </button>
                     <button
                         type="submit"
                         disabled={isPending}
-                        style={{ 
-                            margin: 0, 
-                            width: 'auto', 
-                            padding: '0.4rem 1.2rem',
-                            fontSize: '0.85rem'
-                        }}
+                        className="m-0 w-auto rounded-full bg-[#5cc8f1] text-white px-4 py-1.5 text-[0.85rem] font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors disabled:opacity-60"
                     >
                         {isPending ? "저장 중..." : "저장"}
                     </button>
                 </div>
             </div>
-            <small style={{ alignSelf: 'flex-end', color: textLength > 300 ? 'red' : 'orange', fontSize: '0.8rem' }}>
+            <small className={`block text-right text-xs ${textLength > 300 ? 'text-red-500' : 'text-[#a7a7ae]'}`}>
                 {textLength} / 300자
             </small>
         </form>

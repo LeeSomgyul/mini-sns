@@ -13,11 +13,11 @@ interface SearchInputProps{
 export const SearchInput = ({value, onChange, onKeyDown}: SearchInputProps) => {
     return(
         <input
-            type="search"
             placeholder="이름이나 닉네임을 입력해주세요."
             value={value}
             onChange={onChange}
             onKeyDown={onKeyDown}
+            className="w-full rounded-2xl bg-[#f4f4f6] border-0 px-4 py-3 text-sm text-[#3a3a41] placeholder:text-[#b3b3ba] outline-none focus:ring-2 focus:ring-[#5cc8f1]/40"
         />
     );
 };

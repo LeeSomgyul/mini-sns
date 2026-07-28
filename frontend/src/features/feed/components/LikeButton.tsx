@@ -25,9 +25,9 @@ export const LikeButton = ({postId, likeCount, isLiked}: LikeButtonProps) => {
         <button
             onClick={handleLikeToggle}
             disabled={isPending} // API 요청 중 버튼 비활성화
-            style={{ padding: '0.4rem 0.8rem', cursor: isPending ? 'not-allowed' : 'pointer' }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-[#8b8b92] hover:bg-[#f4f4f6] transition-colors ${isPending ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
         >
-            {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
+            {isLiked ? '❤️' : '🤍'} {likeCount}
         </button>
     );
 };
