@@ -38,34 +38,34 @@ const streamTransition = (delay: number) => ({
     ease: "linear" as const,
     repeat: Infinity,
     delay,
-    times: [0, 0.08, 0.45, 0.82, 1],
+    times: [0, 0.2, 0.45, 0.82, 1],
 });
 
 // 피드 카드 내부 텍스트가 좌→우로 타이핑되듯 나타나는 움직임
 const typingTransition = (delay: number) => ({
     duration: 13,
-    ease: "linear" as const,
+    ease: "easeInOut" as const,
     repeat: Infinity,
     delay,
-    times: [0, 0.4, 0.58, 1],
+    times: [0, 0.1, 0.35, 1],
 });
 
 // 반응 말풍선이 팝업되는 움직임
 const bubbleTransition = (delay: number) => ({
     duration: 13,
-    ease: "linear" as const,
+    ease: "easeInOut" as const,
     repeat: Infinity,
     delay,
-    times: [0, 0.44, 0.5, 0.58, 1],
+    times: [0, 0.08, 0.12, 0.2, 1],
 });
 
 // 하트가 통통 튀어 오르며 사라지는 움직임
 const heartTransition = (delay: number) => ({
     duration: 13,
-    ease: "linear" as const,
+    ease: "easeInOut" as const,
     repeat: Infinity,
     delay,
-    times: [0, 0.42, 0.5, 0.62, 0.78, 1],
+    times: [0, 0.3, 0.45, 0.6, 0.8, 1],
 });
 
 const FeedStream = ({ side, delay, gradient, reactionText, eyebrowPath }: FeedStreamConfig) => {
@@ -74,7 +74,7 @@ const FeedStream = ({ side, delay, gradient, reactionText, eyebrowPath }: FeedSt
     return (
         <motion.div
             className={`absolute top-10 flex w-[260px] flex-col gap-2.5 ${isLeft ? "left-9 items-start" : "right-9 items-end"}`}
-            animate={{ y: [460, 460, 60, -220, -420], opacity: [0, 1, 1, 1, 0] }}
+            animate={{ y: [460, 260, 60, -220, -420], opacity: [0, 1, 1, 1, 0] }}
             transition={streamTransition(delay)}
         >
             {/* 프로필 원형 카드 */}
