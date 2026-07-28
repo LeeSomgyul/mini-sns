@@ -79,7 +79,7 @@ const LoginPage = () => {
                             type="submit"
                             aria-busy={isPending}
                             disabled={isPending}
-                            className="h-[52px] rounded-[14px] border-none bg-[#1c1c21] text-white text-[14.5px] font-medium mt-1 cursor-pointer disabled:opacity-60"
+                            className="h-[52px] rounded-[14px] border-none bg-[#1c1c21] hover:bg-[#2d2d2d] text-white text-[14.5px] font-medium mt-1 cursor-pointer disabled:opacity-60"
                         >
                             {isPending ? "로그인 중..." : "로그인"}
                         </button>
@@ -95,7 +95,7 @@ const LoginPage = () => {
                     <button
                         type="button"
                         onClick={handleKakaoLogin}
-                        className="h-[52px] rounded-[14px] border-none bg-[#FEE500] text-gray-900 text-[14.5px] font-medium cursor-pointer"
+                        className="h-[52px] rounded-[14px] border-none bg-[#FEE500] hover:bg-[#f7de00] text-gray-900 text-[14.5px] font-medium cursor-pointer"
                     >
                         카카오 로그인
                     </button>
