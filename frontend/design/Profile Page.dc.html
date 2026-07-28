@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+  html, body { height: 100%; overflow: hidden; }
+</style>
+<script>
+  function fitStage() {
+    var el = document.getElementById('stage-1920');
+    if (!el) return;
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    el.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('DOMContentLoaded', fitStage);
+  setTimeout(fitStage, 0);
+</script>
+</helmet>
+<div style="position: fixed; inset: 0; width: 1920px; height: 1080px; overflow: hidden; background: #e9e9eb">
+<div id="stage-1920" style="position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; transform: translate(-50%,-50%); overflow: hidden; background: radial-gradient(circle at 8% 10%, rgba(92,200,241,0.35), transparent 40%),
+    radial-gradient(circle at 92% 8%, rgba(247,220,163,0.4), transparent 42%),
+    radial-gradient(circle at 15% 90%, rgba(214,222,159,0.35), transparent 42%),
+    radial-gradient(circle at 88% 85%, rgba(238,199,211,0.4), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(92,200,241,0.12), transparent 55%)">
+
+  
+<div style="display: flex; justify-content: center; gap: 28px; padding: 40px 32px; max-width: 1920px; margin: 0 auto; width: 1815px; height: 977px">
+
+    <!-- LEFT NAV -->
+    <div style="width:76px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:22px; padding-top:12px;">
+      <div style="width:52px; height:52px; border-radius:18px; background:rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="#b0b0b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.5 10v8.5a1 1 0 001 1H16.5a1 1 0 001-1V10" stroke="#b0b0b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </div>
+      <div style="width:52px; height:52px; border-radius:18px; background:rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="2" stroke="#b0b0b8" stroke-width="1.8"></rect><rect x="13" y="4" width="7" height="7" rx="2" stroke="#b0b0b8" stroke-width="1.8"></rect><rect x="4" y="13" width="7" height="7" rx="2" stroke="#b0b0b8" stroke-width="1.8"></rect><rect x="13" y="13" width="7" height="7" rx="2" stroke="#b0b0b8" stroke-width="1.8"></rect></svg>
+      </div>
+      <div style="width:52px; height:52px; border-radius:18px; background:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(30,30,40,0.12);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#3a3a41" stroke-width="1.8"></circle><path d="M12 8v8M8 12h8" stroke="#3a3a41" stroke-width="1.8" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="width:52px; height:52px; border-radius:18px; background:rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#b0b0b8" stroke-width="1.8"></circle><path d="M19 12a7 7 0 00-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 00-2-1.2L14 3h-4l-.6 2.6a7 7 0 00-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9c.6.5 1.3.9 2 1.2L10 21h4l.6-2.6c.7-.3 1.4-.7 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" stroke="#b0b0b8" stroke-width="1.4" stroke-linejoin="round"></path></svg>
+      </div>
+    </div>
+
+    <!-- CENTER FEED -->
+    <div style="width:640px; flex-shrink:0;">
+      <div style="background:#ffffff; border-radius:24px; box-shadow:0 12px 32px rgba(30,30,45,0.07); padding:20px 20px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#5cc8f1,#eec7d3); flex-shrink:0;"></div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:15px; font-weight:600; color:#2b2b31;">지은</div>
+            <div style="font-size:12.5px; color:#a7a7ae;">3일 전</div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="display:flex; gap:8px;">
+            <div style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background-color: #F4F4F6">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5l4 4L9 19H5v-4L16.5 3.5z" stroke="#b0b0b8" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+            </div>
+            <div style="width:32px; height:32px; border-radius:10px; background:#f4f4f6; display:flex; align-items:center; justify-content:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7" stroke="#b0b0b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="position: relative; border-radius: 16px; overflow: hidden; height: 600px; background: linear-gradient(135deg,#eef6fb,#f7f2e9); display: flex; align-items: center; justify-content: center">
+          <span style="font-family:monospace; font-size:12px; color:#a9b0b5; letter-spacing:0.03em;">사진/영상 미디어</span>
+          <div style="position:absolute; left:14px; top:50%; transform:translateY(-50%); width:36px; height:36px; border-radius:50%; background:rgba(30,30,35,0.35); display:flex; align-items:center; justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 5l-8 7 8 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <div style="position:absolute; right:14px; top:50%; transform:translateY(-50%); width:36px; height:36px; border-radius:50%; background:rgba(30,30,35,0.35); display:flex; align-items:center; justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 5l8 7-8 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <div style="position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:6px;">
+            <div style="width:6px; height:6px; border-radius:50%; background:#fff;"></div>
+            <div style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></div>
+            <div style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></div>
+            <div style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></div>
+            <div style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:20px; padding:2px 4px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-9.3-8.8C1.3 8 3 5 6.3 5c2 0 3.4 1.1 5.7 3.6C14.3 6.1 15.7 5 17.7 5 21 5 22.7 8 21.3 11.2 19 15.6 12 20 12 20z" stroke="#b0b0b8" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+            <span style="font-size:14px; color:#8b8b92;">96</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-5 4V5z" stroke="#b0b0b8" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+            <span style="font-size:14px; color:#8b8b92;">21</span>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h9" stroke="#b0b0b8" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        </div>
+
+        <div style="font-size:14px; line-height:1.55; color:#54545c;"><span style="font-weight:600; color:#2b2b31;">지은</span> 오랜만에 여유롭게 보낸 주말 <span style="color:#a7a7ae;">…더보기</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: PROFILE PANEL -->
+    <div style="width:340px; flex-shrink:0; display:flex; flex-direction:column; gap:20px;">
+
+      <div style="background: #ffffff; border-radius: 20px; box-shadow: 0 10px 26px rgba(30,30,45,0.06); padding: 22px; display: flex; flex-direction: column; gap: 18px; width: 302px; height: 720px">
+        <div style="font-size:17px; font-weight:700; color:#2b2b31;">지은</div>
+
+        <div style="display:flex; align-items:center; gap:18px;">
+          <div style="width:56px; height:56px; border-radius:50%; background:#eceded; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" fill="#e3e3e6"></circle><circle cx="9" cy="10" r="0.9" fill="#3a3a41"></circle><circle cx="15" cy="10" r="0.9" fill="#3a3a41"></circle><path d="M9 15c1.2 1 3.8 1 6 0" stroke="#3a3a41" stroke-width="1.2" stroke-linecap="round"></path></svg>
+          </div>
+          <div style="flex:1; display:flex; justify-content:space-between; text-align:center;">
+            <div>
+              <div style="font-size:12px; color:#a7a7ae;">게시물</div>
+              <div style="font-size:15px; font-weight:700; color:#2b2b31;">18</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:#a7a7ae;">팔로워</div>
+              <div style="font-size:15px; font-weight:700; color:#2b2b31;">142</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:#a7a7ae;">팔로잉</div>
+              <div style="font-size:15px; font-weight:700; color:#2b2b31;">98</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 13.5px; color: #FFFFFF; font-weight: 600; cursor: pointer; background-color: #000000">개인정보 수정</div><div style="font-size:14px; font-weight:600; color:#2b2b31;">내 게시물</div><div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+          <div style="aspect-ratio:1; border-radius:12px; background:linear-gradient(135deg,#eef6fb,#f7f2e9);"></div>
+          <div style="aspect-ratio:1; border-radius:12px; background:linear-gradient(135deg,#fbeef1,#f6f1e3);"></div>
+          <div style="aspect-ratio:1; border-radius:12px; background:linear-gradient(135deg,#eef7ee,#eef6fb);"></div>
+          <div style="aspect-ratio:1; border-radius:12px; background:linear-gradient(135deg,#f7dca3,#d6de9f);"></div>
+        </div>
+      </div>
+
+      
+
+    </div>
+
+  </div></div>
+</div>
+
+</x-dc>
+</body>
+</html>
