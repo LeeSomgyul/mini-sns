@@ -45,7 +45,7 @@ export default function PostDescription({mode, disabled}: PostDescriptionProps) 
                     <div className="flex flex-col h-full">
                         {/* 상단 글자 수 카운터 */}
                         <div className="flex justify-between items-end mb-2">
-                            <span className="text-[13.5px] font-semibold text-[#1c1c21]">글 작성</span>
+                            <span className="text-[13.5px] font-normal text-[#1c1c21]">글 작성</span>
                             <span className={`text-xs ${value.length >= 500 ? 'text-red-500' : 'text-[#9a9aa3]'}`}>
                                 ({value.length} / 500)
                             </span>
@@ -55,7 +55,7 @@ export default function PostDescription({mode, disabled}: PostDescriptionProps) 
                         <textarea
                             placeholder="어떤 일이 있었나요?"
                             maxLength={500}
-                            className="flex-1 min-h-[150px] w-full resize-none overflow-hidden rounded-2xl bg-white border border-black/10 px-4 py-3.5 text-[13.5px] text-[#3a3a41] outline-none focus:border-[#5cc8f1] disabled:opacity-60"
+                            className="flex-1 min-h-[150px] w-full resize-none overflow-y-auto rounded-2xl bg-white border border-black/50 px-4 py-3.5 text-[13.5px] text-[#3a3a41] outline-none focus:border-[#5cc8f1] disabled:opacity-60 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/10"
                             value={value}//사용자 실시간 입력값
                             onChange={handleTextChange}
                             ref={(node) => {

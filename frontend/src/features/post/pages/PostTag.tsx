@@ -55,7 +55,7 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
                 />
             )}
 
-            <span className="text-[13.5px] font-semibold text-[#1c1c21]">태그</span>
+            <span className="text-[13.5px] font-normal text-[#1c1c21]">태그</span>
             <button
                 type="button"
                 className="h-11 w-full rounded-xl bg-[#1c1c21] text-white text-[12.5px] cursor-pointer hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -66,7 +66,7 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
             </button>
 
             {/* 태그된 유저 리스트 */}
-            <div className="flex flex-col gap-2 overflow-y-auto">
+            <div className="flex flex-col gap-2 overflow-y-auto overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/10">
                 {tagUsers.map((user) => {
 
                     const profile = profileMap.get(user.userId);
@@ -77,7 +77,7 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
                     return(
                         <article
                             key={user.userId}
-                            className="flex items-center gap-2 rounded-xl bg-white border border-black/10 px-2.5 py-2"
+                            className="flex items-center gap-2 rounded-xl bg-white border border-black/50 px-2.5 py-2"
                         >
                             <img
                                 src={profileImageUrl}

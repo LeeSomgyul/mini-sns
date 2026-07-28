@@ -78,7 +78,7 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
             {/* 상단 헤더 및 버튼 */}
             <div className="flex justify-between items-center">
                 <div className="flex items-baseline gap-1">
-                    <span className="text-[13.5px] font-semibold text-[#1c1c21]">이미지 및 영상 등록</span>
+                    <span className="text-[13.5px] font-normal text-[#1c1c21]">이미지 및 영상 등록</span>
                     <span className="text-[13.5px] text-[#9a9aa3]">({mediaList.length}/5)</span>
                 </div>
                 {!isEdit && (
@@ -114,7 +114,7 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
             </div>
 
             {/* 메인 미리보기 화면 */}
-            <div className="flex-1 min-h-0 aspect-square bg-white rounded-2xl border border-black/10 flex items-center justify-center overflow-hidden">
+            <div className="flex-1 min-h-0 aspect-square bg-white rounded-2xl border border-black/50 flex items-center justify-center overflow-hidden">
                 {mediaList.length > 0 && currentMedia ? (
                     currentMedia.type === 'VIDEO' ? (
                         isVideoPlaying ? (
@@ -180,7 +180,7 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                             }}
                             className={`relative aspect-square rounded-[10px] overflow-hidden flex items-center justify-center border ${
                                 hasMedia ? 'bg-white cursor-pointer' : 'bg-[#e5e7eb] cursor-default'
-                            } ${isChoice ? 'border-2 border-[#5cc8f1]' : 'border-black/10'}`}
+                            } ${isChoice ? 'border-2 border-[#5cc8f1]' : 'border-black/50'}`}
                         >
                             {hasMedia ? (
                                 <>

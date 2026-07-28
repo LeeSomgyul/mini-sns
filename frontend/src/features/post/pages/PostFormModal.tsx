@@ -175,21 +175,21 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
             open
             className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/40 backdrop-blur-sm p-0"
         >
-            <article className="flex flex-col w-[90vw] max-w-[1000px] max-h-[85vh] rounded-[32px] bg-white/90 backdrop-blur-2xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.15)] p-7">
+            <article className="flex flex-col w-[90vw] max-w-[1000px] max-h-[90vh] rounded-[36px] bg-white/60 backdrop-blur-xl border-[1px] border-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6 md:p-8 overflow-hidden">
                 <header className="flex items-center justify-between mb-4">
-                    <span className="text-lg font-bold text-[#1c1c21]">{isEdit ? '피드 수정' : '피드 작성'}</span>
+                    <span className="text-xl font-medium text-[#1c1c21]">{isEdit ? '피드 수정' : '피드 작성'}</span>
                     <button
                         aria-label="Close"
                         onClick={closeModal}
-                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-white hover:bg-white/80 cursor-pointer transition-colors"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7F7F7F" strokeWidth="2" strokeLinecap="round"/></svg>
                     </button>
                 </header>
 
                 <FormProvider {...methods}>
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 gap-4">
-                        <div className="flex gap-5 flex-1 min-h-0">
+                        <div className="flex gap-5 flex-1 min-h-0 p-6 rounded-[28px] bg-white border border-gray-100 shadow-sm">
                             <div className="w-[370px] shrink-0">
                                 {/* 기존에 넘겨주던 props(mediaList, setMediaList 등)를 싹 지웁니다! */}
                                 <PostMediaUploader mode={mode}/>
@@ -219,7 +219,7 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
                             <button
                                 type="submit"
                                 disabled={isPending || isMediaUploading || (isEdit && !isDirty)}
-                                className="h-10 px-6 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="h-10 px-10 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {getButtonText()}
                             </button>

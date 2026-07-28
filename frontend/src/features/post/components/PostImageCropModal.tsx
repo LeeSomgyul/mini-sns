@@ -117,7 +117,7 @@ export default function PostImageCropModal({
                 {/* 하단 컨트롤러 영역 */}
                 <div className="mt-4">
                     {/* zoom (확대) 조절 */}
-                    <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-4 mb-4 mx-4">
                         <span className="whitespace-nowrap text-sm text-[#3a3a41]">확대</span>
                         <input
                             type="range" value={zoom} min={1} max={3} step={0.1}
@@ -130,7 +130,7 @@ export default function PostImageCropModal({
                         <button
                             type="button"
                             onClick={handleRotate90}
-                            className="px-4 py-1.5 rounded-lg bg-[#f4f4f6] text-sm text-[#3a3a41] cursor-pointer hover:bg-[#eaeaed] transition-colors"
+                            className="px-4 py-1.5 rounded-lg bg-white text-sm text-[#3a3a41] cursor-pointer hover:bg-white/60 transition-colors"
                         >
                             회전
                         </button>
@@ -141,7 +141,7 @@ export default function PostImageCropModal({
                         <button
                             type="button"
                             onClick={handleReset}
-                            className="w-[30%] h-11 rounded-xl bg-[#f4f4f6] text-[#3a3a41] text-sm font-semibold cursor-pointer hover:bg-[#eaeaed] transition-colors"
+                            className="w-[30%] h-11 rounded-xl bg-white text-[#3a3a41] text-sm font-semibold cursor-pointer hover:bg-white/60 transition-colors"
                         >
                             초기화
                         </button>
