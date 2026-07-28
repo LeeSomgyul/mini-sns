@@ -158,56 +158,76 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
     // [게시물 수정 전용] 초기 데이터 로딩 스켈레톤
     if(isEdit && isPostLoading){
         return createPortal(
-            <dialog open style={{ zIndex: 9999 }}><article>데이터를 불러오는 중입니다...</article></dialog>,
+            <dialog
+                open
+                className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/40 backdrop-blur-sm p-0"
+            >
+                <article className="rounded-3xl bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.15)] px-8 py-6 text-sm text-[#54545c]">
+                    데이터를 불러오는 중입니다...
+                </article>
+            </dialog>,
             document.body
         );
     }
 
     return createPortal(
-        <div>
-            <dialog open style={{ zIndex: 9999 }}>
-                <article style={{ width: '90vw', maxWidth: '1000px' }}>
-                    <header>
-                        <button aria-label="Close" className="close" onClick={closeModal}></button>
-                        <span>{isEdit ? '피드 수정' : '피드 작성'}</span>
-                    </header>
+        <dialog
+            open
+            className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/40 backdrop-blur-sm p-0"
+        >
+            <article className="flex flex-col w-[90vw] max-w-[1000px] max-h-[85vh] rounded-[32px] bg-white/90 backdrop-blur-2xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.15)] p-7">
+                <header className="flex items-center justify-between mb-4">
+                    <span className="text-lg font-bold text-[#1c1c21]">{isEdit ? '피드 수정' : '피드 작성'}</span>
+                    <button
+                        aria-label="Close"
+                        onClick={closeModal}
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
+                </header>
 
-                    <FormProvider {...methods}>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="grid">
-                                <div>
-                                    {/* 기존에 넘겨주던 props(mediaList, setMediaList 등)를 싹 지웁니다! */}
-                                    <PostMediaUploader mode={mode}/>
-                                </div>
-                                <div>
-                                    <PostDescription mode={mode}/>
-                                </div>
-                                <div>
-                                    <PostTag mode={mode} postId={postId}/>
-                                </div>
+                <FormProvider {...methods}>
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 gap-4">
+                        <div className="flex gap-5 flex-1 min-h-0">
+                            <div className="w-[370px] shrink-0">
+                                {/* 기존에 넘겨주던 props(mediaList, setMediaList 등)를 싹 지웁니다! */}
+                                <PostMediaUploader mode={mode}/>
                             </div>
-                            
-                            {/* 에러 메시지 렌더링 (postSchema.tsx) */}
-                            {errors.mediaList && errors.mediaList.message !== "아직 업로드 중인 미디어가 있습니다. 잠시만 기다려주세요." && (
-                                <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>
-                                    {errors.mediaList.message}
-                                </p>
-                            )}
+                            <div className="flex-1 min-w-0">
+                                <PostDescription mode={mode}/>
+                            </div>
+                            <div className="w-[230px] shrink-0">
+                                <PostTag mode={mode} postId={postId}/>
+                            </div>
+                        </div>
 
-                            {errors.content && (
-                                <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>
-                                    {errors.content.message}
-                                </p>
-                            )}
+                        {/* 에러 메시지 렌더링 (postSchema.tsx) */}
+                        {errors.mediaList && errors.mediaList.message !== "아직 업로드 중인 미디어가 있습니다. 잠시만 기다려주세요." && (
+                            <p className="text-red-500 text-sm m-0">
+                                {errors.mediaList.message}
+                            </p>
+                        )}
 
-                            <button type="submit" disabled={isPending || isMediaUploading || (isEdit && !isDirty)}>
+                        {errors.content && (
+                            <p className="text-red-500 text-sm m-0">
+                                {errors.content.message}
+                            </p>
+                        )}
+
+                        <div className="flex justify-end">
+                            <button
+                                type="submit"
+                                disabled={isPending || isMediaUploading || (isEdit && !isDirty)}
+                                className="h-10 px-6 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 {getButtonText()}
                             </button>
-                        </form>
-                    </FormProvider>
-                </article>
-            </dialog>
-        </div>,
+                        </div>
+                    </form>
+                </FormProvider>
+            </article>
+        </dialog>,
         document.body
     );
 }

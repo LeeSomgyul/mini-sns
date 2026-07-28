@@ -82,15 +82,24 @@ export default function PostImageCropModal({
     };
 
     return createPortal(
-        <dialog open style={{ zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <article style={{ width: '90vw', maxWidth: '600px', backgroundColor: '#fff', padding: '1rem', borderRadius: '8px' }}>
-                <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                    <div>이미지 편집</div>
-                    <button aria-label="Close" className="close" onClick={closeModal}></button>
+        <dialog
+            open
+            className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/90 p-0"
+        >
+            <article className="w-[90vw] max-w-[600px] rounded-3xl bg-white/95 backdrop-blur-xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.2)] p-5">
+                <header className="flex justify-between items-center mb-4">
+                    <span className="text-base font-semibold text-[#2b2b31]">이미지 편집</span>
+                    <button
+                        aria-label="Close"
+                        onClick={closeModal}
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
                 </header>
 
                 {/* 이미지 수정 영역 */}
-                <div style={{ position: 'relative', width: '100%', height: '400px', backgroundColor: '#333', borderRadius: '8px', overflow: 'hidden' }}>
+                <div className="relative w-full h-[400px] bg-[#333] rounded-2xl overflow-hidden">
                     <Cropper
                         image={imageUrl}
                         crop={crop}
@@ -106,41 +115,40 @@ export default function PostImageCropModal({
                 </div>
 
                 {/* 하단 컨트롤러 영역 */}
-                <div style={{ marginTop: '1rem' }}>
+                <div className="mt-4">
                     {/* zoom (확대) 조절 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <span style={{ whiteSpace: 'nowrap' }}>확대</span>
-                        <input 
+                    <div className="flex items-center gap-4 mb-4">
+                        <span className="whitespace-nowrap text-sm text-[#3a3a41]">확대</span>
+                        <input
                             type="range" value={zoom} min={1} max={3} step={0.1}
                             onChange={(e) => setZoom(Number(e.target.value))}
-                            style={{ width: '100%' }}
+                            className="w-full accent-[#5cc8f1]"
                         />
                     </div>
                     {/* rotation (회전) 조절 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <div className="flex items-center gap-4 mb-4">
                         <button
                             type="button"
-                            className="secondary outline"
                             onClick={handleRotate90}
+                            className="px-4 py-1.5 rounded-lg bg-[#f4f4f6] text-sm text-[#3a3a41] cursor-pointer hover:bg-[#eaeaed] transition-colors"
                         >
                             회전
                         </button>
                     </div>
 
                     {/* 완료 & 초기화 버튼 */}
-                    <footer style={{ display: 'flex', gap: '1rem' }}>
-                        <button 
+                    <footer className="flex gap-4">
+                        <button
                             type="button"
-                            className="secondary outline"
                             onClick={handleReset}
-                            style={{ width: '30%' }}
+                            className="w-[30%] h-11 rounded-xl bg-[#f4f4f6] text-[#3a3a41] text-sm font-semibold cursor-pointer hover:bg-[#eaeaed] transition-colors"
                         >
                             초기화
                         </button>
-                        <button 
+                        <button
                             type="button"
                             onClick={handleSave}
-                            style={{ width: '70%' }}
+                            className="w-[70%] h-11 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors"
                         >
                             완료
                         </button>

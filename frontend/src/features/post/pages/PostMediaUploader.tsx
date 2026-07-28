@@ -56,7 +56,7 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
     const currentMedia = mediaList[uiState.choiceMediaNum];
 
     return (
-        <div>
+        <div className="flex flex-col gap-2.5 h-full">
             {/* 웹캠 모달 */}
             {uiState.isWebcamOpen && (
                 <PostWebcamModal
@@ -76,47 +76,45 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
             )}
 
             {/* 상단 헤더 및 버튼 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <>
-                    <div style={{ margin: 0, fontSize: '0.7rem' }}>이미지 및 영상 등록</div>
-                    <div style={{ fontSize: '0.7rem' }}>({mediaList.length}/5)</div>
-                </>
+            <div className="flex justify-between items-center">
+                <div className="flex items-baseline gap-1">
+                    <span className="text-[13.5px] font-semibold text-[#1c1c21]">이미지 및 영상 등록</span>
+                    <span className="text-[13.5px] text-[#9a9aa3]">({mediaList.length}/5)</span>
+                </div>
                 {!isEdit && (
-                    <div style={{ display: 'flex' }}>
+                    <div className="flex gap-1.5">
                         <div>
                             <input
                                 type="file"
                                 accept="image/*,video/mp4,video/quicktime"
                                 ref={fileInputRef}
-                                style={{ display: 'none' }}
+                                className="hidden"
                                 onChange={actions.addMedia}
                                 multiple
                             />
-                            <button 
-                                type="button" 
-                                className="secondary outline" 
-                                style={{ marginRight: '5px', padding: '0.3rem' }} 
-                                disabled={isMaxReached} 
+                            <button
+                                type="button"
+                                className="flex items-center justify-center w-[30px] h-[30px] rounded-[10px] bg-[#f4f4f6] hover:bg-[#eaeaed] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isMaxReached}
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                추가
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#3a3a41" strokeWidth="2" strokeLinecap="round"/></svg>
                             </button>
                         </div>
-                        <button 
-                            type="button" 
-                            className="secondary outline" 
-                            style={{ padding: '0.3rem' }} 
-                            disabled={isMaxReached} 
+                        <button
+                            type="button"
+                            className="flex items-center justify-center w-[30px] h-[30px] rounded-[10px] bg-[#f4f4f6] hover:bg-[#eaeaed] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isMaxReached}
                             onClick={uiActions.openWebcamModal}
                         >
-                            카메라
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 8.5a1.5 1.5 0 011.5-1.5H8l1-2h6l1 2h2.5A1.5 1.5 0 0120 8.5V17a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17V8.5z" stroke="#2f9ec9" strokeWidth="1.6" strokeLinejoin="round"/><circle cx="12" cy="12.5" r="3.4" stroke="#2f9ec9" strokeWidth="1.6"/></svg>
                         </button>
                     </div>
                 )}
             </div>
 
             {/* 메인 미리보기 화면 */}
-            <div style={{ aspectRatio: '1/1', height: '100%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
+            <div className="flex-1 min-h-0 aspect-square bg-white rounded-2xl border border-black/10 flex items-center justify-center overflow-hidden">
                 {mediaList.length > 0 && currentMedia ? (
                     currentMedia.type === 'VIDEO' ? (
                         isVideoPlaying ? (
@@ -124,35 +122,34 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                                 src={currentMedia.previewUrl}
                                 controls
                                 autoPlay
-                                style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }}
+                                className="w-full h-full object-contain bg-black"
                             />
                         ) : (
                             <div
                                 onClick={() => setIsVideoPlaying(true)}
-                                style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer', backgroundColor: '#000' }}
+                                className="relative w-full h-full cursor-pointer bg-black"
                             >
                                 <video
                                     src={currentMedia.previewUrl}
-                                    style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }} 
+                                    className="w-full h-full object-contain bg-black"
                                     preload="metadata"
                                 />
-                                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: '24px' }}>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60px] h-[60px] bg-black/60 rounded-full flex items-center justify-center text-white text-2xl">
                                     ▶
                                 </div>
                             </div>
                         )
                     ) : (
-                        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                            <img 
+                        <div className="relative w-full h-full">
+                            <img
                                 src={currentMedia.croppedPreviewUrl || currentMedia.previewUrl}
                                 alt="미리보기"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                className="w-full h-full object-cover"
                             />
                             {!isEdit && (
                                 <button
                                     type="button"
-                                    className="secondary"
-                                    style={{ position: 'absolute', top: '10px', right: '10px', padding: '0.2rem 0.5rem', fontSize: '0.8rem', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '4px' }}
+                                    className="absolute top-2.5 right-2.5 px-2 py-1 text-xs bg-black/60 border-0 text-white rounded-md cursor-pointer hover:bg-black/80 transition-colors"
                                     onClick={uiActions.openCropModal}
                                 >
                                     편집
@@ -161,18 +158,18 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                         </div>
                     )
                 ) : (
-                    <span style={{ color: '#9ca3af' }}>이미지 및 영상을 추가해주세요.</span>
+                    <span className="text-[13px] text-[#b7b7bd]">이미지 및 영상을 추가해주세요.</span>
                 )}
             </div>
 
             {/* 하단 썸네일 */}
-            <div className="grid" style={{ gap: '0.3rem', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+            <div className="grid grid-cols-5 gap-1.5">
                 {[0, 1, 2, 3, 4].map((index) => {
                     const hasMedia = index < mediaList.length;
                     const isChoice = index === uiState.choiceMediaNum;
 
                     return (
-                        <div 
+                        <div
                             key={index}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -181,38 +178,33 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                                     uiActions.setChoiceMediaNum(index);
                                 }
                             }}
-                            style={{ 
-                                height: '55px', 
-                                aspectRatio: '1/1',
-                                backgroundColor: hasMedia ? '#fff' : '#e5e7eb', 
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                                position: 'relative', borderRadius: '4px', cursor: hasMedia ? 'pointer' : 'default',
-                                border: isChoice ? '2px solid #000' : '1px solid #ccc', 
-                                overflow: 'hidden'
-                            }}
+                            className={`relative aspect-square rounded-[10px] overflow-hidden flex items-center justify-center border ${
+                                hasMedia ? 'bg-white cursor-pointer' : 'bg-[#e5e7eb] cursor-default'
+                            } ${isChoice ? 'border-2 border-[#5cc8f1]' : 'border-black/10'}`}
                         >
                             {hasMedia ? (
                                 <>
                                     {mediaList[index].type === 'VIDEO' ? (
-                                        <video src={mediaList[index].previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <video src={mediaList[index].previewUrl} className="w-full h-full object-cover" />
                                     ) : (
                                         <img
                                             src={mediaList[index].croppedPreviewUrl || mediaList[index].previewUrl}
                                             alt=""
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            className="w-full h-full object-cover"
                                         />
                                     )}
                                     {!isEdit && (
                                         <button
                                             type="button"
-                                            className="close"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRemoveMedia(index);
                                             }}
-                                            style={{ position: 'absolute', top: '5px', right: '5px' }}
-                                        />   
-                                    )}                    
+                                            className="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/60 text-white text-[10px] leading-none flex items-center justify-center cursor-pointer hover:bg-black/80"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
                                 </>
                             ) : (
                                 <span></span>

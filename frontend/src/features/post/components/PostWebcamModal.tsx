@@ -132,42 +132,69 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
     };
 
     return createPortal(
-        <dialog open style={{ zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <article style={{ width: '90vw', maxWidth: '600px', backgroundColor: '#fff', padding: '1rem', borderRadius: '8px' }}>
+        <dialog
+            open
+            className="fixed inset-0 z-[1000] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/80 p-0"
+        >
+            <article className="w-[90vw] max-w-[600px] rounded-3xl bg-white/95 backdrop-blur-xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.2)] p-5">
                 {/* 상단 영역 */}
-                <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                    <div style={{ margin: 0 }}>카메라</div>
-                    <button aria-label="Close" className="close" onClick={closeModal}></button>
+                <header className="flex justify-between items-center mb-4">
+                    <span className="text-base font-semibold text-[#2b2b31]">카메라</span>
+                    <button
+                        aria-label="Close"
+                        onClick={closeModal}
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
                 </header>
 
                 {/* 1:1 카메라 영역 */}
-                <div style={{ width: '100%', aspectRatio: '1/1', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
+                <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
                     {!capturedImage ? (
                         //촬영 결과물 없으면 비디오 촬영 시작
                         <video
                             ref = {videoRef}
                             autoPlay
                             playsInline
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                            className="w-full h-full object-cover [transform:scaleX(-1)]"
                         />
                     ) : (
                         //촬영 결과물 있으면 결과 이미지 보여주기
                         <img
                             src={capturedImage}
                             alt="카메라로 캡처한 사용자 사진"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            className="w-full h-full object-cover"
                         />
                     )}
                 </div>
 
                 {/* 하단 버튼 영역 */}
-                <footer style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <footer className="flex gap-4 mt-4">
                     {!capturedImage?(
-                        <button type='button' onClick={handlePhotoShoot} style={{ width: '100%' }}>촬영</button>
+                        <button
+                            type='button'
+                            onClick={handlePhotoShoot}
+                            className="w-full h-11 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors"
+                        >
+                            촬영
+                        </button>
                     ):(
                         <>
-                            <button type='button' onClick={handleRetake} style={{ width: '50%' }}>다시 촬영</button>
-                            <button type='button' onClick={handlePhotoUse} style={{ width: '50%' }}>이 사진 사용</button>
+                            <button
+                                type='button'
+                                onClick={handleRetake}
+                                className="w-1/2 h-11 rounded-xl bg-[#f4f4f6] text-[#3a3a41] text-sm font-semibold cursor-pointer hover:bg-[#eaeaed] transition-colors"
+                            >
+                                다시 촬영
+                            </button>
+                            <button
+                                type='button'
+                                onClick={handlePhotoUse}
+                                className="w-1/2 h-11 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors"
+                            >
+                                이 사진 사용
+                            </button>
                         </>
                     )}
                 </footer>

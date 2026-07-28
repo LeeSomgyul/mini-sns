@@ -6,6 +6,7 @@ import { ROUTES } from "../../constants/routes";
 import {SettingsModal} from "../../pages/SettingsModal";
 import {PostFormModal} from "../../features/post/pages/PostFormModal";
 import { useAuthStore } from "../../features/auth/store/authStore";
+import { usePostModalStore } from "../store/usePostModalStore";
 
 //[아이콘] 홈 (집 모양)
 const HomeIcon = () => (
@@ -54,6 +55,9 @@ const Navigation = () => {
     const { myUserId } = useAuthStore();
     const currentUserId = myUserId ?? 0;
 
+    // 게시물 작성/수정 모달이 (수정 버튼 등) 다른 경로로 열렸을 때도 '피드 작성' 아이콘을 활성화하기 위함
+    const globalPostModal = usePostModalStore((state) => state.activeModal);
+
     const NAV_ITEMS: NavItemType[] = [
         {id: 'feed', path: ROUTES.FEED, label: '홈', type: 'link'},
         {id: 'write', path: null, label: '피드 작성', type: 'modal'},
@@ -88,9 +92,13 @@ const Navigation = () => {
         <div className="flex flex-col items-center gap-5">
             {NAV_ITEMS.map((item) => {
                 //현재 활성화 되고있는 네비게이션 바
-                const isActive = item.path === ROUTES.FEED//금방 클릭한 path경로가 '/'와 같은가? (바로아래로)
-                    ? location.pathname === ROUTES.FEED//현재 위치 path경로가 '/'와 같은가?
-                    : item.path !== null && location.pathname.includes(item.path);//변수에 현재 route(feed 또는 profile) 저장
+                const isActive = item.type === 'modal'
+                    ? item.id === 'write'
+                        ? activeModal === 'write' || globalPostModal === 'write'//나브 클릭 또는 수정 버튼 등 다른 경로로 열렸을 때 모두 반영
+                        : activeModal === item.id
+                    : item.path === ROUTES.FEED//금방 클릭한 path경로가 '/'와 같은가? (바로아래로)
+                        ? location.pathname === ROUTES.FEED//현재 위치 path경로가 '/'와 같은가?
+                        : item.path !== null && location.pathname.includes(item.path);//변수에 현재 route(feed 또는 profile) 저장
 
                 const Icon = NAV_ICONS[item.id];
 

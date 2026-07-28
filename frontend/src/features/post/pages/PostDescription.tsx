@@ -42,20 +42,20 @@ export default function PostDescription({mode, disabled}: PostDescriptionProps) 
                 };
 
                 return(
-                    <div style={{ marginBottom: '0.7rem' }}>
+                    <div className="flex flex-col h-full">
                         {/* 상단 글자 수 카운터 */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
-                            <div style={{ margin: 0 }}>글 작성</div>
-                            <span style={{ fontSize: '0.875rem', color: value.length >= 500 ? 'red' : '#6b7280' }}>
+                        <div className="flex justify-between items-end mb-2">
+                            <span className="text-[13.5px] font-semibold text-[#1c1c21]">글 작성</span>
+                            <span className={`text-xs ${value.length >= 500 ? 'text-red-500' : 'text-[#9a9aa3]'}`}>
                                 ({value.length} / 500)
                             </span>
                         </div>
 
                         {/* 하단 입력창 */}
-                        <textarea 
-                            placeholder="어떤 일이 있었나요?" 
-                            maxLength={500} 
-                            style={{ resize: 'none', minHeight: '150px', width: '100%', overflow: 'hidden'}}
+                        <textarea
+                            placeholder="어떤 일이 있었나요?"
+                            maxLength={500}
+                            className="flex-1 min-h-[150px] w-full resize-none overflow-hidden rounded-2xl bg-white border border-black/10 px-4 py-3.5 text-[13.5px] text-[#3a3a41] outline-none focus:border-[#5cc8f1] disabled:opacity-60"
                             value={value}//사용자 실시간 입력값
                             onChange={handleTextChange}
                             ref={(node) => {
