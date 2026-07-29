@@ -69,15 +69,16 @@ export const NicknameCheckBtn = () => {
     };
 
     return (
-        <label>
-            닉네임
-            <div className="grid" style={{ gridTemplateColumns: '1fr auto', gap: '0.5rem', alignItems: 'start' }}>
-                <input 
-                    type="text" 
+        <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-[#2b2b31]">닉네임</span>
+            <div className="grid grid-cols-[1fr_auto] gap-2 items-start">
+                <input
+                    type="text"
                     placeholder="닉네임 입력"
                     maxLength={10}
                     aria-invalid={errors.nickname ? "true" : successMessage ? "false" : undefined}
-                    {...register('nickname', { 
+                    className="h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 outline-none focus:border-[#5cc8f1] transition-colors placeholder:text-gray-400"
+                    {...register('nickname', {
                         onChange: (e) => {
                             // 1. 글자가 1글자라도 바뀌면 성공 메시지 & 기존 에러 초기화
                             setValue('isNicknameChecked', false);
@@ -100,33 +101,28 @@ export const NicknameCheckBtn = () => {
                         }
                     }}
                 />
-                <button 
+                <button
                     type="button"
-                    className="secondary"
-                    style={{ whiteSpace: 'nowrap' }}
+                    className="h-11 shrink-0 whitespace-nowrap rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleNicknameDuplicate}
                     disabled={!currentNickname.trim()}
                 >
-                    {isPending ? '⏳' : '중복확인'}
+                    {isPending ? '확인 중...' : '중복확인'}
                 </button>
             </div>
 
             {/* 에러메시지 출력 공간 */}
             {(errors.nickname?.message || localErrorMessage) && (
-                <small
-                    style={{ color: 'var(--pico-form-element-invalid-border-color)' }}
-                >
+                <span className="mt-1 block text-xs text-red-500">
                     {errors.nickname?.message || localErrorMessage}
-                </small>
+                </span>
             )}
 
             {/* 성공메시지 출력 공간 */}
             {(!errors.nickname && !localErrorMessage) && successMessage && (
-                <small
-                    style={{ color: 'var(--pico-form-element-valid-border-color)' }}
-                >
+                <span className="mt-1 block text-xs text-emerald-600">
                     {successMessage}
-                </small>
+                </span>
             )}
         </label>
     );

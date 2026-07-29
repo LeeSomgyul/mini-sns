@@ -30,7 +30,7 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
         >
             <article
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-[400px] rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
+                className="w-full max-w-[400px] h-[350px] overflow-y-auto rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
             >
                 {/* 헤더: 태그 헤더, 닫기 버튼 */}
                 <header className="flex justify-between items-center px-6 py-4 border-b border-black/5">

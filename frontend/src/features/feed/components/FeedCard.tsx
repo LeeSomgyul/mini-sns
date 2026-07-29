@@ -19,7 +19,7 @@ export const FeedCard = ({post, onDeleteSuccess}: FeedCardProps) => {
     const isAuthor = myUserId !== null && post.author.userId === myUserId;
 
     return(
-        <article className="flex flex-col gap-3 rounded-3xl border border-white/60 bg-white/90 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.07)] p-5">
+        <article className="flex flex-col gap-3 rounded-3xl border border-white/60 bg-white/90 backdrop-blur-xl shadow-[0_5px_10px_rgba(30,30,45,0.07)] p-5">
             <FeedHeader
                 postId={post.postId}
                 author={post.author}

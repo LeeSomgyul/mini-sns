@@ -76,13 +76,21 @@ export const ProfilePage = () => {
     },[postData, selectedPostId]);
 
     if (isLoading) {
-        return <div aria-busy="true" style={{ textAlign: 'center', marginTop: '50px' }}>프로필 데이터를 불러오는 중입니다...</div>;
+        return (
+            <div aria-busy="true" className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-[#8b8b92]">
+                프로필 데이터를 불러오는 중입니다...
+            </div>
+        );
     }
 
     if (isError || !userData || !postData) {
-        return <div className="container">프로필을 불러오는데 실패했습니다.</div>;
+        return (
+            <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-red-500">
+                프로필을 불러오는데 실패했습니다.
+            </div>
+        );
     }
-    
+
 
     // [썸네일 클릭 시 변경 핸들러]
     const handleThumbnailSelect = (postId: number) => {
@@ -94,36 +102,43 @@ export const ProfilePage = () => {
 
 
     return (
-        <main className="container" style={{ display: 'flex', height: '100vh', gap: '2rem', padding: '1rem' }}>
-            {/* 왼쪽: 피드 영역 */}
-            <section style={{ flex: 2, overflowY: 'auto', paddingRight: '1rem' }}>
-                <ProfileFeedDetail 
+        <main className="flex justify-center items-start gap-7 h-[calc(100vh-4rem)]">
+            {/* 왼쪽: 피드 영역 (내부 스크롤) */}
+            <section className="w-full max-w-[640px] h-full overflow-y-auto pb-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/15 transition-colors">
+                <ProfileFeedDetail
                     postId={selectedPostId}
                     onDeleteSuccess={() => setSelectedPostId(null)}
                 />
             </section>
 
-            {/* 오른쪽: 사용자 프로필 영역 */}
-            <aside style={{ flex: 1, minWidth: '300px', height: '100%', overflowY: 'auto' }}>
-                {activePostId !== null ? (
-                    <FeedCommentSidebar
-                        postId={activePostId}
-                        onClose = {closeCommentSide}
-                    />
-                ) : (
-                    <article style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
-                        <ProfileHeader userData={userData} postCount={postData.postCount} />
-                        <hr style={{ margin: '1rem 0' }} />
-                        
-                        <ProfileMediaGrid 
-                            thumbnails={postData.thumbnails} 
-                            onThumbnailSelect={handleThumbnailSelect} 
-                            fetchNextPage={fetchNextPage}
-                            hasNextPage={hasNextPage}
-                            isFetchingNextPage={isFetchingNextPage}
+            {/* 오른쪽: 게시물 댓글 or 프로필 정보 영역 (내부 스크롤, 화면 높이에 맞춰 잘리지 않음) */}
+            <aside className="hidden lg:block w-[400px] shrink-0 h-full py-6">
+                <div className="h-full rounded-[20px] bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_10px_26px_rgba(30,30,45,0.06)] overflow-hidden">
+                    {activePostId !== null ? (
+                        <FeedCommentSidebar
+                            postId={activePostId}
+                            onClose = {closeCommentSide}
                         />
-                    </article>
-                )}
+                    ) : (
+                        <div className="flex flex-col h-full">
+                            {/* 상단 고정: 프로필 정보 */}
+                            <div className="px-5 pt-5 pb-4 border-b border-black/5">
+                                <ProfileHeader userData={userData} postCount={postData.postCount} />
+                            </div>
+
+                            {/* 하단 스크롤: 게시물 썸네일 그리드 */}
+                            <div className="flex-1 overflow-y-auto p-5 mb-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/15 transition-colors">
+                                <ProfileMediaGrid
+                                    thumbnails={postData.thumbnails}
+                                    onThumbnailSelect={handleThumbnailSelect}
+                                    fetchNextPage={fetchNextPage}
+                                    hasNextPage={hasNextPage}
+                                    isFetchingNextPage={isFetchingNextPage}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </aside>
         </main>
     );

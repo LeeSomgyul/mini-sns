@@ -19,6 +19,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
 
     const [hasError, setHasError] = useState(false);
     const [retryKey, setRetryKey] = useState(0);
+    const [previewImgError, setPreviewImgError] = useState(false);
 
     const queryClient = useQueryClient();
     const intervalRef = useRef<number | null>(null);
@@ -53,6 +54,11 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
         };
     },[isProcessing, queryClient]);
 
+    //처리 중 미리보기 이미지가 바뀌면 에러 상태 초기화
+    useEffect(() => {
+        setPreviewImgError(false);
+    },[currentMedia.mediaUrl]);
+
     if(!mediaList || mediaList.length === 0) return null;
 
     //[버튼] 이미지 재시도 
@@ -70,20 +76,39 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
             {/* 1. 백엔드에서 미디어를 비동기로 처리중일 때 */}
             {isProcessing ? (
                 <div className="relative w-full h-full">
-                    {currentMedia.mediaUrl && (
+                    {/* 인스타그램 스타일 스켈레톤 shimmer 배경 */}
+                    <div className="absolute inset-0 animate-skeleton-shimmer" />
+
+                    {currentMedia.mediaUrl && !previewImgError && (
                         <img
                             src={currentMedia.mediaUrl}
-                            alt="업로드 최적화 대기 중"
-                            className="w-full h-full object-cover"
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover"
                             style={{ filter: 'blur(4px) brightness(0.6)' }}
+                            onError={() => setPreviewImgError(true)}
                         />
                     )}
 
                     {/* [오버레이 UI] 미리보기 위에 겹쳐서 진행 상황을 알려주는 스피너 레이어 */}
-                    <div className="absolute inset-0 flex flex-col justify-center items-center text-white bg-black/20">
-                        <div className="text-4xl mb-2 animate-spin">⚙️</div>
-                        <p className="m-0 text-sm font-bold [text-shadow:1px_1px_4px_rgba(0,0,0,0.8)]">
-                            미디어 업로드중...
+                    <div className="absolute inset-0 flex flex-col justify-center items-center p-4 bg-black/30 backdrop-blur-[2px]">
+                        <div className="w-12 h-12 mb-3 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.8"
+                                stroke="currentColor"
+                                className="w-6 h-6 text-white/90"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                                />
+                            </svg>
+                        </div>
+                        <p className="m-0 text-sm font-semibold text-white tracking-wide drop-shadow-md">
+                            영상을 업로드하고 있습니다...
                         </p>
                     </div>
                 </div>

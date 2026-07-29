@@ -54,24 +54,25 @@ export const FollowListItem = ({user, type, isCurrentlyUnfollowed, onToggleUnfol
     }
 
     return(
-    <li 
-        key={user.userId} 
-        style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--pico-border-color)' }}
+    <li
+        key={user.userId}
+        className="flex items-center gap-3 px-3 py-3 last:border-0 rounded-[10px] hover:bg-[#5cc8f1]/10"
     >
         <div
             onClick={handleProfileClick}
+            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
         >
             {/* 프로필 이미지 */}
             <img
-                src={finalImage} 
+                src={finalImage}
                 alt={`${user.nickname} 프로필 이미지`}
-                style={{ width: '45px', height: '45px', borderRadius: '50%', objectFit: 'cover' }}
+                className="w-11 h-11 rounded-full object-cover shrink-0"
             />
 
             {/* 닉네임, 이름 */}
-            <div style={{ flex: 1 }}>
-                <strong style={{ display: 'block', fontSize: '1rem' }}>{user.nickname}</strong>
-                <small style={{ color: 'var(--pico-muted-color)', fontSize: '0.85rem' }}>{user.name}</small>
+            <div className="min-w-0">
+                <strong className="block text-sm font-semibold text-[#2b2b31] truncate">{user.nickname}</strong>
+                <small className="block text-xs text-[#a7a7ae] truncate">{user.name}</small>
             </div>
         </div>
 
@@ -85,8 +86,11 @@ export const FollowListItem = ({user, type, isCurrentlyUnfollowed, onToggleUnfol
                         unfollow({targetUserId: user.userId});
                     }
                 }}
-                className={isCurrentlyUnfollowed ? "" : "outline"}
-                style={{ width: 'auto', margin: 0, padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                className={
+                    isCurrentlyUnfollowed
+                        ? "shrink-0 h-8 px-3 rounded-lg bg-[#5cc8f1] hover:bg-[#49b8e3] text-white text-xs font-semibold cursor-pointer transition-colors"
+                        : "shrink-0 h-8 px-3 rounded-lg border border-gray-200 text-gray-600 hover:text-[#E64D4C] hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
+                }
             >
                 {isCurrentlyUnfollowed ? "팔로우" : "팔로우 취소"}
             </button>

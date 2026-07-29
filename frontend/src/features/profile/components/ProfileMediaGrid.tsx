@@ -56,29 +56,38 @@ export const ProfileMediaGrid = ({
 
   return (
     <>
-      <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
-        {thumbnails.map((thumb, idx) => (
-          <div 
-            key={idx} 
-            style={{ aspectRatio: '1 / 1', backgroundColor: 'var(--pico-muted-color)', cursor: 'pointer' }}
-            onClick={() => onThumbnailSelect(thumb.postId)}
-          >
-            <img 
-              src={thumb.thumbnailUrl} 
-              alt={`게시물 썸네일 ${idx}`} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            />
-          </div>
-        ))}
+      <div className="grid grid-cols-3 gap-2">
+        {thumbnails.map((thumb, idx) => {
+          // 영상 워커가 아직 썸네일을 생성하지 못한 경우 (thumbnailUrl이 ".../null")
+          const isPendingThumbnail = thumb.thumbnailUrl?.endsWith('/null');
+
+          return (
+            <div
+              key={idx}
+              className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
+              onClick={() => onThumbnailSelect(thumb.postId)}
+            >
+              {isPendingThumbnail ? (
+                <div className="w-full h-full animate-skeleton-shimmer" />
+              ) : (
+                <img
+                  src={thumb.thumbnailUrl}
+                  alt={`게시물 썸네일 ${idx}`}
+                  className="w-full h-full object-cover hover:brightness-75 transition-opacity"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* 무한스크롤 바닥 감지 센서 */}
-      <div 
+      <div
         ref={observierRef}
-        style={{ height: '20px', margin: '1rem 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        className="h-5 my-4 flex justify-center items-center"
       >
           {isFetchingNextPage &&
-            <div aria-busy="true"></div>
+            <span aria-busy="true" className="text-xs text-[#a7a7ae]">불러오는 중...</span>
           }
       </div>
     </>
