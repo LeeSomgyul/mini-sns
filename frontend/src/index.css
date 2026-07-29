@@ -36,3 +36,23 @@
   background-size: 400% 100%;
   animation: skeletonShimmer 2.2s ease-in-out infinite;
 }
+
+/* 비디오 플레이어: 중앙 재생/일시정지 아이콘 오버레이 */
+@keyframes centerIconPop {
+  0% { transform: scale(0.75); opacity: 0; }
+  35% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.animate-center-icon-pop {
+  animation: centerIconPop 0.6s ease-out forwards;
+}
+
+@keyframes centerIconIn {
+  from { transform: scale(0.75); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-center-icon-in {
+  animation: centerIconIn 0.25s ease-out forwards;
+}

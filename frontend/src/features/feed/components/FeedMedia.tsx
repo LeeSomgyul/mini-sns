@@ -76,7 +76,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
             {/* 1. 백엔드에서 미디어를 비동기로 처리중일 때 */}
             {isProcessing ? (
                 <div className="relative w-full h-full">
-                    {/* 인스타그램 스타일 스켈레톤 shimmer 배경 */}
+                    {/* 스켈레톤 배경 */}
                     <div className="absolute inset-0 animate-skeleton-shimmer" />
 
                     {currentMedia.mediaUrl && !previewImgError && (
@@ -180,9 +180,11 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                 </>
             )}
 
-            {/* 3. 하단 중앙 인디케이터 */}
+            {/* 3. 하단 중앙 인디케이터 (영상일 때는 하단 컨트롤 바와 겹치지 않도록 위로 배치) */}
             {isMulti && (
-                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
+                <div className={`absolute left-1/2 -translate-x-1/2 flex gap-1.5 ${
+                    currentMedia.type === 'VIDEO' ? 'bottom-8' : 'bottom-2.5'
+                }`}>
                     {mediaList.map((_,idx) => (
                         <div
                             key={idx}
