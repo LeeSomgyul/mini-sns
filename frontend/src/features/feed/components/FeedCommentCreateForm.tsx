@@ -3,15 +3,17 @@ import { useCreateCommentMutation } from "../../post/hooks/useCreateCommentMutat
 import toast from "react-hot-toast";
 import { FeedCommentSchema } from "../schemas/FeedCommentSchema";
 import { useAuthStore } from "../../auth/store/authStore";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 export const FeedCommentForm = () => {
 
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    const myUserId = useAuthStore((state) => state.myUserId);
     const myProfileImage = useAuthStore((state) => state.myProfileImageUrl);
-    const finalImage = myProfileImage !== null
-            ? myProfileImage
-            : DEFAULT_PROFILE;
+
+    const finalImage = getProfileImageUrl({
+        profileImageUrl: myProfileImage,
+        userId: myUserId,
+    });
 
     // [상태 관리] 댓글 글자 수 모니터링
     const [textLength, setTextLength] = useState(0);
