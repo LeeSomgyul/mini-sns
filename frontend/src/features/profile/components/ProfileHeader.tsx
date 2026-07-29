@@ -80,19 +80,19 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
           {/* 게시물 수 */}
           <div>
             <span className="block text-lg text-[#a8a8a8]">게시물</span>
-            <strong className="text-lg font-bold text-[#2b2b31]">{formatCount(postCount)}</strong>
+            <strong className="text-xl font-bold text-[#2b2b31]">{formatCount(postCount)}</strong>
           </div>
 
           {/* 팔로워 수 & 클릭 */}
           <div onClick={handleOpenFollowers} className="cursor-pointer hover:opacity-70 transition-opacity">
             <span className="block text-lg text-[#a8a8a8]">팔로워</span>
-            <strong className="text-lg font-bold text-[#2b2b31]">{formatCount(userData.followerCount)}</strong>
+            <strong className="text-xl font-bold text-[#2b2b31]">{formatCount(userData.followerCount)}</strong>
           </div>
 
           {/* 팔로잉 수 & 클릭 */}
           <div onClick={handleOpenFollowings} className="cursor-pointer hover:opacity-70 transition-opacity">
             <span className="block text-lg text-[#a8a8a8]">팔로잉</span>
-            <strong className="text-lg font-bold text-[#2b2b31]">{formatCount(userData.followingCount)}</strong>
+            <strong className="text-xl font-bold text-[#2b2b31]">{formatCount(userData.followingCount)}</strong>
           </div>
         </div>
       </div>

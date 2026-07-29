@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useUserPrivacyInfo } from "../hooks/useUserPrivacyInfo";
 import { FormProvider, useForm } from "react-hook-form";
 import { userPrivacyInfoSchema, type UserPrivacyFormValues } from "../schema/userPrivacyInfoSchema";
@@ -133,15 +134,15 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
     const labelClass = "mb-1.5 block text-sm font-semibold text-[#2b2b31]";
     const fieldErrorClass = "mt-1 block text-xs text-red-500";
 
-    return(
+    return createPortal(
         <dialog
             open
             onClick={handleModalClose}
-            className="fixed inset-0 z-[999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/40 backdrop-blur-sm p-0"
+            className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/50 backdrop-blur-md p-0"
         >
             <article
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-[500px] max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6"
+                className="animate-modal-rise w-full max-w-[500px] max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6"
             >
 
                 {/* 헤더 */}
@@ -255,6 +256,7 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
                     </FormProvider>
                 )}
             </article>
-        </dialog>
+        </dialog>,
+        document.body
     );
 };

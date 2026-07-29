@@ -56,3 +56,13 @@
 .animate-center-icon-in {
   animation: centerIconIn 0.25s ease-out forwards;
 }
+
+/* 모달: 중앙에서 부드럽게 떠오르며 나타나는 등장 애니메이션 */
+@keyframes modalRiseIn {
+  from { transform: translateY(16px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-modal-rise {
+  animation: modalRiseIn 0.28s ease-out;
+}

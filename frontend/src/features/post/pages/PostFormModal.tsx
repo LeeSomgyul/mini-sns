@@ -175,7 +175,7 @@ export const PostFormModal = ({ closeModal, mode, postId }: PostFormModalProps) 
             open
             className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/40 backdrop-blur-sm p-0"
         >
-            <article className="flex flex-col w-[90vw] max-w-[1000px] max-h-[90vh] rounded-[36px] bg-white/60 backdrop-blur-xl border-[1px] border-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6 md:p-8 overflow-hidden">
+            <article className="animate-modal-rise flex flex-col w-[90vw] max-w-[1000px] max-h-[90vh] rounded-[36px] bg-white/60 backdrop-blur-xl border-[1px] border-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6 md:p-8 overflow-hidden">
                 <header className="flex items-center justify-between mb-4">
                     <span className="text-xl font-medium text-[#1c1c21]">{isEdit ? '피드 수정' : '피드 작성'}</span>
                     <button

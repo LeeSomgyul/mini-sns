@@ -30,7 +30,7 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
         >
             <article
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-[400px] h-[350px] overflow-y-auto rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
+                className="animate-modal-rise w-full max-w-[400px] h-[500px] flex flex-col rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
             >
                 {/* 헤더: 태그 헤더, 닫기 버튼 */}
                 <header className="flex justify-between items-center px-6 py-4 border-b border-black/5">
@@ -48,13 +48,13 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                 </header>
 
                 {/* 태그 리스트 영역 (스크롤 처리) */}
-                <div className="max-h-[60vh] overflow-y-auto py-2">
+                <div className="flex-1 flex flex-col overflow-hidden min-h-0 mb-5 ">
                     {isLoading ? (
-                        <div aria-busy="true" className="text-center py-8 text-sm text-[#8b8b92]">
+                        <div aria-busy="true" className="flex-1 flex items-center justify-center text-sm text-[#8b8b92]">
                             데이터를 불러오는 중...
                         </div>
                     ) : taggedUsers.length === 0 ? (
-                        <div className="text-center text-sm text-[#a7a7ae] py-8">
+                        <div className="flex-1 flex items-center justify-center text-sm text-[#a7a7ae] py-8">
                             태그된 사용자가 없습니다.
                         </div>
                     ) : (

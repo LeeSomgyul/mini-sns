@@ -72,7 +72,7 @@ export const FollowListModal = ({type, userId, onClose}: FollowListModalProps) =
         >
             <article
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-[350px] rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
+                className="animate-modal-rise w-full max-w-[350px] rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.12)] p-0 overflow-hidden"
             >
                 {/* 상단 헤더 (리스트 이름 / 모달 닫기 버튼) */}
                 <header className="flex justify-between items-center px-6 py-4 border-b border-black/5">

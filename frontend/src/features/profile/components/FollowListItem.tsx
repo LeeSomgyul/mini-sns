@@ -88,8 +88,8 @@ export const FollowListItem = ({user, type, isCurrentlyUnfollowed, onToggleUnfol
                 }}
                 className={
                     isCurrentlyUnfollowed
-                        ? "shrink-0 h-8 px-3 rounded-lg bg-[#5cc8f1] hover:bg-[#49b8e3] text-white text-xs font-semibold cursor-pointer transition-colors"
-                        : "shrink-0 h-8 px-3 rounded-lg border border-gray-200 text-gray-600 hover:text-[#E64D4C] hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
+                        ? "shrink-0 h-8 w-22 px-3 rounded-lg bg-[#5cc8f1] hover:bg-[#49b8e3] text-white text-xs font-semibold cursor-pointer transition-colors"
+                        : "shrink-0 h-8 w-22 px-3 rounded-lg border border-gray-200 text-gray-600 hover:text-[#E64D4C] hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
                 }
             >
                 {isCurrentlyUnfollowed ? "팔로우" : "팔로우 취소"}

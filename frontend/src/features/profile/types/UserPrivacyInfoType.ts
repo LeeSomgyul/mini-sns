@@ -16,7 +16,7 @@ export interface ProfileNicknameCheck {
 // 프로필 개인정보 수정
 export interface UserPrivacyInfoUpdateRequest{
     nickname: string;
-    phoneNumber: string;
+    phoneNumber: string | null;
     profileImageUrl: string | null;
     isPasswordChanging: boolean;
     currentPassword: string;
