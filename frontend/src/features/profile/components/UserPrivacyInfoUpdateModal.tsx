@@ -146,7 +146,7 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
             >
 
                 {/* 헤더 */}
-                <header className="flex items-center justify-between mb-5 pb-3 border-b border-black/5 shrink-0">
+                <header className="flex items-center justify-between mb-5 pb-3 border-b border-black/10 shrink-0">
                     <strong className="text-lg font-semibold text-[#2b2b31]">개인정보 수정</strong>
 
                     {/* 모달 닫기 버튼 */}
@@ -205,7 +205,7 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
                                     {errors.phoneNumber && <span className={fieldErrorClass}>{errors.phoneNumber.message}</span>}
                                 </label>
 
-                                <hr className="border-black/5 my-1" />
+                                <hr className="border-black/10 my-1" />
 
                                 {/* 비밀번호 변경 토글 (소셜 유저가 아닐 때만 노출) */}
                                 {!userPrivacy.isSocial ? (
