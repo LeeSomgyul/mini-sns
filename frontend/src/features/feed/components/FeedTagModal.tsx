@@ -39,9 +39,11 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                         aria-label="Close"
                         rel="prev"
                         onClick={onClose}
-                        className="m-0 border-0 bg-transparent text-[#2b2b31] cursor-pointer text-lg leading-none"
+                         className="flex items-center justify-center w-8 h-8 rounded-[10px] hover:bg-black/10 cursor-pointer transition-colors"
                     >
-                        ✕
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-5 text-[black/5]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </header>
 
@@ -56,7 +58,7 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                             태그된 사용자가 없습니다.
                         </div>
                     ) : (
-                        <ul className="list-none p-0 m-0">
+                        <ul className="list-none p-0 m-0 py-2 space-y-1 h-[500px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/15 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/30">
                             {taggedUsers.map((user) => {
                                 const finalImage = user.profileImageUrl !== null
                                         ? user.profileImageUrl
@@ -65,18 +67,18 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                                     <li
                                     key={user.userId}
                                     onClick={() => handleUserClick(user.userId)}
-                                    className="flex items-center px-6 py-3 cursor-pointer border-b border-black/5 last:border-b-0 hover:bg-[#f4f4f6] transition-colors"
+                                    className="flex items-center mx-2 px-4 py-2.5 rounded-xl cursor-pointer hover:bg-[#EAF6FD] transition-colors"
                                 >
                                     <img
                                         src={finalImage}
                                         alt={`${user.nickname} 프로필`}
-                                        className="w-11 h-11 rounded-full object-cover mr-4"
+                                        className="w-11 h-11 rounded-full object-cover mr-4 border border-black/10"
                                     />
-                                    <div className="flex flex-col">
-                                        <strong className="text-sm font-semibold text-[#2b2b31]">
+                                    <div className="flex flex-col min-w-0">
+                                        <strong className="text-sm font-semibold text-[#2b2b31] truncate">
                                             {user.nickname}
                                         </strong>
-                                        <small className="text-xs text-[#a7a7ae]">
+                                        <small className="text-xs text-[#a7a7ae] truncate">
                                             {user.name}
                                         </small>
                                     </div>

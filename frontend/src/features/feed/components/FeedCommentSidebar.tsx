@@ -77,9 +77,11 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                 <button
                     aria-label="Close"
                     onClick={onClose}
-                    className="m-0 border-0 bg-transparent text-[#2b2b31] cursor-pointer text-lg leading-none"
+                    className="flex items-center justify-center w-8 h-8 rounded-[10px] hover:bg-black/10 cursor-pointer transition-colors"
                 >
-                    ✕
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-5 text-[black/5]">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </header>
 

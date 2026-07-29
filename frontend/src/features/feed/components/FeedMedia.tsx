@@ -63,7 +63,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
 
     return(
         <div
-            className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden"
+            className="relative w-full aspect-square bg-none rounded-2xl overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -135,17 +135,21 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                     {currentIndex > 0 && (
                         <button
                             onClick={() => setCurrentIndex(prev => prev - 1)}
-                            className="absolute top-1/2 left-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors"
+                            className="absolute top-1/2 left-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors flex items-center justify-center"
                         >
-                            ⬅️
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                            </svg>
                         </button>
                     )}
                     {currentIndex < mediaList.length - 1 && (
                         <button
                             onClick={() => setCurrentIndex(prev => prev + 1)}
-                            className="absolute top-1/2 right-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors"
+                            className="absolute top-1/2 right-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors flex items-center justify-center"
                         >
-                            ➡️
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
                         </button>
                     )}
                 </>

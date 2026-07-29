@@ -26,7 +26,7 @@ export const HomePage = () => {
             {/* 왼쪽: 피드 영역 (내부 스크롤) */}
             <section
                 ref={feedScrollRef}
-                className="w-full max-w-[640px] h-full overflow-y-auto pb-10"
+                className="w-full max-w-[640px] h-full overflow-y-auto pb-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/15 transition-colors"
             >
                 <FeedPage onRefreshScroll={scrollToTap}/>
             </section>

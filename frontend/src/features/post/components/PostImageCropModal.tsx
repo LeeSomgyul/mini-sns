@@ -92,9 +92,11 @@ export default function PostImageCropModal({
                     <button
                         aria-label="Close"
                         onClick={closeModal}
-                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-white hover:bg-black/10 cursor-pointer transition-colors"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-4 text-[black/5]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </header>
 

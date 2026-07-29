@@ -98,7 +98,9 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                                 disabled={isMaxReached}
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#3a3a41" strokeWidth="2" strokeLinecap="round"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5 text-[#3a3a41]">
+                                    <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                                </svg>
                             </button>
                         </div>
                         <button
@@ -107,7 +109,10 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                             disabled={isMaxReached}
                             onClick={uiActions.openWebcamModal}
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 8.5a1.5 1.5 0 011.5-1.5H8l1-2h6l1 2h2.5A1.5 1.5 0 0120 8.5V17a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17V8.5z" stroke="#2f9ec9" strokeWidth="1.6" strokeLinejoin="round"/><circle cx="12" cy="12.5" r="3.4" stroke="#2f9ec9" strokeWidth="1.6"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5 text-[#5cc8f1]">
+                                <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
+                                <path fill-rule="evenodd" d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+                            </svg>
                         </button>
                     </div>
                 )}
@@ -180,7 +185,7 @@ export default function PostMediaUploader({mode}: PostMediaUploader) {
                             }}
                             className={`relative aspect-square rounded-[10px] overflow-hidden flex items-center justify-center border ${
                                 hasMedia ? 'bg-white cursor-pointer' : 'bg-[#e5e7eb] cursor-default'
-                            } ${isChoice ? 'border-2 border-[#5cc8f1]' : 'border-black/50'}`}
+                            } ${isChoice ? 'border-2 border-[#5cc8f1]' : 'border-none'}`}
                         >
                             {hasMedia ? (
                                 <>

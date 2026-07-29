@@ -94,7 +94,9 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
                                 disabled={isActionDisabled}
                                 className="flex items-center justify-center w-6 h-6 rounded-lg text-[#c2c2c8] hover:bg-black/5 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
                             </button>
                         </article>
                     )
