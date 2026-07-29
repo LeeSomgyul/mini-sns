@@ -27,7 +27,7 @@ export const ProfileActionBtn = ({targetUserId, isMe, isFollowing, onOpenPrivacy
     if(isMe){
         return(
             <button
-                className="w-full h-11 rounded-xl bg-black text-white text-sm font-semibold cursor-pointer hover:bg-black/85 transition-colors"
+                className="w-full h-11 rounded-xl bg-[#49B8E3] hover:bg-[#49B8E3]/85 text-white text-sm font-semibold cursor-pointer transition-colors"
                 onClick={onOpenPrivacyInfoModal}
             >
                 개인정보 수정

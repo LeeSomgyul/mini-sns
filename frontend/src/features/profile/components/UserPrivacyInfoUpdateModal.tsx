@@ -142,11 +142,11 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
         >
             <article
                 onClick={(e) => e.stopPropagation()}
-                className="animate-modal-rise w-full max-w-[500px] max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6"
+                className="animate-modal-rise w-full max-w-[500px] max-h-[85vh] flex flex-col rounded-3xl border border-white/60 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6 overflow-hidden"
             >
 
                 {/* 헤더 */}
-                <header className="flex items-center justify-between mb-5">
+                <header className="flex items-center justify-between mb-5 pb-3 border-b border-black/5 shrink-0">
                     <strong className="text-lg font-semibold text-[#2b2b31]">개인정보 수정</strong>
 
                     {/* 모달 닫기 버튼 */}
@@ -161,100 +161,102 @@ export const UserPrivacyInfoUpdateModal = ({isOpen, onClose}: UserPrivacyInfoUpd
                     </button>
                 </header>
 
-                {/* 로딩 및 에러 처리 */}
-                {isLoading && <p aria-busy="true" className="text-center text-sm text-[#8b8b92] py-8">기존 프로필 정보를 불러오는 중입니다...</p>}
-                {isError && <p className="text-center text-sm text-red-500 py-8">데이터를 불러오는 데 실패했습니다.</p>}
+                <div className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                    {/* 로딩 및 에러 처리 */}
+                    {isLoading && <p aria-busy="true" className="text-center text-sm text-[#8b8b92] py-8">기존 프로필 정보를 불러오는 중입니다...</p>}
+                    {isError && <p className="text-center text-sm text-red-500 py-8">데이터를 불러오는 데 실패했습니다.</p>}
 
-                {/* 본문 폼 영역 */}
-                {!isLoading && userPrivacy && (
-                    <FormProvider {...methods}>
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    {/* 본문 폼 영역 */}
+                    {!isLoading && userPrivacy && (
+                        <FormProvider {...methods}>
+                            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
-                            {/* 프로필 이미지 영역*/}
-                            <ProfileImageUploader
-                                currentProfileImageUrl={userPrivacy.profileImageUrl}
-                                onProfileKeyChange={(key) => setFinalProfileKey(key)}
-                            />
-
-                            {/* 읽기 전용 필드들 (이름, 이메일) */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <label className="block">
-                                    <span className={labelClass}>이름</span>
-                                    <input type="text" value={userPrivacy.name} readOnly disabled className={textInputClass} />
-                                </label>
-                                <label className="block">
-                                    <span className={labelClass}>이메일</span>
-                                    <input type="text" value={userPrivacy.email} readOnly disabled className={textInputClass} />
-                                </label>
-                            </div>
-
-                            {/* 수정 가능 필드 (닉네임) */}
-                            <NicknameCheckBtn/>
-
-                            {/* 수정 가능 필드 (전화번호) */}
-                            <label className="block">
-                                <span className={labelClass}>전화번호</span>
-                                <input
-                                    type="text"
-                                    {...register('phoneNumber')}
-                                    placeholder="01012345678 (숫자만 입력)"
-                                    aria-invalid={errors.phoneNumber ? "true" : undefined}
-                                    className={textInputClass}
+                                {/* 프로필 이미지 영역*/}
+                                <ProfileImageUploader
+                                    currentProfileImageUrl={userPrivacy.profileImageUrl}
+                                    onProfileKeyChange={(key) => setFinalProfileKey(key)}
                                 />
-                                {errors.phoneNumber && <span className={fieldErrorClass}>{errors.phoneNumber.message}</span>}
-                            </label>
 
-                            <hr className="border-black/5 my-1" />
-
-                            {/* 비밀번호 변경 토글 (소셜 유저가 아닐 때만 노출) */}
-                            {!userPrivacy.isSocial ? (
-                                <div>
-                                    <button
-                                        type="button"
-                                        className="w-full h-11 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
-                                        onClick={() => setIsPasswordChanging(!isPasswordChanging)}
-                                    >
-                                        {isPasswordChanging ? '비밀번호 변경 취소' : '비밀번호 변경하기'}
-                                    </button>
-
-                                    {/* 토글 오픈 영역 폼 */}
-                                    {isPasswordChanging && (
-                                        <fieldset className="mt-4 flex flex-col gap-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/60">
-                                            <label className="block">
-                                                <span className={labelClass}>현재 비밀번호</span>
-                                                <input type="password" {...register('currentPassword')} placeholder="현재 비밀번호 입력" aria-invalid={errors.currentPassword ? "true" : undefined} className={textInputClass} />
-                                                {errors.currentPassword && <span className={fieldErrorClass}>{errors.currentPassword.message}</span>}
-                                            </label>
-                                            <label className="block">
-                                                <span className={labelClass}>새 비밀번호</span>
-                                                <input type="password" {...register('newPassword')} placeholder="새 비밀번호 입력" aria-invalid={errors.newPassword ? "true" : undefined} className={textInputClass} />
-                                                {errors.newPassword && <span className={fieldErrorClass}>{errors.newPassword.message}</span>}
-                                            </label>
-                                            <label className="block">
-                                                <span className={labelClass}>새 비밀번호 확인</span>
-                                                <input type="password" {...register('confirmPassword')} placeholder="새 비밀번호 확인 입력" aria-invalid={errors.confirmPassword ? "true" : undefined} className={textInputClass} />
-                                                {errors.confirmPassword && <span className={fieldErrorClass}>{errors.confirmPassword.message}</span>}
-                                            </label>
-                                        </fieldset>
-                                    )}
+                                {/* 읽기 전용 필드들 (이름, 이메일) */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <label className="block">
+                                        <span className={labelClass}>이름</span>
+                                        <input type="text" value={userPrivacy.name} readOnly disabled className={textInputClass} />
+                                    </label>
+                                    <label className="block">
+                                        <span className={labelClass}>이메일</span>
+                                        <input type="text" value={userPrivacy.email} readOnly disabled className={textInputClass} />
+                                    </label>
                                 </div>
-                            ) : (
-                                <p className="text-center text-xs text-[#a7a7ae]">
-                                    소셜 로그인 계정은 비밀번호 변경이 불가능합니다.
-                                </p>
-                            )}
 
-                            {/* 최종 제출 버튼 */}
-                            <button
-                                type="submit"
-                                disabled={isPending}
-                                className="h-11 w-full rounded-xl bg-black text-white text-sm font-semibold cursor-pointer hover:bg-black/85 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                저장
-                            </button>
-                        </form>
-                    </FormProvider>
-                )}
+                                {/* 수정 가능 필드 (닉네임) */}
+                                <NicknameCheckBtn/>
+
+                                {/* 수정 가능 필드 (전화번호) */}
+                                <label className="block">
+                                    <span className={labelClass}>전화번호</span>
+                                    <input
+                                        type="text"
+                                        {...register('phoneNumber')}
+                                        placeholder="01012345678 (숫자만 입력)"
+                                        aria-invalid={errors.phoneNumber ? "true" : undefined}
+                                        className={textInputClass}
+                                    />
+                                    {errors.phoneNumber && <span className={fieldErrorClass}>{errors.phoneNumber.message}</span>}
+                                </label>
+
+                                <hr className="border-black/5 my-1" />
+
+                                {/* 비밀번호 변경 토글 (소셜 유저가 아닐 때만 노출) */}
+                                {!userPrivacy.isSocial ? (
+                                    <div>
+                                        <button
+                                            type="button"
+                                            className="w-full h-11 rounded-xl border border-[#49B8E3] text-sm font-semibold text-[#49B8E3] hover:bg-gray-50 cursor-pointer transition-colors"
+                                            onClick={() => setIsPasswordChanging(!isPasswordChanging)}
+                                        >
+                                            {isPasswordChanging ? '비밀번호 변경 취소' : '비밀번호 변경하기'}
+                                        </button>
+
+                                        {/* 토글 오픈 영역 폼 */}
+                                        {isPasswordChanging && (
+                                            <fieldset className="mt-4 flex flex-col gap-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/60">
+                                                <label className="block">
+                                                    <span className={labelClass}>현재 비밀번호</span>
+                                                    <input type="password" {...register('currentPassword')} placeholder="현재 비밀번호 입력" aria-invalid={errors.currentPassword ? "true" : undefined} className={textInputClass} />
+                                                    {errors.currentPassword && <span className={fieldErrorClass}>{errors.currentPassword.message}</span>}
+                                                </label>
+                                                <label className="block">
+                                                    <span className={labelClass}>새 비밀번호</span>
+                                                    <input type="password" {...register('newPassword')} placeholder="새 비밀번호 입력" aria-invalid={errors.newPassword ? "true" : undefined} className={textInputClass} />
+                                                    {errors.newPassword && <span className={fieldErrorClass}>{errors.newPassword.message}</span>}
+                                                </label>
+                                                <label className="block">
+                                                    <span className={labelClass}>새 비밀번호 확인</span>
+                                                    <input type="password" {...register('confirmPassword')} placeholder="새 비밀번호 확인 입력" aria-invalid={errors.confirmPassword ? "true" : undefined} className={textInputClass} />
+                                                    {errors.confirmPassword && <span className={fieldErrorClass}>{errors.confirmPassword.message}</span>}
+                                                </label>
+                                            </fieldset>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-center text-xs text-[#a7a7ae]">
+                                        소셜 로그인 계정은 비밀번호 변경이 불가능합니다.
+                                    </p>
+                                )}
+
+                                {/* 최종 제출 버튼 */}
+                                <button
+                                    type="submit"
+                                    disabled={isPending}
+                                    className="h-11 w-full rounded-xl bg-[#49B8E3] text-white text-sm font-semibold cursor-pointer hover:bg-[#49B8E3]/85 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    저장
+                                </button>
+                            </form>
+                        </FormProvider>
+                    )}
+                </div>
             </article>
         </dialog>,
         document.body

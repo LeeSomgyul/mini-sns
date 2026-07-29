@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import type { UserPrivacyFormValues } from "../schema/userPrivacyInfoSchema";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useProfileNicknameCheckMutation } from "../hooks/useProfileNicknameCheckMutation";
 
 export const NicknameCheckBtn = () => {
@@ -23,16 +23,14 @@ export const NicknameCheckBtn = () => {
     const [, setInputValue] = useState<string>('');
     const { mutateAsync: checkNickname, isPending} = useProfileNicknameCheckMutation();
 
-    // 유저가 닉네임 중복체크 후 사용가능 받아놓고서, 다시 수정한 경우 성공 상태 초기화
-    useEffect(() => {
-        setSuccessMessage('');
-    },[currentNickname]);
-
     // [메서드] 닉네임 중복검사 확인
     const handleNicknameDuplicate = async() => {
         const latestNickname = getValues('nickname');
+
+        // 빈 값 확인
         if(!latestNickname || latestNickname.trim() === '') return;
 
+        // 상태 초기화 및 유효성 검사
         setLocalErrorMessage('');
         setSuccessMessage('');
         setValue('isNicknameChecked', false);
@@ -61,9 +59,15 @@ export const NicknameCheckBtn = () => {
                 setSuccessMessage('사용 가능한 닉네임입니다.');
                 setValue('isNicknameChecked', true, {shouldValidate: true});
             }
-        }catch(error){
+        }catch(error: unknown){
             setSuccessMessage('');
-            setError('nickname', {type: 'server', message: '닉네임 중복 체크 중 오류가 발생했습니다.'});
+
+            const errorMessage = error instanceof Error
+                ? error.message
+                : '닉네임 중복 체크 중 오류가 발생했습니다.';
+
+            setLocalErrorMessage(errorMessage);
+            setError('nickname', {type: 'server', message: errorMessage});
             setValue('isNicknameChecked', false);
         }
     };
@@ -103,7 +107,7 @@ export const NicknameCheckBtn = () => {
                 />
                 <button
                     type="button"
-                    className="h-11 shrink-0 whitespace-nowrap rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-11 shrink-0 whitespace-nowrap rounded-xl border border-gray-200 px-4 text-sm font-normal text-white bg-black hover:bg-[#262626] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleNicknameDuplicate}
                     disabled={!currentNickname.trim()}
                 >

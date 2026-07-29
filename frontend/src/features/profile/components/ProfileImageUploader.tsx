@@ -55,11 +55,11 @@ export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange
         <div className="flex flex-col items-center gap-2 mb-2">
 
             {/* 프로필 이미지 미리보기 영역 */}
-            <div className="relative w-20 h-20">
+            <div className="relative w-20 h-20 ">
                 <img
                     src={displayImageUrl}
                     alt="프로필 미리보기"
-                    className={`w-full h-full rounded-full object-cover transition-opacity ${currentStatus === 'UPLOADING' ? 'opacity-50' : 'opacity-100'}`}
+                    className={`w-full h-full rounded-full object-cover transition-opacity border border-black/10 ${currentStatus === 'UPLOADING' ? 'opacity-50' : 'opacity-100'}`}
                 />
 
                 {/* 업로드 중일 때 이미지 한가운데에 로딩중 표시 띄우기 */}
@@ -73,7 +73,7 @@ export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange
             {/* 업로드 버튼 연결 */}
             <button
                 type="button"
-                className="h-8 px-3 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-8 px-3 rounded-lg bg-black hover:bg-[#262626] border border-gray-200 text-xs font-normal text-white cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleButtonClick}
                 disabled={currentStatus === 'UPLOADING'}
             >
