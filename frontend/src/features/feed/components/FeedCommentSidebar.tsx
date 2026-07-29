@@ -109,6 +109,7 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                                 onEditClick={() => setEditingCommentId(comment.commentId)}
                                 onCancelEdit={() => setEditingCommentId(null)}
                                 onDeleteClick={handleDeleteComment}
+                                onClose={onClose}
                             />
                         ))}
 

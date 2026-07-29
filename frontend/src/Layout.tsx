@@ -1,10 +1,21 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Navigation from "./common/components/Navigation";
 import { GlobalModalProvider } from "./common/provider/GlobalModalProvider";
+import { useCommentStore } from "./common/store/useCommentStore";
 
 // [네비게이션]
 // 모든 페이지에서 공통으로 보이는 틀 지정
 const Layout = () => {
+
+    const location = useLocation();
+    const closeCommentSide = useCommentStore((state) => state.closeCommentSide);
+
+    // [페이지/라우트 전환 시] 열려있던 댓글창 상태 초기화
+    useEffect(() => {
+        closeCommentSide();
+    },[location.pathname, closeCommentSide]);
+
     return(
         <div className="relative min-h-screen">
             {/* 오로라 키 컬러 배경 장식 */}

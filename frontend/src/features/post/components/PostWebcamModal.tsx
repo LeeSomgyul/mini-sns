@@ -134,7 +134,7 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
     return createPortal(
         <dialog
             open
-            className="fixed inset-0 z-[1000] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/80 p-0"
+            className="fixed inset-0 z-[9999] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center bg-black/90 backdrop-blur-sm p-0"
         >
             <article className="w-[90vw] max-w-[600px] rounded-3xl bg-white/95 backdrop-blur-xl border border-white/60 shadow-[0_30px_70px_rgba(0,0,0,0.2)] p-5">
                 {/* 상단 영역 */}
@@ -143,9 +143,11 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
                     <button
                         aria-label="Close"
                         onClick={closeModal}
-                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-white hover:bg-black/10 cursor-pointer transition-colors"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#6a6a72" strokeWidth="2" strokeLinecap="round"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 text-[#54545c]">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </header>
 
@@ -184,7 +186,7 @@ export default function PostWebcamModal({closeModal, captureResult}: PostWebcamM
                             <button
                                 type='button'
                                 onClick={handleRetake}
-                                className="w-1/2 h-11 rounded-xl bg-[#f4f4f6] text-[#3a3a41] text-sm font-semibold cursor-pointer hover:bg-[#eaeaed] transition-colors"
+                                className="w-1/2 h-11 rounded-xl bg-[white]  border border-[#49b8e3] text-[#49b8e3] text-sm font-semibold cursor-pointer hover:bg-[white]/30 transition-colors"
                             >
                                 다시 촬영
                             </button>
