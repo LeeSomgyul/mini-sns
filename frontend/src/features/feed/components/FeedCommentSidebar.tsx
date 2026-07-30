@@ -12,8 +12,6 @@ interface FeedCommentSidebarProps {
 
 export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) => {
 
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-    
     // [상태] 수정중인 댓글 아이디
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
@@ -104,7 +102,6 @@ export const FeedCommentSidebar = ({postId, onClose}: FeedCommentSidebarProps) =
                             <FeedCommentList
                                 key={comment.commentId}
                                 comment={comment}
-                                DEFAULT_PROFILE={DEFAULT_PROFILE}
                                 isEditing={editingCommentId === comment.commentId}
                                 onEditClick={() => setEditingCommentId(comment.commentId)}
                                 onCancelEdit={() => setEditingCommentId(null)}

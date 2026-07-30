@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useFeedTags } from "../hooks/useFeedTags";
 import { ROUTES } from "../../../constants/routes";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 interface FeedTagModalProps {
     postId: number;
@@ -9,8 +10,6 @@ interface FeedTagModalProps {
 }
 
 export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
-
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     const navigate = useNavigate();
     const { taggedUsers, isLoading } = useFeedTags(postId, isOpen);
@@ -60,9 +59,10 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                     ) : (
                         <ul className="list-none p-0 m-0 py-2 space-y-1 h-[500px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/15 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/30">
                             {taggedUsers.map((user) => {
-                                const finalImage = user.profileImageUrl !== null
-                                        ? user.profileImageUrl
-                                        : DEFAULT_PROFILE;
+                                const profileImageUrl = getProfileImageUrl({
+                                    profileImageUrl: user.profileImageUrl,
+                                    userId: user.userId,
+                                });
                                 return(
                                     <li
                                     key={user.userId}
@@ -70,7 +70,7 @@ export const FeedTagModal = ({postId, isOpen, onClose}: FeedTagModalProps) => {
                                     className="flex items-center mx-2 px-4 py-2.5 rounded-xl cursor-pointer hover:bg-[#EAF6FD] transition-colors"
                                 >
                                     <img
-                                        src={finalImage}
+                                        src={profileImageUrl}
                                         alt={`${user.nickname} 프로필`}
                                         className="w-11 h-11 rounded-full object-cover mr-4 border border-black/10"
                                     />

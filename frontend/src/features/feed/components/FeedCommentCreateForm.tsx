@@ -10,7 +10,7 @@ export const FeedCommentForm = () => {
     const myUserId = useAuthStore((state) => state.myUserId);
     const myProfileImage = useAuthStore((state) => state.myProfileImageUrl);
 
-    const finalImage = getProfileImageUrl({
+    const profileImageUrl = getProfileImageUrl({
         profileImageUrl: myProfileImage,
         userId: myUserId,
     });
@@ -69,7 +69,7 @@ export const FeedCommentForm = () => {
                 <div className="flex gap-2 m-0">
                     {/* 1. 프로필 이미지 */}
                     <img
-                        src={finalImage}
+                        src={profileImageUrl}
                         className="w-11 h-11 rounded-full object-cover border border-black/10"
                     />
                     <div className="relative flex-1 flex flex-col justify-between min-h-[105px] rounded-2xl border border-black/10 bg-[#f4f4f6] p-3 transition-colors focus-within:border-[#5cc8f1] focus-within:bg-white">

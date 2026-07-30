@@ -1,6 +1,8 @@
 import { useProfileImageManager } from "../hooks/useProfileImageManager";
 import { useState, useEffect, useRef } from "react";
 import type { SelectedProfileImageType } from "../types/SelectedProfileImageType";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface ProfileImageUploaderProps {
     currentProfileImageUrl: string | null;
@@ -9,8 +11,7 @@ interface ProfileImageUploaderProps {
 
 export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange}: ProfileImageUploaderProps) => {
 
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    const myUserId = useAuthStore((state) => state.myUserId);
     const [profileState, setUploadState] = useState<SelectedProfileImageType | null>(null);
 
     // [훅] uppy 훅
@@ -18,7 +19,12 @@ export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange
 
     // [변수] 화면에 보여줄 실제 이미지 url 결정
     // - 새로 업로드한 내역이 있다면 해당 이미지 보여주고, 없다면 기존 이미지 보여주기
-    const displayImageUrl = profileState?.previewUrl || currentProfileImageUrl || DEFAULT_PROFILE;
+    const profileImage = getProfileImageUrl({
+        profileImageUrl: currentProfileImageUrl,
+        userId: myUserId,
+    });
+
+    const displayImageUrl = profileState?.previewUrl || profileImage;
 
     // [변수] 업로드 진행 상태
     const currentStatus = profileState ? profileState.status : 'IDLE';

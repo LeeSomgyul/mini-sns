@@ -7,6 +7,7 @@ import { FollowListModal } from './FollowListModal';
 import { useQueryClient } from '@tanstack/react-query';
 import { FOLLOW_KEYS } from '../../../constants/queryKey';
 import { useAuthStore } from '../../auth/store/authStore';
+import { getProfileImageUrl } from '../../../common/utils/randomProfileImage';
 
 interface ProfileHeaderProps {
   userData: UserProfileResponse;
@@ -15,13 +16,12 @@ interface ProfileHeaderProps {
 
 // [프로필 우측 상단] 유저 정보 및 액션 버튼
 export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
-  const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-  const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-  const finalImage = userData.profileImageUrl !== null
-      ? MINIO_MEDIA_ENDPOINT + userData.profileImageUrl
-      : DEFAULT_PROFILE;
+  
+  const profileImageUrl = getProfileImageUrl({
+    profileImageUrl: userData.profileImageUrl,
+    userId: userData.userId,
+  });
 
-  console.log(finalImage);
 
   const queryClient = useQueryClient();
 
@@ -69,10 +69,9 @@ export const ProfileHeader = ({ userData, postCount }: ProfileHeaderProps) => {
         {/* 프로필 이미지 */}
         <div className="w-25 h-25 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-black/10">
           <img
-            src={finalImage}
+            src={profileImageUrl}
             alt={`${userData.nickname} 프로필 이미지`}
             className="w-full h-full object-cover"
-            onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}
           />
         </div>
 

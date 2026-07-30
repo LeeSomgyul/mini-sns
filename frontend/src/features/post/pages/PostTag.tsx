@@ -3,6 +3,7 @@ import { useTagUserProfile } from '../hooks/useTagUserProfile';
 import TagSearchModal from '../components/TagSearchModal';
 import { useState } from 'react';
 import type { TagUserProfileResponse } from '../types/TagUserType';
+import { getProfileImageUrl } from '../../../common/utils/randomProfileImage';
 
 interface PostTagProps{
     mode: 'create' | 'edit';
@@ -11,8 +12,6 @@ interface PostTagProps{
 }
 
 export default function PostTag({mode, postId, disabled}: PostTagProps) {
-
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     // 커스텀 훅에서 상태와 메서드 가져오기
     const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
@@ -72,7 +71,11 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
                     const profile = profileMap.get(user.userId);
                     const nickname = profile?.nickname || user.nickname;
                     const name = profile?.name || user.name;
-                    const profileImageUrl = profile?.profileImageUrl || user.profileImageUrl || DEFAULT_PROFILE;
+                    
+                    const profileImageUrl = getProfileImageUrl({
+                        profileImageUrl: profile?.profileImageUrl,
+                        userId: profile?.userId,
+                    });
 
                     return(
                         <article

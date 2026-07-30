@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import type { FeedComment } from "../../post/types/PostCommentType"
 import { FeedCommentUpdateForm } from "./FeedCommentUpdateForm";
 import { ROUTES } from "../../../constants/routes";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 interface FeedCommentListProps{
     comment: FeedComment;
-    DEFAULT_PROFILE: string;
     isEditing: boolean;
     onEditClick: () => void;
     onCancelEdit: () => void;
@@ -13,14 +13,14 @@ interface FeedCommentListProps{
     onClose: () => void;
 }
 
-export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClick, onCancelEdit, onDeleteClick, onClose}: FeedCommentListProps) => {
-    
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const finalImage = comment.author.profileImageUrl !== null
-        ? MINIO_MEDIA_ENDPOINT+comment.author.profileImageUrl
-        : DEFAULT_PROFILE;
+export const FeedCommentList = ({comment, isEditing, onEditClick, onCancelEdit, onDeleteClick, onClose}: FeedCommentListProps) => {
 
     const navigate = useNavigate();
+
+    const profileImage = getProfileImageUrl({
+        profileImageUrl: comment.author.profileImageUrl,
+        userId: comment.author.userId,
+    });
 
     const handleUserClick = (userId: number) => {
         onClose();
@@ -34,7 +34,7 @@ export const FeedCommentList = ({comment, DEFAULT_PROFILE, isEditing, onEditClic
         >
             {/* 작성자 프로필 이미지 */}
             <img
-                src={finalImage || DEFAULT_PROFILE}
+                src={profileImage}
                 alt={`${comment.author.nickname} 프로필`}
                 onClick={() => handleUserClick(comment.author.userId)}
                 className="w-11 h-11 rounded-full object-cover flex-shrink-0 border border-black/10 cursor-pointer"

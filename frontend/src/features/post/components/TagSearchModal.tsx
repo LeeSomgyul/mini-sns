@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useDebounce } from "../../../common/hook/useDebounce";
 import type { UserInfo } from "../../search/types/userSearchType";
 import { useTagUserSearchInfiniteQuery } from "../../search/hooks/useTagUserSearchInfiniteQuery";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 
 interface TagSearchModalProps{
@@ -21,10 +22,7 @@ interface TagSearchModalProps{
 
 //[태그 검색] 모달
 export default function TagSearchModal({isOpen, onComplete, onCloseModal, initialTags}: TagSearchModalProps){
-
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    
     const [tagList, setTagList] = useState<TagUserType[]>([]);//선택한 태그 리스트
     const [keyword, setKeyword] = useState('');//사용자가 실시간으로 검색하는 값
     const debouncedKeyword = useDebounce(keyword, 500);//디바운스 적용 후 검색되는 값
@@ -188,9 +186,10 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                                     }
                                 };
 
-                                const finalImage = user.profileImageUrl !== null
-                                    ? MINIO_MEDIA_ENDPOINT+user.profileImageUrl
-                                    : DEFAULT_PROFILE;
+                                const profileImageUrl = getProfileImageUrl({
+                                    profileImageUrl: user.profileImageUrl,
+                                    userId: user.userId,
+                                });
 
                                 return(
                                     <article
@@ -203,7 +202,7 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                                         {/* 프로필, 닉네임, 이름 */}
                                         <div className="flex items-center gap-2">
                                             <img
-                                                src={finalImage}
+                                                src={profileImageUrl}
                                                 alt={`${user.nickname} 프로필`}
                                                 className="w-8 h-8 rounded-full object-cover"
                                             />

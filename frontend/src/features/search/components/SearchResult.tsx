@@ -2,15 +2,14 @@ import { useUserSearchQuery } from '../hooks/useUserSearchQuery';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../constants/routes';
+import { getProfileImageUrl } from '../../../common/utils/randomProfileImage';
 
 interface SearchResultProps {
     keyword: string;
 }
 
 export const SearchResult = ({ keyword }: SearchResultProps) => {
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    
     const {
         data,//실제 화면에 보일 데이터
         isLoading,//api에서 response로 가져오는중 여부
@@ -78,7 +77,12 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
             <div className="flex flex-col gap-3">
                 {users.map((user) => {
                     if (!user) return null;
-                    const finalImage = MINIO_MEDIA_ENDPOINT + user.profileImageUrl;
+
+                    const profileImageUrl = getProfileImageUrl({
+                        profileImageUrl: user.profileImageUrl,
+                        userId: user.userId,
+                      });
+
                     return (
                         <div
                             key={user.userId}
@@ -86,10 +90,9 @@ export const SearchResult = ({ keyword }: SearchResultProps) => {
                             onClick={() => navigate(ROUTES.PROFILE.LINK(user.userId))}
                         >
                             <img
-                                src={finalImage || DEFAULT_PROFILE}
-                                onError={(e) => { e.currentTarget.src = DEFAULT_PROFILE; }}
+                                src={profileImageUrl}
                                 alt={user.nickname}
-                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-black/10"
                             />
                             <div className="flex flex-col">
                                 <strong className="text-sm font-semibold text-[#3a3a41]">{user.nickname}</strong>

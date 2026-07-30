@@ -3,6 +3,7 @@ import { useFollowMutation } from "../hooks/useFollowMutation";
 import { useUnfollowMutation } from "../hooks/useUnfollowMutation";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../constants/routes";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 interface FollowListItemProps{
     user: FollowContentDto;
@@ -16,12 +17,10 @@ interface FollowListItemProps{
 
 export const FollowListItem = ({user, type, isCurrentlyUnfollowed, onToggleUnfollow, onCloseModal}: FollowListItemProps) => {
 
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
-    const finalImage = user.profileImageUrl !== null
-        ? MINIO_MEDIA_ENDPOINT+user.profileImageUrl
-        : DEFAULT_PROFILE;
+    const profileImageUrl = getProfileImageUrl({
+        profileImageUrl: user.profileImageUrl,
+        userId: user.userId,
+    });
 
     // [훅]
     // 1. 팔로우    
@@ -64,7 +63,7 @@ export const FollowListItem = ({user, type, isCurrentlyUnfollowed, onToggleUnfol
         >
             {/* 프로필 이미지 */}
             <img
-                src={finalImage}
+                src={profileImageUrl}
                 alt={`${user.nickname} 프로필 이미지`}
                 className="w-11 h-11 rounded-full object-cover shrink-0"
             />

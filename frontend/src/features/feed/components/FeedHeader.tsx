@@ -4,6 +4,7 @@ import { useDeletePost } from "../../post/hooks/useDeletePost";
 import { usePostModalStore } from "../../../common/store/usePostModalStore";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../constants/routes";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 interface FeedHeaderProps {
     postId: number;
@@ -17,8 +18,10 @@ interface FeedHeaderProps {
 //@param {FeedHeaderProps} props - 작성자 정보, 작성 시간, 본인 여부
 export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSuccess}: FeedHeaderProps) => {
 
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
+    const profileImageUrl = getProfileImageUrl({
+        profileImageUrl: author.profileImageUrl,
+        userId: author.userId,
+    });
 
     const navigate = useNavigate();
     const {mutate: deletePost, isPending} = useDeletePost({
@@ -29,7 +32,6 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
         }
     });
     const {openEditModal} = usePostModalStore();
-    const finalImage = MINIO_MEDIA_ENDPOINT + author.profileImageUrl;
 
     // [삭제 버튼 클릭]
     const handleDeletePost = () => {
@@ -48,10 +50,9 @@ export const FeedHeader = ({ postId, author, createdAt, isAuthor, onDeleteSucces
                 onClick={() => navigate(ROUTES.PROFILE.LINK(author.userId))}
             >
                 <img
-                    src={finalImage || DEFAULT_PROFILE}
+                    src={profileImageUrl}
                     alt={`${author.nickname} 프로필`}
                     className="w-11 h-11 rounded-full object-cover flex-shrink-0 border border-black/10"
-                    onError={(e) => {e.currentTarget.src = DEFAULT_PROFILE}}
                 />
                 <div className="flex flex-col gap-0.5">
                     <span className="text-[15px] font-semibold text-[#2b2b31] leading-tight">
