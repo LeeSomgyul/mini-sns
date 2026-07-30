@@ -19,6 +19,7 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
 
     const [hasError, setHasError] = useState(false);
     const [retryKey, setRetryKey] = useState(0);
+    const [previewImgError, setPreviewImgError] = useState(false);
 
     const queryClient = useQueryClient();
     const intervalRef = useRef<number | null>(null);
@@ -53,6 +54,11 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
         };
     },[isProcessing, queryClient]);
 
+    //처리 중 미리보기 이미지가 바뀌면 에러 상태 초기화
+    useEffect(() => {
+        setPreviewImgError(false);
+    },[currentMedia.mediaUrl]);
+
     if(!mediaList || mediaList.length === 0) return null;
 
     //[버튼] 이미지 재시도 
@@ -63,29 +69,46 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
 
     return(
         <div
-            style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#000' }}
+            className="relative w-full aspect-square bg-none rounded-2xl overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             {/* 1. 백엔드에서 미디어를 비동기로 처리중일 때 */}
             {isProcessing ? (
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                    {currentMedia.mediaUrl && (
-                        <img 
-                            src={currentMedia.mediaUrl} 
-                            alt="업로드 최적화 대기 중" 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(4px) brightness(0.6)' }} 
+                <div className="relative w-full h-full">
+                    {/* 스켈레톤 배경 */}
+                    <div className="absolute inset-0 animate-skeleton-shimmer" />
+
+                    {currentMedia.mediaUrl && !previewImgError && (
+                        <img
+                            src={currentMedia.mediaUrl}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover"
+                            style={{ filter: 'blur(4px) brightness(0.6)' }}
+                            onError={() => setPreviewImgError(true)}
                         />
                     )}
 
                     {/* [오버레이 UI] 미리보기 위에 겹쳐서 진행 상황을 알려주는 스피너 레이어 */}
-                    <div style={{
-                        position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', 
-                        justifyContent: 'center', alignItems: 'center', color: 'white', backgroundColor: 'rgba(0,0,0,0.2)'
-                    }}>
-                        <div className="loading-spinner" style={{ fontSize: '2.2rem', marginBottom: '0.6rem', animation: 'spin 2s linear infinite' }}>⚙️</div>
-                        <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 'bold', textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
-                            미디어 업로드중...
+                    <div className="absolute inset-0 flex flex-col justify-center items-center p-4 bg-black/30 backdrop-blur-[2px]">
+                        <div className="w-12 h-12 mb-3 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.8"
+                                stroke="currentColor"
+                                className="w-6 h-6 text-white/90"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                                />
+                            </svg>
+                        </div>
+                        <p className="m-0 text-sm font-semibold text-white tracking-wide drop-shadow-md">
+                            영상을 업로드하고 있습니다...
                         </p>
                     </div>
                 </div>
@@ -98,31 +121,30 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                     />
                 ) : (
                     !hasError ? (
-                        <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                        <div className="relative w-full h-full overflow-hidden">
                             <img
                                 src={`${currentMedia.mediaUrl}?retry=${retryKey}`}
                                 alt="게시물 미디어"
                                 crossOrigin="anonymous"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                className="w-full h-full object-cover"
                                 onError={() => setHasError(true)}
                             />
                         </div>
                     ) : (
                         //이미지 로드 실패 시
-                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <div className="relative w-full h-full">
                             <img
                                 src={ERROR_FALLBACK_IMAGE}
                                 alt="에러 기본 이미지"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                className="w-full h-full object-cover"
                             />
-                            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                                <p style={{ color: 'white', margin: 0, marginBottom: '0.8rem', fontSize: '0.9rem' }}>
+                            <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/50">
+                                <p className="text-white m-0 mb-3 text-sm">
                                     이미지를 불러올 수 없습니다.
                                 </p>
                                 <button
                                     onClick={handleRetry}
-                                    className="outline" 
-                                    style={{ color: 'white', borderColor: 'white', padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}
+                                    className="text-white border border-white rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 transition-colors"
                                 >
                                     🔄 다시 시도
                                 </button>
@@ -138,34 +160,38 @@ export const FeedMedia = ({mediaList}: FeedMediaProps) => {
                     {currentIndex > 0 && (
                         <button
                             onClick={() => setCurrentIndex(prev => prev - 1)}
-                            style={{ position: 'absolute', top: '50%', left: '10px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.7)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}
+                            className="absolute top-1/2 left-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors flex items-center justify-center"
                         >
-                            ⬅️
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                            </svg>
                         </button>
                     )}
                     {currentIndex < mediaList.length - 1 && (
-                        <button 
+                        <button
                             onClick={() => setCurrentIndex(prev => prev + 1)}
-                            style={{ position: 'absolute', top: '50%', right: '10px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.7)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}
+                            className="absolute top-1/2 right-2.5 -translate-y-1/2 w-8 h-8 rounded-full bg-white/70 border-0 cursor-pointer hover:bg-white/90 transition-colors flex items-center justify-center"
                         >
-                            ➡️
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
                         </button>
                     )}
                 </>
             )}
 
-            {/* 3. 하단 중앙 인디케이터 */}
+            {/* 3. 하단 중앙 인디케이터 (영상일 때는 하단 컨트롤 바와 겹치지 않도록 위로 배치) */}
             {isMulti && (
-                <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px' }}>
+                <div className={`absolute left-1/2 -translate-x-1/2 flex gap-1.5 ${
+                    currentMedia.type === 'VIDEO' ? 'bottom-8' : 'bottom-2.5'
+                }`}>
                     {mediaList.map((_,idx) => (
                         <div
                             key={idx}
                             onClick={() => setCurrentIndex(idx)}
-                            style={{
-                                width: '8px', height: '8px', borderRadius: '50%', cursor: 'pointer',
-                                backgroundColor: idx === currentIndex ? '#007BFF' : 'rgba(255,255,255,0.5)',
-                                border: idx === currentIndex ? 'none' : '1px solid white'
-                            }}
+                            className={`w-2 h-2 rounded-full cursor-pointer ${
+                                idx === currentIndex ? 'bg-[#5cc8f1]' : 'bg-white/50 border border-white'
+                            }`}
                         />
                     ))}
                 </div>

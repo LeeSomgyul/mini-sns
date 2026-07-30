@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 
 import { loginSchema, type LoginFormValues } from "../schemas/loginSchema";
 import { useLoginMutation } from "../hooks/useLoginMutation";
+import LoginArtwork from "../components/LoginArtwork";
 
 const LoginPage = () => {
     // 1. API 통신 이후 응답
@@ -39,65 +40,75 @@ const LoginPage = () => {
         : null;
 
     return(
-        <main className="container">
-            <article className="grid">
+        <main className="min-h-screen flex items-center justify-center bg-white px-4">
+            <div className="grid grid-cols-1 md:grid-cols-[696px_1fr] gap-0 w-full max-w-[1160px] h-auto md:h-[700px] rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(20,20,30,0.10)]">
                 {/* 왼쪽: 로고 및 그래픽 영역 */}
-                <div>
-                    <hgroup>
-                        <h1>로고</h1>
-                        <p>서비스 관련 그래픽 요소</p>
-                    </hgroup>
+                <div className="hidden md:block relative m-5 rounded-[30px] overflow-hidden bg-[#f6f6f4] bg-[radial-gradient(at_0%_0%,rgba(92,200,241,0.6)_0px,transparent_50%),radial-gradient(at_100%_0%,rgba(247,220,163,0.6)_0px,transparent_50%),radial-gradient(at_0%_100%,rgba(214,222,159,0.6)_0px,transparent_50%),radial-gradient(at_100%_100%,rgba(238,199,211,0.6)_0px,transparent_50%)] bg-[length:200%_200%] animate-aurora">
+                    <LoginArtwork />
                 </div>
 
                 {/* 오른쪽: 로그인 폼 영역 */}
-                <div>
-                    <h2>로그인</h2>
-                    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <div className="flex flex-col justify-center px-8 md:px-14 py-10 bg-white">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-9">로그인</h2>
+                    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3.5">
                         {/* 이메일 영역 */}
                         <input
                             type="email"
                             placeholder="이메일"
                             aria-invalid={errors.email ? "true" : "false"}
+                            className="h-[52px] rounded-[14px] border border-transparent focus:border-black bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
                             {...register("email")}
                         />
-                        {errors.email && <small>{errors.email.message}</small>}
+                        {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
 
                         {/* 비밀번호 영역 */}
                         <input
                             type="password"
                             placeholder="비밀번호"
                             aria-invalid={errors.password ? "true" : "false"}
+                            className="h-[52px] rounded-[14px] border border-transparent focus:border-black bg-[#f3f4f6] px-[18px] text-sm text-gray-700 outline-none placeholder:text-gray-400"
                             {...register("password")}
                         />
-                        {errors.password && <small>{errors.password.message}</small>}
+                        {errors.password && <span className="text-xs text-red-500">{errors.password.message}</span>}
 
                         {/* 서버 측 에러 메시지 노출 */}
-                        {serverErrorMessage && <mark>{serverErrorMessage}</mark>}
+                        {serverErrorMessage && <span className="text-xs text-red-500">{serverErrorMessage}</span>}
 
                         {/* 로그인 버튼 */}
-                        <button type="submit" aria-busy={isPending} disabled={isPending}>
+                        <button
+                            type="submit"
+                            aria-busy={isPending}
+                            disabled={isPending}
+                            className="h-[52px] rounded-[14px] border-none bg-[#1c1c21] hover:bg-[#2d2d2d] text-white text-[14.5px] font-medium mt-1 cursor-pointer disabled:opacity-60"
+                        >
                             {isPending ? "로그인 중..." : "로그인"}
                         </button>
                     </form>
 
+                    <div className="flex items-center gap-3 my-6">
+                        <div className="flex-1 h-px bg-gray-200" />
+                        <span className="text-xs text-gray-400">또는</span>
+                        <div className="flex-1 h-px bg-gray-200" />
+                    </div>
+
                     {/* 카카오 로그인 버튼 */}
-                    <button 
-                        className="secondary outline"
+                    <button
                         type="button"
                         onClick={handleKakaoLogin}
+                        className="h-[52px] rounded-[14px] border-none bg-[#FEE500] hover:bg-[#f7de00] text-gray-900 text-[14.5px] font-medium cursor-pointer"
                     >
                         카카오 로그인
                     </button>
 
                     {/* 회원가입 이동 */}
-                    <div>
+                    <div className="text-center mt-6 text-[13px] text-gray-400">
                         <span>
-                            계정이 없으신가요?
-                            <a href="/join">회원가입➡️ </a>
+                            계정이 없으신가요?{" "}
+                            <a href="/join" className="text-gray-900 font-semibold">회원가입 &gt;</a>
                         </span>
                     </div>
                 </div>
-            </article>
+            </div>
         </main>
     );
 };

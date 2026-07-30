@@ -2,55 +2,43 @@
 //@param count: 로딩 스켈레톤 개수 (FeedCardSkeleton를 3개 보여주기)
 export const FeedTopLoading = ({count = 3}: {count?: number}) => {
     return(
-        <>
+        <div className="flex flex-col gap-6 pt-6">
             {Array.from({length: count}).map((_,i) => (
                 <FeedCardSkeleton key={i}/>
             ))}
-        </>
+        </div>
     );
 };
 
 //[컴포넌트] 무한 스크롤 하단 로딩중일때 문구
 export const FeedBottomLoading = () => {
     return(
-        <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <p aria-busy="true">다음 게시물을 가져오는 중...</p>
+        <div className="text-center py-4">
+            <p aria-busy="true" className="text-sm text-[#a7a7ae]">다음 게시물을 가져오는 중...</p>
         </div>
     );
 };
 
 //[FeedTopLoading 로딩 UI] 게시물 1개에서 헤더, 미디어, 텍스트 영역 나눠서 스켈레톤 보여주기
 const FeedCardSkeleton = () => (
-    <article style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #e1e4e8' }}>
+    <article className="rounded-3xl border border-white/60 bg-white/90 backdrop-blur-xl shadow-[0_12px_32px_rgba(30,30,45,0.07)] p-5">
         {/* 헤더 영역 스켈레톤 */}
-        <header style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="skeleton-circle" style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#eee' }} />
-            <div style={{ flex: 1 }}>
-                <div className="skeleton-bar" style={{ width: '30%', height: '12px', backgroundColor: '#eee', marginBottom: '8px' }} />
-                <div className="skeleton-bar" style={{ width: '20%', height: '10px', backgroundColor: '#eee' }} />
+        <header className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-full bg-[#eee] animate-pulse" />
+            <div className="flex-1">
+                <div className="w-[30%] h-3 rounded bg-[#eee] mb-2 animate-pulse" />
+                <div className="w-[20%] h-2.5 rounded bg-[#eee] animate-pulse" />
             </div>
         </header>
 
         {/* 미디어 영역 스켈레톤*/}
-        <div className="skeleton-media" style={{ width: '100%', aspectRatio: '1/1', backgroundColor: '#f5f5f5', marginBottom: '1rem' }} />
+        <div className="w-full aspect-square rounded-2xl bg-[#f5f5f5] mb-4 animate-pulse" />
 
         {/* 하단 텍스트 영역 스켈레톤 */}
         <footer>
-            <div className="skeleton-bar" style={{ width: '90%', height: '12px', backgroundColor: '#eee', marginBottom: '8px' }} />
-            <div className="skeleton-bar" style={{ width: '60%', height: '12px', backgroundColor: '#eee' }} />
+            <div className="w-[90%] h-3 rounded bg-[#eee] mb-2 animate-pulse" />
+            <div className="w-[60%] h-3 rounded bg-[#eee] animate-pulse" />
         </footer>
-
-        {/* 임시 스켈레톤 애니메이션 CSS */}
-        <style>{`
-            @keyframes pulse {
-                0% { opacity: 1; }
-                50% { opacity: 0.4; }
-                100% { opacity: 1; }
-            }
-            .skeleton-circle, .skeleton-bar, .skeleton-media {
-                animation: pulse 1.5s infinite ease-in-out;
-            }
-        `}</style>
     </article>
 );
 

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useDebounce } from "../../../common/hook/useDebounce";
 import type { UserInfo } from "../../search/types/userSearchType";
 import { useTagUserSearchInfiniteQuery } from "../../search/hooks/useTagUserSearchInfiniteQuery";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
 
 
 interface TagSearchModalProps{
@@ -21,10 +22,7 @@ interface TagSearchModalProps{
 
 //[태그 검색] 모달
 export default function TagSearchModal({isOpen, onComplete, onCloseModal, initialTags}: TagSearchModalProps){
-
-    const MINIO_MEDIA_ENDPOINT = `${import.meta.env.VITE_MINIO_MEDIA_ENDPOINT}/`;
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    
     const [tagList, setTagList] = useState<TagUserType[]>([]);//선택한 태그 리스트
     const [keyword, setKeyword] = useState('');//사용자가 실시간으로 검색하는 값
     const debouncedKeyword = useDebounce(keyword, 500);//디바운스 적용 후 검색되는 값
@@ -104,65 +102,60 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
     }
 
     return createPortal(
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999
-        }}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
             {/* 모달 하얀색 박스 */}
-            <div style={{
-                backgroundColor: 'white', width: '100%', maxWidth: '400px', height: '600px',
-                borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden'
-            }}>
+            <div className="w-full max-w-[400px] h-[600px] rounded-3xl bg-white/95 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden">
                 {/* 1. 모달 헤더 */}
-                <header style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '0.5rem', borderBottom: '1px solid #e5e7eb'
-                }}>
+                <header className="flex justify-between items-center px-4 py-2.5 border-b border-black/5">
                     <button
                         type="button"
                         onClick={() => onComplete(tagList)}//부모(PostTag.tsx)에게 전달
-                        style={{ background: 'none', border: 'none', color: '#3b82f6', fontWeight: 'bold', cursor: 'pointer' }}
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-[#5cc8f1] hover:bg-[#49b8e3] cursor-pointer transition-colors"
                     >
-                        완료
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" className="size-4 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
                     </button>
-                    <h4 style={{ margin: 0}}>태그 추가</h4>
+                    <h4 className="m-0 text-base font-semibold text-[#2b2b31]">태그 추가</h4>
                     <button
                         type="button"
                         onClick={handleCloseClick}
-                        style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}
+                        className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-black/5 hover:bg-black/10 cursor-pointer transition-colors"
                     >
-                        ❌
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-4 text-[black/5]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </header>
 
                 {/* 2. 검색창 영역 */}
-                <div style={{ padding: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
-                    <div style={{gap: '0.5rem' }}>
+                <div className="px-4 py-3">
+                    <div className="flex flex-col gap-1.5">
                         <input
                             type="text"
                             placeholder="닉네임 또는 이름으로 검색하세요."
-                            style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                            className="w-full rounded-xl border border-black/10 bg-[#f4f4f6] px-3 py-2 text-sm outline-none focus:border-[#5cc8f1]"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                         />
-                        <div style={{ fontSize: '0.8rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                        <div className="text-xs text-[#a7a7ae] whitespace-nowrap">
                             (태그된 인원: {tagList.length} / 10)
                         </div>
                     </div>
                 </div>
 
                 {/* 3. 검색 결과 리스트 영역 */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9fafb' }}>
+                <div className="flex-1 overflow-y-auto p-4 bg-[#f9fafb]">
                     {!debouncedKeyword.trim() ? (
-                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                        <div className="text-center text-[#a7a7ae] mt-8">
                             사용자를 검색해 보세요.
                         </div>
                     ) : isLoading ? (
-                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                        <div className="text-center text-[#a7a7ae] mt-8">
                             검색 중...
                         </div>
                     ) : searchResults.length === 0 ? (
-                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '2rem' }}>
+                        <div className="text-center text-[#a7a7ae] mt-8">
                             검색 결과가 없습니다.
                         </div>
                     ) : (
@@ -193,63 +186,63 @@ export default function TagSearchModal({isOpen, onComplete, onCloseModal, initia
                                     }
                                 };
 
-                                const finalImage = user.profileImageUrl !== null
-                                    ? MINIO_MEDIA_ENDPOINT+user.profileImageUrl
-                                    : DEFAULT_PROFILE;
-                                
+                                const profileImageUrl = getProfileImageUrl({
+                                    profileImageUrl: user.profileImageUrl,
+                                    userId: user.userId,
+                                });
+
                                 return(
                                     <article
                                         key={user.userId}
                                         onClick={handleToggleUser}
-                                        style={{ 
-                                            padding: '0.5rem', marginBottom: '0.5rem', display: 'flex', 
-                                            justifyContent: 'space-between', alignItems: 'center', 
-                                            backgroundColor: isSelected ? '#eff6ff' : 'white', 
-                                            borderRadius: '8px', border: '1px solid #e5e7eb',
-                                            cursor: 'pointer'
-                                        }}
+                                        className={`flex justify-between items-center px-3 py-2 mb-2 rounded-xl border border-black/5 cursor-pointer transition-colors ${
+                                            isSelected ? 'bg-[#eaf6fd]' : 'bg-white hover:bg-[#f4f4f6]'
+                                        }`}
                                     >
                                         {/* 프로필, 닉네임, 이름 */}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <div className="flex items-center gap-2">
                                             <img
-                                                src={finalImage}
-                                                alt={`${user.nickname} 프로필`} 
-                                                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                                src={profileImageUrl}
+                                                alt={`${user.nickname} 프로필`}
+                                                className="w-8 h-8 rounded-full object-cover"
                                             />
-                                            <span style={{ fontWeight: 'bold' }}>{user.nickname}</span>
-                                            <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>{user.name}</span>
+                                            <span className="font-semibold text-[#2b2b31] text-sm">{user.nickname}</span>
+                                            <span className="text-[#8b8b92] text-sm">{user.name}</span>
                                         </div>
-                                        
+
                                         {/* 체크박스 */}
-                                        <input
-                                            type="checkbox"
-                                            checked={isSelected}
-                                            readOnly
-                                            style={{ margin: 0, pointerEvents: 'none' }}
-                                        />
+                                        {isSelected ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5 text-[#5cc8f1]">
+                                                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-5 text-black/15">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                        )}
                                     </article>
                                 );
                             })}
 
                             {/* 무한스크롤 */}
-                            <div 
+                            <div
                                 ref={bottomSensorRef}
-                                style={{ height: '20px', margin: '1rem 0', display: 'flex', justifyContent: 'center' }}
+                                className="h-5 my-4 flex justify-center"
                             >
                                 {/* 더 불러올 친구가 있는 경우 */}
                                 {isFetchingNextPage && (
-                                    <div style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+                                    <div className="text-[#a7a7ae] text-sm">
                                         🔄 친구를 더 불러오는 중입니다...
                                     </div>
                                 )}
 
                                 {/* 더 이상 불러올 친구가 없는 경우 */}
                                 {!hasNextPage && searchResults.length > 0 && (
-                                    <div style={{ color: '#d1d5db', fontSize: '0.875rem' }}>
+                                    <div className="text-[#d1d5db] text-sm">
                                         마지막 사용자입니다.
                                     </div>
                                 )}
-                            </div>                            
+                            </div>
                         </>
                     )}
                 </div>

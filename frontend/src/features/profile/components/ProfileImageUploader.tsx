@@ -1,6 +1,8 @@
 import { useProfileImageManager } from "../hooks/useProfileImageManager";
 import { useState, useEffect, useRef } from "react";
 import type { SelectedProfileImageType } from "../types/SelectedProfileImageType";
+import { getProfileImageUrl } from "../../../common/utils/randomProfileImage";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface ProfileImageUploaderProps {
     currentProfileImageUrl: string | null;
@@ -9,8 +11,7 @@ interface ProfileImageUploaderProps {
 
 export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange}: ProfileImageUploaderProps) => {
 
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
-
+    const myUserId = useAuthStore((state) => state.myUserId);
     const [profileState, setUploadState] = useState<SelectedProfileImageType | null>(null);
 
     // [훅] uppy 훅
@@ -18,7 +19,12 @@ export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange
 
     // [변수] 화면에 보여줄 실제 이미지 url 결정
     // - 새로 업로드한 내역이 있다면 해당 이미지 보여주고, 없다면 기존 이미지 보여주기
-    const displayImageUrl = profileState?.previewUrl || currentProfileImageUrl || DEFAULT_PROFILE;
+    const profileImage = getProfileImageUrl({
+        profileImageUrl: currentProfileImageUrl,
+        userId: myUserId,
+    });
+
+    const displayImageUrl = profileState?.previewUrl || profileImage;
 
     // [변수] 업로드 진행 상태
     const currentStatus = profileState ? profileState.status : 'IDLE';
@@ -52,64 +58,47 @@ export const ProfileImageUploader = ({currentProfileImageUrl, onProfileKeyChange
 
 
     return(
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 'var(--pico-spacing)' }}>
-            
+        <div className="flex flex-col items-center gap-2 mb-2">
+
             {/* 프로필 이미지 미리보기 영역 */}
-            <div style={{ position: 'relative', width: '80px', height: '80px', marginBottom: '0.5rem' }}>
-                <img 
-                    src={displayImageUrl} 
-                    alt="프로필 미리보기" 
-                    style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        borderRadius: '50%', 
-                        objectFit: 'cover',
-                        opacity: currentStatus === 'UPLOADING' ? 0.5 : 1,
-                        transition: 'opacity 0.2s ease'
-                    }}
+            <div className="relative w-20 h-20 ">
+                <img
+                    src={displayImageUrl}
+                    alt="프로필 미리보기"
+                    className={`w-full h-full rounded-full object-cover transition-opacity border border-black/10 ${currentStatus === 'UPLOADING' ? 'opacity-50' : 'opacity-100'}`}
                 />
 
-                {/* 업로드 중일 때 이미지 한가운데에 로딩중 뱅글이 띄우기 */}
+                {/* 업로드 중일 때 이미지 한가운데에 로딩중 표시 띄우기 */}
                 {currentStatus === 'UPLOADING' && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        fontSize: '1.2rem'
-                    }} aria-busy="true" />
+                    <div aria-busy="true" className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
+                        <span className="text-[10px] font-medium text-white">업로드 중</span>
+                    </div>
                 )}
             </div>
 
             {/* 업로드 버튼 연결 */}
             <button
                 type="button"
-                className="outline secondary" // Pico.css 기본 테두리 버튼 스타일
-                style={{ 
-                    padding: '0.35rem 0.75rem', 
-                    fontSize: '0.85rem', 
-                    margin: 0,
-                    width: 'auto'
-                }}
+                className="h-8 px-3 rounded-lg bg-black hover:bg-[#262626] border border-gray-200 text-xs font-normal text-white cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleButtonClick}
                 disabled={currentStatus === 'UPLOADING'}
             >
                 프로필 이미지 바꾸기
             </button>
 
-            <input 
+            <input
                 ref={fileInputRef}
-                type="file" 
-                accept="image/*" 
-                style={{ display: 'none' }} 
-                onChange={handleProfileFileChange} 
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileFileChange}
             />
 
             {/* 에러 발생 시 안내 문구 */}
             {currentStatus === 'ERROR' && (
-                <small style={{ color: 'var(--pico-form-element-invalid-border-color)', marginTop: '0.25rem' }}>
+                <span className="mt-1 text-xs text-red-500">
                     이미지 업로드에 실패했습니다. 다시 시도해 주세요.
-                </small>
+                </span>
             )}
         </div>
     );

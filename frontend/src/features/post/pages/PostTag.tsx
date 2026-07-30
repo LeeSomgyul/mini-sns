@@ -3,6 +3,7 @@ import { useTagUserProfile } from '../hooks/useTagUserProfile';
 import TagSearchModal from '../components/TagSearchModal';
 import { useState } from 'react';
 import type { TagUserProfileResponse } from '../types/TagUserType';
+import { getProfileImageUrl } from '../../../common/utils/randomProfileImage';
 
 interface PostTagProps{
     mode: 'create' | 'edit';
@@ -11,8 +12,6 @@ interface PostTagProps{
 }
 
 export default function PostTag({mode, postId, disabled}: PostTagProps) {
-
-    const DEFAULT_PROFILE = `${import.meta.env.VITE_MINIO_DEFAULT_URL}/default_profile_image.png`;
 
     // 커스텀 훅에서 상태와 메서드 가져오기
     const { tagUsers, handleAddTag, handleRemoveTag } = useTagManager();
@@ -41,7 +40,7 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
     );
 
     return (
-        <div>
+        <div className="flex flex-col gap-2.5 h-full">
             {/* [모달] 태그 추가 */}
             {isModalOpen && (
                 <TagSearchModal
@@ -54,50 +53,53 @@ export default function PostTag({mode, postId, disabled}: PostTagProps) {
                     }}
                 />
             )}
-            
 
-            <h4 style={{ marginBottom: '0.5rem' }}>태그</h4>
-            <button 
+            <span className="text-[13.5px] font-normal text-[#1c1c21]">태그</span>
+            <button
                 type="button"
-                className="secondary outline" 
-                style={{ width: '100%', marginBottom: '0.7rem' }}
+                className="h-11 w-full rounded-xl bg-[#1c1c21] text-white text-[12.5px] cursor-pointer hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => !isActionDisabled && setIsModalOpen(true)}
                 disabled={isActionDisabled}
             >
                 태그 추가
             </button>
-            
+
             {/* 태그된 유저 리스트 */}
-            <div>
+            <div className="flex flex-col gap-2 overflow-y-auto overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-black/10">
                 {tagUsers.map((user) => {
 
                     const profile = profileMap.get(user.userId);
                     const nickname = profile?.nickname || user.nickname;
                     const name = profile?.name || user.name;
-                    const profileImageUrl = profile?.profileImageUrl || user.profileImageUrl || DEFAULT_PROFILE;
-                
+                    
+                    const profileImageUrl = getProfileImageUrl({
+                        profileImageUrl: profile?.profileImageUrl,
+                        userId: profile?.userId,
+                    });
+
                     return(
                         <article
                             key={user.userId}
-                            style={{ padding: '0.5rem 1rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                            className="flex items-center gap-2 rounded-xl bg-white border border-black/50 px-2.5 py-2"
                         >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <img
-                                    src={profileImageUrl}
-                                    alt={`${user.nickname} 프로필`} 
-                                    style={{ width: '32px', height: '32px', borderRadius: '50%'}}
-                                />
-                                <span style={{ fontWeight: 'bold' }}>{nickname}</span>
-                                <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>{name}</span>
+                            <img
+                                src={profileImageUrl}
+                                alt={`${user.nickname} 프로필`}
+                                className="w-[26px] h-[26px] rounded-full object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0 text-[12.5px] truncate">
+                                <span className="font-semibold text-[#474747]">{nickname}</span>
+                                <span className="text-[#b8b8b8]"> {name}</span>
                             </div>
                             <button
                                 type="button"
-                                className="secondary outline" 
-                                style={{ margin: 0, padding: '0.2rem 0.5rem', width: 'auto', fontSize: '0.8rem' }}
-                                onClick={() => handleRemoveTag(user.userId)}   
+                                onClick={() => handleRemoveTag(user.userId)}
                                 disabled={isActionDisabled}
+                                className="flex items-center justify-center w-6 h-6 rounded-lg text-[#c2c2c8] hover:bg-black/5 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                삭제
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
                             </button>
                         </article>
                     )

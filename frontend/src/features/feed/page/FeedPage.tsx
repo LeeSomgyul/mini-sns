@@ -30,7 +30,7 @@ export const FeedPage = ({onRefreshScroll}: FeedPageProps) => {
     }
 
     return (
-        <div>
+        <div className="flex flex-col">
             <NotificationBanner
                 isVisible={isNewFeedAvailable}
                 onClick={handleRefresh}

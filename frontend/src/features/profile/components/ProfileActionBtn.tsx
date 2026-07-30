@@ -26,9 +26,8 @@ export const ProfileActionBtn = ({targetUserId, isMe, isFollowing, onOpenPrivacy
     // 1. 내 프로필일 경우: '개인정보 수정' 버튼 반환
     if(isMe){
         return(
-            <button 
-                className="secondary outline"
-                style={{ padding: '0.5rem 1rem', width: '100%' }}
+            <button
+                className="w-full h-11 rounded-xl bg-[#49B8E3] hover:bg-[#49B8E3]/85 text-white text-sm font-semibold cursor-pointer transition-colors"
                 onClick={onOpenPrivacyInfoModal}
             >
                 개인정보 수정
@@ -40,8 +39,7 @@ export const ProfileActionBtn = ({targetUserId, isMe, isFollowing, onOpenPrivacy
     if(isFollowing){
         return(
             <button
-                className="contrast outline"
-                style={{ padding: '0.5rem 1rem', width: '100%' }}
+                className="w-full h-11 rounded-xl border border-gray-200 text-gray-700 text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isUnfollowPending}
                 onClick={() => unfollow({targetUserId: targetUserId})}
             >
@@ -53,7 +51,7 @@ export const ProfileActionBtn = ({targetUserId, isMe, isFollowing, onOpenPrivacy
     // 3. 상대방 프로필 & 팔로우 안되어 있는 경우: '팔로우 요청' 버튼 반환
     return(
         <button
-            style={{ padding: '0.5rem 1rem', width: '100%' }}
+            className="w-full h-11 rounded-xl bg-[#5cc8f1] text-white text-sm font-semibold cursor-pointer hover:bg-[#49b8e3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isFollowPending}
             onClick={() => follow({targetUserId: targetUserId})}
         >

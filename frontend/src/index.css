@@ -1,74 +1,68 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import "tailwindcss";
+
+/* 로그인 페이지: 오로라 메쉬 그라데이션 배경 애니메이션 */
+@keyframes auroraShift {
+  0%, 100% { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%; }
+  50% { background-position: 20% 30%, 80% 20%, 25% 80%, 75% 75%; }
 }
 
-body {
-  font-family: sans-serif;
+.animate-aurora {
+  animation: auroraShift 16s ease-in-out infinite;
 }
 
-/*======================================================*/
-/*임시 CSS: 네비게이션*/
-
-/* 전체 레이아웃 */
-.layout-container {
-  display: flex;
-  justify-content: flex-start; /* 중앙 정렬 대신 왼쪽부터 쌓기 */
-  max-width: 1600px;           /* 전체 앱 너비 제한 */
-  margin: 0 auto;              /* ⭐️ 화면 중앙에 배치 */
-  min-height: 100vh;
-  width: 100%;
+/* 피드 페이지: 새 소식 배너 슬라이드 다운 애니메이션 */
+@keyframes slideDown {
+  from { transform: translate(-50%, -20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
 }
 
-/* 1. 왼쪽 네비게이션 영역 고정 */
-.layout-nav {
-  width: 180px;                /* 250에서 조금 더 줄여서 슬림하게 */
-  flex-shrink: 0;              /* 너비 고정 */
-  position: sticky;     
-  justify-content: center;  
-  top: 0;
-  height: 100vh;
-  padding: 40px 10px;          /* 좌우 패딩을 줄여서 텍스트가 꽉 차게 */
-  border-right: 1px solid #dbdbdb; 
-  box-sizing: border-box;
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
 }
 
-.layout-main {
-  flex: 1;                     /* 남는 공간 다 차지 */
-  min-width: 0;                /* 유연한 너비 조절을 위한 안전장치 */
-  padding: 20px 40px;          /* 본문 양옆 여백 */
+/* 피드 미디어: 영상 처리 중 인스타그램 스타일 스켈레톤 shimmer */
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
-/* 3. 네비게이션 메뉴 리스트 */
-.nav-wrapper, .nav-menu {
-  display: flex;
-  flex-direction: column;
-  height: 100%; 
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.animate-skeleton-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    #e5e7eb 30%,
+    #f3f4f6 50%,
+    #e5e7eb 70%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 2.2s ease-in-out infinite;
 }
 
-/* 텍스트 왼쪽 정렬 (이미지에서 중앙정렬된 것처럼 보인다면 추가) */
-.nav-menu li {
-  text-align: left;            /* 텍스트를 왼쪽으로 붙임 */
-  padding: 12px 20px;
+/* 비디오 플레이어: 중앙 재생/일시정지 아이콘 오버레이 */
+@keyframes centerIconPop {
+  0% { transform: scale(0.75); opacity: 0; }
+  35% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
 }
 
-/* 메뉴 아이템 공통 스타일 */
-.nav-menu li {
-  padding: 15px 20px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  font-weight: 500;
+.animate-center-icon-pop {
+  animation: centerIconPop 0.6s ease-out forwards;
 }
 
-.nav-menu li:hover {
-  background-color: #f2f2f2;
+@keyframes centerIconIn {
+  from { transform: scale(0.75); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.nav-menu li.active {
-  font-weight: 700;
+.animate-center-icon-in {
+  animation: centerIconIn 0.25s ease-out forwards;
+}
+
+/* 모달: 중앙에서 부드럽게 떠오르며 나타나는 등장 애니메이션 */
+@keyframes modalRiseIn {
+  from { transform: translateY(16px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-modal-rise {
+  animation: modalRiseIn 0.28s ease-out;
 }
