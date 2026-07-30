@@ -38,3 +38,15 @@ api:
   security:
     permit-urls:
       - "/v1/internal/**"
+
+# [Actuator 관련 설정 (cpu, 메모리, 커넥션 수 수집)]
+# - health: 서버 살아있는지 확인하는 api
+# - prometheus: Prometheus가 가져갈 메트릭 데이터
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: feed-service

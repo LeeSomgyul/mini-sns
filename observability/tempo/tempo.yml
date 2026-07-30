@@ -16,15 +16,6 @@ distributor:
         http:
           endpoint: 0.0.0.0:4318
 
-# 들어온 트레이스를 5분 단위로 묶어서 블록으로 생성
-ingester:
-  max_block_duration: 5m
-
-# 트레이스 데이터를 얼마나 오래 보관할 것인지 (테스트하고 있기 때문에 24시간으로 짧게 설정)
-compactor:
-  compaction:
-    block_retention: 24h
-
 # 트레이스 데이터를 어디에 저장할 것인지
 storage:
   trace:
