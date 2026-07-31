@@ -34,10 +34,13 @@ imgproxy:
   prefix: /insecure
   storage-protocol: s3://mini-sns/
 
+# feed-module에서 보안 검사 안하는 허용 경로
 api:
   security:
     permit-urls:
       - "/v1/internal/**"
+      - "/actuator/health"
+      - "/actuator/prometheus"
 
 # [Actuator 관련 설정 (cpu, 메모리, 커넥션 수 수집)]
 # - health: 서버 살아있는지 확인하는 api
