@@ -30,3 +30,6 @@ replay_pid*
 
 postgres_data/
 minio_data/
+
+# k6 부하테스트 관련 observability의 jar파일
+observability/opentelemetry-agent/*.jar
