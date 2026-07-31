@@ -5,6 +5,9 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -47,7 +50,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3001:3000"
-    mem_limit: 256m
+    mem_limit: 512m
     networks:
       - sns-network
     depends_on:
