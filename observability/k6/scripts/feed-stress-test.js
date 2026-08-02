@@ -5,26 +5,26 @@ const HOST = 'host.docker.internal';
 const USER_PORT = 8081;
 const FEED_PORT = 8084;
 
-// [로드 테스트] GET /api/v1/feed 게시물 조회
+// [스트레스 테스트] GET /api/v1/feed 게시물 조회
 
 // 1. 시나리오 조건
 export const options = {
-    // 가상 유저 수
     stages: [
-        { duration: '30s', target: 20 }, // 0명 -> 20명 30초 동안 증가
-        { duration: '1m', target: 50 },  // 20명 -> 50명 1분 동안 증가
-        { duration: '1m', target: 80 },  // 50명 -> 80명 1분 동안 증가
-        { duration: '3m', target: 80 },  // 80명 3분 동안 유지
-        { duration: '30s', target: 0 },  // 80명 -> 0명 30초 동안 감소
+        { duration: '30s', target: 50 },    // 0명 → 50명 (30초 동안 증가) → 50명 (30초 동안 유지)
+        { duration: '30s', target: 50 },   
+        { duration: '30s', target: 150 },   // 50명 → 150명 (30초 동안 증가) → 150명 (30초 동안 유지)
+        { duration: '30s', target: 150 },  
+        { duration: '30s', target: 300 },   // 150명 → 300명 (30초 동안 증가) → 300명 (30초 동안 유지)
+        { duration: '30s', target: 300 },  
+        { duration: '30s', target: 500 },   // 300명 → 500명 (30초 동안 증가) → 500명 (30초 동안 유지)
+        { duration: '1m', target: 500 },   
+        { duration: '30s', target: 0 },     // 500명 → 0명 (30초 동안 감소)
     ],
-    // 목표 성능 지표
     thresholds: {
-        http_req_duration: ['p(95)<500'], // p95(95%) 응답시간: 500ms 이내
-        http_req_failed: ['rate<0.01'],   // 에러율: 1% 이내
-        checks: ['rate>0.99'],            // 체크 성공률: 99% 이상
+        // 안전장치: 에러율 50% 넘으면 테스트 자동 중단
+        http_req_failed: [{ threshold: 'rate<0.50', abortOnFail: true }],
     },
 };
-
 
 // 2. JWT 토큰 발급을 위한 로그인
 const accounts = [];

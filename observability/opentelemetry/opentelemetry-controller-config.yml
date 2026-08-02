@@ -12,6 +12,8 @@ receivers:
 
 # 트레이스 데이터를 모았다가 한 번에 묶어서 전송
 processors:
+  probabilistic_sampler:
+    sampling_percentage: 10
   batch:
 
 # 데이터를 어디로 보낼지 결정 (Tempo 컨테이너 포트로 전송)
