@@ -50,3 +50,9 @@ management:
   metrics:
     tags:
       application: post-service
+
+# JPA 및 JPQL 쿼리 개선을 위한 로그 코드
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace

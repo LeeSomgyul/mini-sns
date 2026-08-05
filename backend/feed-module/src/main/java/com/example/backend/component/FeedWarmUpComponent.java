@@ -73,18 +73,23 @@ public class FeedWarmUpComponent {
          * - 문제: 만약 팔로워가 1,000명일 때 for문을 돌면서 레디스를 호출하면 네트워크 부하가 걸림
          * - 해결책: 파이프라이닝을 사용하여 1,000개의 명령어를 하나의 패킷으로 묶어 레디스에 단 1번의 네트워크 통신으로 전송
          */
+
+        long start = System.currentTimeMillis();
+        byte[] keyBytes = key.getBytes();
+
         stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             for(int i = recentNormalPosts.size() - 1; i>=0; i--){
                 FeedPostIndexCacheDto indexCache = recentNormalPosts.get(i);
 
                 String combinedValue = indexCache.authorId() + ":" + indexCache.postId();
                 double score = indexCache.postId().doubleValue();
-
-                stringRedisTemplate.opsForZSet().add(key, combinedValue, score);
+                
+                connection.zSetCommands().zAdd(keyBytes, score, combinedValue.getBytes());
             }
             return null;
         });
 
         log.info("[Warm-Up 완료] {}개의 게시글 복구됨",recentNormalPosts.size());
+        log.info("[Redis 쓰기 소요시간] {}ms", System.currentTimeMillis() - start);
     }
 }

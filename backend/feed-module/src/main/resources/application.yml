@@ -12,7 +12,8 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
+      maximum-pool-size: 10
+      leak-detection-threshold: 1000
   jpa:
     hibernate:
       ddl-auto: update
@@ -55,3 +56,11 @@ management:
   metrics:
     tags:
       application: feed-service
+
+# JPA 및 JPQL 쿼리 개선을 위한 로그 코드
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    com.zaxxer.hikari: debug
+    org.postgresql: trace
