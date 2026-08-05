@@ -18,8 +18,13 @@ import java.net.URI;
 @Configuration
 public class MinioConfig {
 
+    // 서버(도커 컨테이너) <--> MiniO 통신용
     @Value("${minio.endpoint}")
     private String endpoint;
+
+    // 브라우저가 접근할 주소 (presigned URL 생성용)
+    @Value("${minio.public-endpoint}")
+    private String publicEndpoint;
 
     @Value("${minio.accessKey}")
     private String accessKey;
@@ -46,7 +51,7 @@ public class MinioConfig {
     @Bean
     public S3Presigner s3Presigner(){
         return S3Presigner.builder()
-                .endpointOverride(URI.create(endpoint))
+                .endpointOverride(URI.create(publicEndpoint))
                 .region(Region.AP_NORTHEAST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)

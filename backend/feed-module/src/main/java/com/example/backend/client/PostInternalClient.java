@@ -12,7 +12,7 @@ import java.util.List;
 // feed 모듈이 데이터 요청 -> post 모듈이 feed 모듈에게 PostInternalResponse 형식에 맞춰 데이터를 넘겨줌
 // - name: 통신 전화기 이름
 // - url: post 모듈 서버인 8082를 바라본다
-@FeignClient(name = "post-module-client", url = "http://localhost:8082/api")
+@FeignClient(name = "post-module-client", url = "${post-service.url}")
 public interface PostInternalClient {
 
     // postIds: post 모듈에서 가져올 게시글 id 목록

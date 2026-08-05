@@ -87,8 +87,8 @@ services:
     environment:
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094 
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094 # 9092 내부용, 9094 외부용 포트
       - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
@@ -142,6 +142,142 @@ services:
       - sns-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  user-module:
+    build:
+      context: ./backend
+      dockerfile: user-module/Dockerfile
+    container_name: user-module
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://minisns-postgres:5432/user_db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT=http://minisns-minio:9000
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - JWT_SECRET=${JWT_SECRET}
+      - KAKAO_RESTAPI_KEY=${KAKAO_RESTAPI_KEY}
+      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
+      - KAKAO_ADMIN_KEY=${KAKAO_ADMIN_KEY}
+      - SPRING_DATA_REDIS_HOST=minisns-redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      - db
+      - kafka
+      - minio
+      - sns-redis
+    networks:
+      - sns-network
+
+  post-module:
+    build:
+      context: ./backend
+      dockerfile: post-module/Dockerfile
+    container_name: post-module
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://minisns-postgres:5432/post_db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT=http://minisns-minio:9000
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - IMGPROXY_ENDPOINT=http://minisns-imgproxy:8080
+      - SPRING_DATA_REDIS_HOST=minisns-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
+      - kafka
+      - minio
+      - imgproxy
+      - sns-redis
+    networks:
+      - sns-network
+
+  feed-module:
+    build:
+      context: ./backend
+      dockerfile: feed-module/Dockerfile
+    container_name: feed-module
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://minisns-postgres:5432/feed_db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT=http://minisns-minio:9000
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - IMGPROXY_ENDPOINT=http://minisns-imgproxy:8080
+      - JWT_SECRET=${JWT_SECRET}
+      - SPRING_DATA_REDIS_HOST=minisns-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - POST_SERVICE_URL=http://post-module:8082/api
+    depends_on:
+      - db
+      - kafka
+      - minio
+      - imgproxy
+      - sns-redis
+    networks:
+      - sns-network
+
+  usersearch-module:
+    build:
+      context: ./backend
+      dockerfile: usersearch-module/Dockerfile
+    container_name: usersearch-module
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://minisns-postgres:5432/usersearch_db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT=http://minisns-minio:9000
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - SPRING_DATA_REDIS_HOST=minisns-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
+      - kafka
+      - minio
+      - sns-redis
+      - elasticsearch
+    networks:
+      - sns-network
+
+  notification-module:
+    build:
+      context: ./backend
+      dockerfile: notification-module/Dockerfile
+    container_name: notification-module
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT=http://minisns-minio:9000
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - kafka
+      - minio
+    networks:
+      - sns-network
 
 networks:
   sns-network:

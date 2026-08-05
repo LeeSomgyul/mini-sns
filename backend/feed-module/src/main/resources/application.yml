@@ -27,6 +27,7 @@ spring:
 
 minio:
   endpoint: http://localhost:9000
+  public-endpoint: http://localhost:9000
   accessKey: ${MINIO_ACCESS_KEY}
   secretKey: ${MINIO_SECRET_KEY}
   bucket: mini-sns
@@ -36,6 +37,9 @@ imgproxy:
   endpoint: http://localhost
   prefix: /insecure
   storage-protocol: s3://mini-sns/
+
+post-service:
+  url: http://localhost:8082/api
 
 # feed-module에서 보안 검사 안하는 허용 경로
 api:
