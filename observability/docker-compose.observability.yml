@@ -1,0 +1,64 @@
+# [Prometheus, Opentelemetry Collector, Tempo, Grafana 4개를 한꺼번에 켜는 도커 컴포즈]
+# - volumes형식) '내 컴퓨터 파일 경로를 : 도터 컨테이너 어디 경로에 저장해라' 는 의미
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    mem_limit: 256m
+    networks:
+      - sns-network
+
+  opentelemetry:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: opentelemetry
+    command: ["--config=/etc/opentelemetry-controller-config.yml"]
+    volumes:
+      - ./opentelemetry/opentelemetry-controller-config.yml:/etc/opentelemetry-controller-config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    mem_limit: 256m
+    networks:
+      - sns-network
+    depends_on:
+      - tempo
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo.yml:ro
+    ports:
+      - "3200:3200"
+    mem_limit: 1g
+    networks:
+      - sns-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    mem_limit: 512m
+    networks:
+      - sns-network
+    depends_on:
+      - prometheus
+      - tempo
+
+# 이미 존재하는 nginx/postgres 등의 컨테이너들과 같은 네트워크에 연결
+networks:
+  sns-network:
+    external: true
+    name: mini-sns_sns-network

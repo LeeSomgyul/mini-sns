@@ -1,0 +1,26 @@
+# [Tempo 설정]
+# - opentelemetry-controller가 넘겨준 트레이스 데이터를 실제 저장하는 곳.
+# - 즉, 트레이스 전용 DB
+
+# Tempo 포트 번호 (Grafana가 트레이스 데이터 조회 시 해당 포트로 조회함)
+server:
+  http_listen_port: 3200
+
+# opentelemetry-controller가 넘겨준 트레이스를 otlp라는 정해진 규격에 담기
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+# 트레이스 데이터를 어디에 저장할 것인지
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal

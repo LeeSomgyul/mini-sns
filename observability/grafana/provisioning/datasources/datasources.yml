@@ -1,0 +1,17 @@
+# [Grafana 설정]
+# - Grafana를 처음 켜면 화면에 Prometheus 주소를 직접 입력해 주어야 함.
+# - 귀찮기 때문에 아래 설정 파일을 통해 Grafana가 켜지자마자 자동으로 Prometheus를 연결하도록 설정.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus # Grafana 화면에 표시될 데이터 소스 이름
+    type: prometheus # 연결할 데이터베이스 종류
+    access: proxy # 데이터 읽기 방식: Grafana 백엔드가 직접 Prometheus에 접속해서 받아옴
+    url: http://prometheus:9090 # Docker 안에 prometheus 컨테이너가 떠 있는 주소
+    isDefault: true # Grafana에서 대시보드 만들 때 이 Prometheus를 기본 DB로 사용하겠다는 설정
+
+  - name: Tempo # Grafana 화면에 표시될 이름
+    type: tempo # 연결할 데이터베이스 종류
+    access: proxy # Prometheus와 동일한 방식
+    url: http://tempo:3200 # Docker 안에 tempo 컨테이너가 떠 있는 주소, 3200은 tempo.yml에서 지정한 포트

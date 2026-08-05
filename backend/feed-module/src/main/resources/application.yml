@@ -11,6 +11,9 @@ spring:
     username: minisns_admin
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      leak-detection-threshold: 1000
   jpa:
     hibernate:
       ddl-auto: update
@@ -34,7 +37,30 @@ imgproxy:
   prefix: /insecure
   storage-protocol: s3://mini-sns/
 
+# feed-module에서 보안 검사 안하는 허용 경로
 api:
   security:
     permit-urls:
       - "/v1/internal/**"
+      - "/actuator/health"
+      - "/actuator/prometheus"
+
+# [Actuator 관련 설정 (cpu, 메모리, 커넥션 수 수집)]
+# - health: 서버 살아있는지 확인하는 api
+# - prometheus: Prometheus가 가져갈 메트릭 데이터
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: feed-service
+
+# JPA 및 JPQL 쿼리 개선을 위한 로그 코드
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    com.zaxxer.hikari: debug
+    org.postgresql: trace

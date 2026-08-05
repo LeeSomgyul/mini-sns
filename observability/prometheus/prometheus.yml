@@ -1,0 +1,23 @@
+# [Prometheus 설정]
+# - Prometheus에게 어디 가서 데이터를 가져와야 할지 알려주는 역할
+
+global:
+  scrape_interval: 15s # 15초마다 한 번씩 지정된 주소로 찾아가서 현재 상태 수치 데이터를 가져온다.
+
+scrape_configs:
+  # 1번 감시대상: prometheus 자기 자신
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2번 감시대상: feed 모듈 (🚨배포 시 targets경로 변경하기)
+  - job_name: feed-service
+    metrics_path: /api/actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8084"]
+  
+  # 3번 감시대상: post 모듈 (🚨배포 시 targets경로 변경하기)
+  - job_name: post-service
+    metrics_path: /api/actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8082"]

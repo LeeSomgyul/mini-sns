@@ -20,6 +20,10 @@ dependencies {
     // 카프카
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // Actuator (cpu, 메모리, 커넥션 수 수집)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // JPA & PostgreSQL
     implementation 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
