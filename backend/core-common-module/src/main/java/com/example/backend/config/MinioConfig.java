@@ -19,12 +19,12 @@ import java.net.URI;
 public class MinioConfig {
 
     // 서버(도커 컨테이너) <--> MiniO 통신용
-    @Value("${minio.endpoint}")
-    private String endpoint;
+    @Value("${minio.internal-endpoint}")
+    private String internalEndpoint;
 
     // 브라우저가 접근할 주소 (presigned URL 생성용)
-    @Value("${minio.public-endpoint}")
-    private String publicEndpoint;
+    @Value("${minio.endpoint}")
+    private String endpoint;
 
     @Value("${minio.accessKey}")
     private String accessKey;
@@ -36,7 +36,7 @@ public class MinioConfig {
     @Bean
     public S3Client s3Client(){
         return S3Client.builder()
-                .endpointOverride(URI.create(endpoint))//로컬 minio 주소와 연결
+                .endpointOverride(URI.create(internalEndpoint))//로컬 minio 주소와 연결
                 .region(Region.AP_NORTHEAST_2)//어느 지역의 서버인지 (서울)
                 .credentialsProvider(StaticCredentialsProvider.create(//id와 비밀번호 전송
                         AwsBasicCredentials.create(accessKey, secretKey)
@@ -51,7 +51,7 @@ public class MinioConfig {
     @Bean
     public S3Presigner s3Presigner(){
         return S3Presigner.builder()
-                .endpointOverride(URI.create(publicEndpoint))
+                .endpointOverride(URI.create(endpoint))
                 .region(Region.AP_NORTHEAST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)

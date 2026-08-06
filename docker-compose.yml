@@ -158,8 +158,8 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_ENDPOINT=http://minisns-minio:9000
-      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - MINIO_ENDPOINT=http://localhost:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minisns-minio:9000
       - JWT_SECRET=${JWT_SECRET}
       - KAKAO_RESTAPI_KEY=${KAKAO_RESTAPI_KEY}
       - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
@@ -187,9 +187,9 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_ENDPOINT=http://minisns-minio:9000
-      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
-      - IMGPROXY_ENDPOINT=http://minisns-imgproxy:8080
+      - MINIO_ENDPOINT=http://localhost:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minisns-minio:9000
+      - IMGPROXY_ENDPOINT=http://localhost
       - SPRING_DATA_REDIS_HOST=minisns-redis
       - SPRING_DATA_REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET}
@@ -215,9 +215,9 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_ENDPOINT=http://minisns-minio:9000
-      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
-      - IMGPROXY_ENDPOINT=http://minisns-imgproxy:8080
+      - MINIO_ENDPOINT=http://localhost:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minisns-minio:9000
+      - IMGPROXY_ENDPOINT=http://localhost
       - JWT_SECRET=${JWT_SECRET}
       - SPRING_DATA_REDIS_HOST=minisns-redis
       - SPRING_DATA_REDIS_PORT=6379
@@ -244,8 +244,8 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_ENDPOINT=http://minisns-minio:9000
-      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - MINIO_ENDPOINT=http://localhost:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minisns-minio:9000
       - SPRING_DATA_REDIS_HOST=minisns-redis
       - SPRING_DATA_REDIS_PORT=6379
       - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
@@ -270,8 +270,8 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_ENDPOINT=http://minisns-minio:9000
-      - MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+      - MINIO_ENDPOINT=http://localhost:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minisns-minio:9000
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - kafka
