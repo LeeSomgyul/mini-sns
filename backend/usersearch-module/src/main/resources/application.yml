@@ -22,6 +22,9 @@ spring:
         show_sql: true
         format_sql: true
 
+cors:
+  allowed-origin: http://localhost:5173
+
 minio:
   endpoint: http://localhost:9000
   internal-endpoint: http://minisns-minio:9000

@@ -16,6 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 //[역할] 종합 보안 설정 뼈대
 // - 내부 자세한 값은 각 자식 모듈의 application.yml에서 끌어와서 적용한다.
@@ -31,13 +36,44 @@ public class CoreSecurityConfig {
     // 자식 모듈의 application.yml에서 허용 목록을 읽어온다.
     private final ApiSecurityProperties apiSecurityProperties;
 
-    //일반 비밀번호와 해시된 비밀번호 비교 메서드
+    // 프론트엔드 도메인
+    // - 로컬: localhost
+    // - AWS: CloudFront 도메인
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
+
+    // [일반 비밀번호와 해시된 비밀번호 비교 메서드]
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    // 서버에 들어오는 모든 API 호출이 통과해야 하는 순서
+    // [CORS 정책 - 프론트엔드 도메인 검증]
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 허용할 주소
+        config.setAllowedOrigins(List.of(allowedOrigin));
+
+        // 허용할 HTTP 메서드
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // 허용할 요청 헤더
+        config.setAllowedHeaders(List.of("*"));
+
+        // 쿠키 및 인증 정보 포함 요청 허용
+        config.setAllowCredentials(true);
+        
+        // 브라우저가 본 요청을 보내기 전 날리는 사전 검사 요청 결과를 1시간동안 브라우저에 캐싱
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    // [서버에 들어오는 모든 API 호출이 통과해야 하는 순서]
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http

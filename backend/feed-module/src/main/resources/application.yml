@@ -23,6 +23,9 @@ spring:
   kafka:
     bootstrap-servers: localhost:9094
 
+cors:
+  allowed-origin: http://localhost:5173
+
 minio:
   endpoint: http://localhost:9000
   internal-endpoint: http://minisns-minio:9000
