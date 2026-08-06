@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 // [user모듈 서버 실행 시 유저 더미데이터 10명 생성]
-// 🚨개발 완료 후 제거하기🚨
 @Slf4j
 @Component
 @Profile("local") // 로컬 개발 환경에서만 작동
