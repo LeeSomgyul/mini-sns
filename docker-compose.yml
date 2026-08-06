@@ -279,6 +279,22 @@ services:
     networks:
       - sns-network
 
+  media-worker:
+    build:
+      context: ./media-worker
+      dockerfile: Dockerfile
+    container_name: media-worker
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      - MINIO_ENDPOINT=minisns-minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    depends_on:
+      - kafka
+      - minio
+    networks:
+      - sns-network
+
 networks:
   sns-network:
     driver: bridge

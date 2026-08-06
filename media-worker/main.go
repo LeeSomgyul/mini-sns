@@ -21,12 +21,16 @@ import (
 )
 
 func main() {
-	brokers := []string{"localhost:9094"}
+	kafkaBroker := os.Getenv("KAFKA_BROKERS")
+	if(kafkaBroker) == "" {
+		kafkaBroker = "localhost:9094"
+	}
+	brokers := []string{kafkaBroker}
 
 	//[1단계] env 파일 로드
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(".env 파일을 찾을 수 없습니다.")
+		log.Println(".env 파일을 찾을 수 없습니다. 환경변수를 직접 사용합니다.")
 	}
 
 	//[2단계] 인프라 준비
