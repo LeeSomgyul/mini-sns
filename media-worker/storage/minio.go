@@ -7,38 +7,77 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type MinioService struct {
-	Client *minio.Client
+	Client *s3.Client // AWS SDK의 S3 클라이언트
 }
 
-// [MiniO 서버와 연결]
-func NewMinioService(endpoint, accessKey, secretKey string, useSSL bool) (*MinioService, error) {
-	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: useSSL,
-	})
+// [1] S3 / MiniO 연결
+// - endpoint: 로컬(MiniO) 접속 주소. (예: http://minisns-minio:9000). AWS 환경에서는 빈 값("")
+// - accessKey, secretKey: 로컬일 때만 전달. AWS에서는 빈 값("") 전달 -> IAM Role 사용
+func NewMinioService(endpoint, accessKey, secretKey, region string) (*MinioService, error) {
+	// context.Background(): Go에서 비동기/타임아웃 제어를 위해 기본으로 넘겨주는 Context 객체
+	ctx := context.Background()
+
+	var cfg aws.Config
+	var err error
+
+	// region 값이 없으면 한국으로 설정
+	if region == "" {
+		region = "ap-northeast-2"
+	}
+
+	// 로컬 or AWS 인증 분기 처리
+	if accessKey != "" && secretKey != "" {
+		// 1. 로컬 처리: 키 값이 들어온 경우 로컬 MiniO 환경
+		cfg, err = config.LoadDefaultConfig(ctx,
+			config.WithRegion(region),
+			config.WithCredentialsProvider(
+				credentials.NewStaticCredentialsProvider(accessKey, secretKey, ""),
+			),
+		)
+	}else{
+		// 2. AWS 처리: 키 값이 공백이면 AWS EC2 환경
+		cfg, err = config.LoadDefaultConfig(ctx, config.WithRegion(region))
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
+	// 클라이언트 생성 (AWS S3 전용 통신 도구)
+	client := s3.NewFromConfig(cfg, func(o *s3.Options){
+		// 로컬(MiniO) 일 때만 주소를 직접 지정
+		if endpoint != "" {
+			o.BaseEndpoint = aws.String(endpoint)
+			o.UsePathStyle = true 
+		}
+	})
+
 	return &MinioService{Client: client}, nil
 }
 
-// [작업할 영상 파일을 MiniO에서 GoWorker의 작업 폴더로 가져오기]
+// [작업할 영상 파일을 S3 또는 MiniO에서 GoWorker의 작업 폴더로 가져오기]
 func (m *MinioService) DownloadFile(bucketName, objectName, localFilePath string) error {
+	// 1. 파일 직접 만들기
+	file, err := os.Create(localFilePath)
+	if err != nil {
+		return fmt.Errorf("로컬 파일 생성 실패: %w", err)
+	}
+	defer file.Close()
 
-	err := m.Client.FGetObject(
-		context.Background(),     //이 함수는 타임아웃 없이 실행
-		bucketName,               //버킷 이름
-		objectName,               //MiniO의 원본 파일 주소
-		localFilePath,            //어디로 파일 전송할 것인지
-		minio.GetObjectOptions{}, //추가 옵션(없음)
-	)
+	// 2. 파일에 데이터 쓰기
+	downloader := manager.NewDownloader(m.Client)
+	_, err = downloader.Download(context.Background(), file, &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectName),
+	})
 
 	return err
 }
@@ -93,33 +132,36 @@ func (m *MinioService) UploadHLSFolder(bucketName, baseObjectDir, tempDir string
 	return nil
 }
 
-// [결과물을 MiniO에 업로드]
+// [결과물을 S3 또는 MiniO에 업로드]
 func (m *MinioService) UploadFile(bucketName, objectName, localFilePath, contentType string) error {
+	// 1. 파일 직접 열기
+	file, err := os.Open(localFilePath)
+	if err != nil {
+		return fmt.Errorf("업로드할 파일 열기 실패: %w", err)
+	}
+	defer file.Close()
 
-	_, err := m.Client.FPutObject(
-		context.Background(),
-		bucketName,
-		objectName,    //저장될 경로
-		localFilePath, //저장할 미디어가 들어있는 임시 폴더
-		minio.PutObjectOptions{
-			ContentType: contentType, //"image/jpeg" or "video/mp4"
-		},
-	)
+	// 2. 파일 저장
+	uploader := manager.NewUploader(m.Client)
+	_, err = uploader.Upload(context.Background(), &s3.PutObjectInput{
+		Bucket:      aws.String(bucketName),
+		Key:         aws.String(objectName),
+		Body:        file,
+		ContentType: aws.String(contentType),
+	})
 
 	return err
 }
 
-// [MiniO에서 원본 파일 제거]
+// [S3 또는 MiniO에서 원본 파일 제거]
 func (m *MinioService) DeleteFile(bucketName, objectName string) error {
-	err := m.Client.RemoveObject(
-		context.Background(),
-		bucketName,
-		objectName,
-		minio.RemoveObjectOptions{},
-	)
+	_, err := m.Client.DeleteObject(context.Background(), &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectName),
+	})
 
 	if err != nil {
-		return fmt.Errorf("MinIO 파일 삭제 실패: %w", err)
+		return fmt.Errorf("S3 파일 삭제 실패: %w", err)
 	}
 
 	return nil

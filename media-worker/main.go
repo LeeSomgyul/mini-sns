@@ -34,12 +34,12 @@ func main() {
 	}
 
 	//[2단계] 인프라 준비
-	//2-1. MiniO 연결 준비
+	//2-1. S3 또는 MiniO 연결 준비
 	minioService, err := storage.NewMinioService(
 		os.Getenv("MINIO_ENDPOINT"),
 		os.Getenv("MINIO_ACCESS_KEY"),
 		os.Getenv("MINIO_SECRET_KEY"),
-		false, //🚨배포 시 true로 변경🚨
+		os.Getenv("AWS_REGION"),
 	)
 
 	if err != nil {
